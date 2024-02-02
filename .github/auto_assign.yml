@@ -1,0 +1,11 @@
+addReviewers: true
+
+
+addAssignees: author
+
+
+reviewers:
+  - Regulus0811
+  - Z00One
+
+numberOfReviewers: 2
