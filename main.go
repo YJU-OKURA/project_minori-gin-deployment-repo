@@ -1,49 +1,39 @@
 package main
 
 import (
+	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
+	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 )
 
-// @title APIドキュメントのタイトル
-// @version バージョン(1.0)
-// @description 仕様書に関する内容説明
-// @termsOfService 仕様書使用する際の注意事項
+// @BasePath /api/v1
 
-// @contact.name APIサポーター
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
-
-// @license.name ライセンス(必須)
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host localhost:8080
-// @BasePath /
-func main() {
-	//infra.Initialize()
-	r := gin.New()
-
-	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-
-	r.GET("/test", test)
-	_ = r.Run("localhost:8080")
+// PingExample godoc
+// @Summary ping example
+// @Schemes
+// @Description do ping
+// @Tags example
+// @Accept json
+// @Produce json
+// @Success 200 {string} Helloworld
+// @Router /example/helloworld [get]
+func Helloworld(g *gin.Context) {
+	g.JSON(http.StatusOK, "helloworld")
 }
 
-// @description テスト用APIの詳細
-// @version 1.0
-// @accept application/x-json-stream
-// @param none query string false "必須ではありません。"
-// @Success 200 {object} gin.H {"code":200,"msg":"ok"}
-// @router /test/ [get]
-func test(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"msg": "ok"})
+func main() {
+	//infra.Initialize()
+	r := gin.Default()
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	v1 := r.Group("/api/v1")
+	{
+		eg := v1.Group("/example")
+		{
+			eg.GET("/helloworld", Helloworld)
+		}
+	}
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	r.Run(":8080")
 }
