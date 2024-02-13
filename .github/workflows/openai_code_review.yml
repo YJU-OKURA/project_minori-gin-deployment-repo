@@ -5,14 +5,14 @@ permissions:
   pull-requests: write
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, synchronize]
 jobs:
   code_review:
     runs-on: ubuntu-latest
     steps:
       - uses: anc95/ChatGPT-CodeReview@main
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.ADMIN_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           LANGUAGE: Korean
