@@ -1,11 +1,7 @@
 addReviewers: true
-
-
 addAssignees: author
-
-
+numberOfReviewers: 0
 reviewers:
   - Regulus0811
   - Z00One
-
-numberOfReviewers: 2
+runOnDraft: true
