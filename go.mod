@@ -1,4 +1,4 @@
-module minori
+module github.com/YJU-OKURA/project_minori-gin-deployment-repo
 
 go 1.19
 
