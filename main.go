@@ -1,11 +1,14 @@
 package main
 
 import (
+	"net/http"
+
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
+
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
 )
 
 // @BasePath /api/v1
@@ -35,5 +38,11 @@ func main() {
 		}
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
+	// Google OAuth2 ラウター
+	r.GET("/", controllers.GoogleForm)
+	r.GET("/auth/google/login", controllers.GoogleLoginHandler)
+	r.GET("/auth/google/callback", controllers.GoogleAuthCallback)
+
 	r.Run(":8080")
 }
