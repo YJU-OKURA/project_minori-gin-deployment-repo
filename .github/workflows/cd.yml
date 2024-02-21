@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   workflow_run:
-    workflows: ['Docker Image CI']
+    workflows: ['Docker Image CI']  # Docker Image CI ワークフローが実行された後に実行
     types:
       - completed
 
@@ -20,7 +20,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
+          script: | # 最新のイメージが実行中でない場合、EC2 インスタンスにデプロイ
             set -e
             IMAGE_TAG=ghcr.io/yju-okura/minori_gin:${{ github.sha }}
             CURRENT_IMAGE=$(sudo docker inspect --format='{{.Config.Image}}' minori_gin || echo "")
