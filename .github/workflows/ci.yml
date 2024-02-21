@@ -2,14 +2,14 @@ name: Docker Image CI
 
 on:
   pull_request_target:
-    types: [closed]
-    branches: [main]
+    types: [closed] # プルリクエストがクローズされたときに実行
+    branches: [main]  # main ブランチに対してのみ実行
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, '🆗 safe') && github.event.pull_request.merged == true
+    if: contains(github.event.pull_request.labels.*.name, '🆗 safe') && github.event.pull_request.merged == true # 「🆗 safe」 ラベルがあり、マージされたプルリクエストに対してのみ実行
 
     steps:
       - uses: actions/checkout@v3
