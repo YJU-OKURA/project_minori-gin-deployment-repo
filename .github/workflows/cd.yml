@@ -1,0 +1,39 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            IMAGE_TAG=ghcr.io/yju-okura/minori_gin:${{ github.sha }}
+            CURRENT_IMAGE=$(sudo docker inspect --format='{{.Config.Image}}' minori_gin || echo "")
+            if [ "$CURRENT_IMAGE" != "$IMAGE_TAG" ]; then
+              sudo docker pull ghcr.io/yju-okura/minori_gin:${{ github.sha }}
+              sudo docker stop minori_gin || true
+              sudo docker rm minori_gin || true
+              sudo docker run -d --name minori_gin -p 80:8080 ghcr.io/yju-okura/minori_gin:${{ github.sha }}
+              echo "Deployment completed successfully"
+            else
+                echo "The latest image is already running."
+            fi
+
+      - name: Check deployment status
+        run: |
+          echo "Checking deployment status..."
+          curl -sSf http://${{ secrets.EC2_HOST }}:80/healthz || echo "Health check failed."
