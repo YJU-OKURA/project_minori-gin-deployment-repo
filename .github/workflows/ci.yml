@@ -15,22 +15,30 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+
       - name: Get the current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3.0.0
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./DockerFile
+          file: ./Dockerfile
           platforms: linux/amd64
           push: true
           tags: |
             ghcr.io/yju-okura/minori_gin:${{ steps.date.outputs.date }}
+            ghcr.io/yju-okura/minori_gin:latest
+          cache-from: type=registry,ref=ghcr.io/yju-okura/minori_gin:cache # キャッシュを利用
+          cache-to: type=inline # キャッシュを保存
+          cache-key: ${{ runner.os }}-build-${{ hashFiles('**/Dockerfile', '**/go.*') }} # キャッシュキーを設定
