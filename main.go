@@ -26,11 +26,9 @@ func Helloworld(g *gin.Context) {
 }
 
 func main() {
-	// DBの初期化
-	db := migration.InitDB()
-
 	// RUN_MIGRATIONSがtrueの場合、マイグレーションを実行
 	if os.Getenv("RUN_MIGRATIONS") == "true" {
+		db := migration.InitDB() // DBの初期化
 		migration.Migrate(db)
 		os.Exit(0)
 	}
