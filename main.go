@@ -2,10 +2,12 @@ package main
 
 import (
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+	"os"
 )
 
 // @BasePath /api/v1
@@ -24,7 +26,14 @@ func Helloworld(g *gin.Context) {
 }
 
 func main() {
-	//infra.Initialize()
+	// RUN_MIGRATIONSがtrueの場合、マイグレーションを実行
+	if os.Getenv("RUN_MIGRATIONS") == "true" {
+		db := migration.InitDB() // DBの初期化
+		migration.Migrate(db)
+		os.Exit(0)
+	}
+
+	// Ginの初期化
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	v1 := r.Group("/api/v1")
