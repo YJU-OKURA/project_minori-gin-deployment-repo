@@ -2,6 +2,7 @@ package main
 
 import (
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
