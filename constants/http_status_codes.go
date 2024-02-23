@@ -1,3 +1,10 @@
 package constants
 
-// HTTP 상태 코드를 상수로 정의한 파일
+// HTTP status codes
+const (
+	StatusOK                  = 200 // OK
+	StatusBadRequest          = 400 // Bad Request
+	StatusUnauthorized        = 401 // Unauthorized
+	StatusNotFound            = 404 // Not Found
+	StatusInternalServerError = 500 // Internal Server Error
+)
