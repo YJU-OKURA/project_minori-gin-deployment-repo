@@ -25,7 +25,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.PASSWORD }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -40,6 +40,3 @@ jobs:
           tags: |
             ghcr.io/yju-okura/minori_gin:${{ steps.date.outputs.date }}
             ghcr.io/yju-okura/minori_gin:latest
-          cache-from: type=registry,ref=ghcr.io/yju-okura/minori_gin:cache # キャッシュを利用
-          cache-to: type=inline # キャッシュを保存
-          cache-key: ${{ runner.os }}-build-${{ hashFiles('**/Dockerfile', '**/go.*') }} # キャッシュキーを設定
