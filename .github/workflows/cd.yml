@@ -22,17 +22,11 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: | # 最新のイメージが実行中でない場合、EC2 インスタンスにデプロイ
             set -e
-            IMAGE_TAG=ghcr.io/yju-okura/minori_gin:${{ github.sha }}
-            CURRENT_IMAGE=$(sudo docker inspect --format='{{.Config.Image}}' minori_gin || echo "")
-            if [ "$CURRENT_IMAGE" != "$IMAGE_TAG" ]; then
-              sudo docker pull ghcr.io/yju-okura/minori_gin:${{ github.sha }}
-              sudo docker stop minori_gin || true
-              sudo docker rm minori_gin || true
-              sudo docker run -d --name minori_gin -p 80:8080 ghcr.io/yju-okura/minori_gin:${{ github.sha }}
-              echo "Deployment completed successfully"
-            else
-                echo "The latest image is already running."
-            fi
+            sudo docker pull ghcr.io/yju-okura/minori_gin:${{ github.sha }}
+            sudo docker stop minori_gin || true
+            sudo docker rm minori_gin || true
+            sudo docker run -d --name minori_gin -p 80:8080 ghcr.io/yju-okura/minori_gin:${{ github.sha }}
+            echo "Deployment completed successfully"
 
       - name: Check deployment status
         run: |
