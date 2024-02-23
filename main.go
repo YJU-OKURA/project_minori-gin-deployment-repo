@@ -1,42 +1,52 @@
 package main
 
 import (
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
-	"net/http"
 	"os"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
+	db := migration.InitDB() // DB接続
 	if shouldRunMigrations() {
-		db := migration.InitDB() // DB initialization
 		migration.Migrate(db)
 		os.Exit(0)
 	}
 
-	r := setupRouter()
+	groupCodeController := controllers.NewGroupCodeController(db)
+	r := setupRouter(groupCodeController)
 	if err := r.Run(getServerPort()); err != nil {
 		log.Fatalf("Failed to start the server: %v", err)
 	}
 }
 
+// shouldRunMigrations マイグレーションだけ実行するかどうか
 func shouldRunMigrations() bool {
 	return os.Getenv("RUN_MIGRATIONS") == "true"
 }
 
-func setupRouter() *gin.Engine {
+func setupRouter(groupCodeController *controllers.GroupCodeController) *gin.Engine {
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	v1 := r.Group("/api/v1")
 	{
-		eg := v1.Group("/example")
+		gc := v1.Group("/gc")
 		{
-			eg.GET("/helloworld", Helloworld)
+			gc.POST("/checkSecretExists", groupCodeController.CheckSecretExists) // グループコードにシークレットが存在するかチェック
+			gc.POST("/verifyGroupCode", groupCodeController.VerifyGroupCode)     // グループコードとシークレットを検証
 		}
+
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return r
@@ -45,22 +55,7 @@ func setupRouter() *gin.Engine {
 func getServerPort() string {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // default port
+		port = "8080" // デフォルトポート
 	}
 	return ":" + port
-}
-
-// @BasePath /api/v1
-
-// PingExample godoc
-// @Summary ping example
-// @Schemes
-// @Description do ping
-// @Tags example
-// @Accept json
-// @Produce json
-// @Success 200 {string} Helloworld
-// @Router /example/helloworld [get]
-func Helloworld(g *gin.Context) {
-	g.JSON(http.StatusOK, "helloworld")
 }
