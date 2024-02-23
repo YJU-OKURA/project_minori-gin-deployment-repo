@@ -7,6 +7,8 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"strconv"
+	"time"
 )
 
 func InitDB() *gorm.DB {
@@ -16,11 +18,30 @@ func InitDB() *gorm.DB {
 	host := os.Getenv("MYSQL_HOST")
 	port := os.Getenv("MYSQL_PORT")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, pass, host, port, dbName)
+	log.Printf("Database Config - User: %s, Password: %s, DB Name: %s, Host: %s, Port: %s\n", user, pass, dbName, host, port)
+
+	// ポート番号が数値でない場合はデフォルトの3306を使用
+	portInt, err := strconv.Atoi(port)
+	if err != nil {
+		log.Printf("Invalid port number. Using default port 3306. Error: %v", err)
+		portInt = 3306
+	}
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, pass, host, portInt, dbName)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("failed to get gennric database: %v", err)
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
 	return db
 }
 
