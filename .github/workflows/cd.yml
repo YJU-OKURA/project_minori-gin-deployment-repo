@@ -22,10 +22,10 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: | # 最新のイメージが実行中でない場合、EC2 インスタンスにデプロイ
             set -e
-            sudo docker pull ghcr.io/yju-okura/minori_gin:${{ github.sha }}
+            sudo docker pull ghcr.io/yju-okura/minori_gin:latest
             sudo docker stop minori_gin || true
             sudo docker rm minori_gin || true
-            sudo docker run -d --name minori_gin -p 80:8080 ghcr.io/yju-okura/minori_gin:${{ github.sha }}
+            sudo docker run -d --name minori_gin -p 80:8080 ghcr.io/yju-okura/minori_gin:latest
             echo "Deployment completed successfully"
 
       - name: Check deployment status
