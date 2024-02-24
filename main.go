@@ -4,6 +4,8 @@ import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
@@ -24,7 +26,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	groupCodeController := controllers.NewGroupCodeController(db)
+	groupCodeRepo := repositories.NewGroupCodeRepository(db)
+	groupCodeService := services.NewGroupCodeService(groupCodeRepo)
+	groupCodeController := controllers.NewGroupCodeController(groupCodeService)
 	r := setupRouter(groupCodeController)
 	if err := r.Run(getServerPort()); err != nil {
 		log.Fatalf("Failed to start the server: %v", err)
@@ -41,6 +45,7 @@ func setupRouter(groupCodeController *controllers.GroupCodeController) *gin.Engi
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	v1 := r.Group("/api/v1")
 	{
+		// グループコード関連
 		gc := v1.Group("/gc")
 		{
 			gc.POST("/checkSecretExists", groupCodeController.CheckSecretExists) // グループコードにシークレットが存在するかチェック
