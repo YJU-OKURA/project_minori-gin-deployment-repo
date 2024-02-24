@@ -6,3 +6,7 @@ test
 profile.out
 tmp.out
 .env
+mysql_data
+tmp
+.idea
+.gitmessage.txt
