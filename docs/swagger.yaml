@@ -1,3 +1,20 @@
+definitions:
+  dto.GroupCodeCheckRequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  dto.GroupCodeRequest:
+    properties:
+      code:
+        type: string
+      secret:
+        type: string
+    required:
+    - code
+    type: object
 info:
   contact: {}
 paths:
@@ -16,4 +33,68 @@ paths:
       summary: ping example
       tags:
       - example
+  /gc/checkSecretExists:
+    post:
+      consumes:
+      - application/json
+      description: 指定されたグループコードにシークレットがあるかどうかをチェックする。
+      parameters:
+      - description: Check Secret
+        in: body
+        name: group_code_check_request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GroupCodeCheckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: secretExists" "シークレットが存在します
+          schema:
+            type: boolean
+        "400":
+          description: error" "無効なリクエストです
+          schema:
+            type: string
+        "404":
+          description: error" "コードが見つかりません
+          schema:
+            type: string
+      summary: グループコードにシークレットが存在するかチェック
+      tags:
+      - group_code
+  /gc/verifyGroupCode:
+    post:
+      consumes:
+      - application/json
+      description: グループコードと、該当する場合はそのシークレットを確認する。
+      parameters:
+      - description: グループコードの確認
+        in: body
+        name: group_code_request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GroupCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message" "グループコードが検証されました
+          schema:
+            type: string
+        "400":
+          description: error" "無効なリクエストです
+          schema:
+            type: string
+        "401":
+          description: error" "シークレットが一致しません
+          schema:
+            type: string
+        "404":
+          description: error" "コードが見つかりません
+          schema:
+            type: string
+      summary: グループコードとシークレットを検証
+      tags:
+      - group_code
 swagger: "2.0"
