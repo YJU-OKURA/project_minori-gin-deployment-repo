@@ -26,7 +26,7 @@ func (service *groupCodeServiceImpl) CheckSecretExists(code string) (bool, error
 	if err != nil {
 		return false, err
 	}
-	return groupCode.Secret != "", nil
+	return groupCode.Secret != nil, nil
 }
 
 // VerifyGroupCode はグループコードと、該当する場合はそのシークレットを確認します。
@@ -36,5 +36,10 @@ func (service *groupCodeServiceImpl) VerifyGroupCode(code, secret string) (bool,
 		return false, err
 	}
 
-	return groupCode.Secret == secret, nil
+	// シークレットがない場合は常にtrueを返す
+	if groupCode.Secret == nil || *groupCode.Secret != secret {
+		return false, nil
+	}
+
+	return true, nil
 }

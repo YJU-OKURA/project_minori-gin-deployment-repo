@@ -1,12 +1,9 @@
 package controllers
 
 import (
-	"errors"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type GroupCodeController struct {
@@ -23,29 +20,21 @@ func NewGroupCodeController(service services.GroupCodeService) *GroupCodeControl
 // @Tags group_code
 // @Accept json
 // @Produce json
-// @Param group_code_check_request body dto.GroupCodeCheckRequest true "Check Secret"
+// @Param code query string true "Code to check"
 // @Success 200 {object} bool "secretExists" "シークレットが存在します"
-// @Failure 400 {object} string "error" "無効なリクエストです"
-// @Failure 404 {object} string "error" "コードが見つかりません"
-// @Router /gc/checkSecretExists [post]
+// @Failure 400 {object} string "無効なリクエストです"
+// @Failure 404 {object} string "コードが見つかりません"
+// @Router /gc/checkSecretExists [get]
 func (controller *GroupCodeController) CheckSecretExists(c *gin.Context) {
-	var req dto.GroupCodeCheckRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(constants.StatusBadRequest, gin.H{"error": constants.InvalidRequest})
-		return
-	}
+	code := c.Query("code")
 
-	secretExists, err := controller.Service.CheckSecretExists(req.Code)
+	secretExists, err := controller.Service.CheckSecretExists(code)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(constants.StatusNotFound, gin.H{"error": constants.CodeNotFound})
-		} else {
-			c.JSON(constants.StatusInternalServerError, gin.H{"error": constants.InternalServerError})
-		}
+		handleServiceError(c, err)
 		return
 	}
 
-	c.JSON(constants.StatusOK, gin.H{"secretExists": secretExists})
+	respondWithSuccess(c, constants.StatusOK, gin.H{"secretExists": secretExists})
 }
 
 // VerifyGroupCode godoc
@@ -54,33 +43,27 @@ func (controller *GroupCodeController) CheckSecretExists(c *gin.Context) {
 // @Tags group_code
 // @Accept json
 // @Produce json
-// @Param group_code_request body dto.GroupCodeRequest true "グループコードの確認"
-// @Success 200 {object} string "message" "グループコードが検証されました"
-// @Failure 400 {object} string "error" "無効なリクエストです"
-// @Failure 401 {object} string "error" "シークレットが一致しません"
-// @Failure 404 {object} string "error" "コードが見つかりません"
-// @Router /gc/verifyGroupCode [post]
+// @Param code query string true "Code to verify"
+// @Param secret query string true "Secret for the code"
+// @Success 200 {object} string "グループコードが検証されました"
+// @Failure 400 {object} string "無効なリクエストです"
+// @Failure 401 {object} string "シークレットが一致しません"
+// @Failure 404 {object} string "コードが見つかりません"
+// @Router /gc/verifyGroupCode [get]
 func (controller *GroupCodeController) VerifyGroupCode(c *gin.Context) {
-	var req dto.GroupCodeRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(constants.StatusBadRequest, gin.H{"error": constants.InvalidRequest})
-		return
-	}
+	code := c.Query("code")
+	secret := c.Query("secret")
 
-	verified, err := controller.Service.VerifyGroupCode(req.Code, req.Secret)
+	verified, err := controller.Service.VerifyGroupCode(code, secret)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(constants.StatusNotFound, gin.H{"error": constants.CodeNotFound})
-		} else {
-			c.JSON(constants.StatusInternalServerError, gin.H{"error": constants.InternalServerError})
-		}
+		handleServiceError(c, err)
 		return
 	}
 
 	if !verified {
-		c.JSON(constants.StatusUnauthorized, gin.H{"error": constants.SecretMismatch})
+		respondWithError(c, constants.StatusUnauthorized, constants.SecretMismatch)
 		return
 	}
 
-	c.JSON(constants.StatusOK, gin.H{"message": constants.GroupCodeVerified})
+	respondWithSuccess(c, constants.StatusOK, gin.H{"message": constants.GroupCodeVerified})
 }
