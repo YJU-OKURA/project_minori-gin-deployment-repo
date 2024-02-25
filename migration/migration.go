@@ -18,8 +18,6 @@ func InitDB() *gorm.DB {
 	host := os.Getenv("MYSQL_HOST")
 	port := os.Getenv("MYSQL_PORT")
 
-	log.Printf("Database Config - User: %s, Password: %s, DB Name: %s, Host: %s, Port: %s\n", user, pass, dbName, host, port)
-
 	// ポート番号が数値でない場合はデフォルトの3306を使用
 	portInt, err := strconv.Atoi(port)
 	if err != nil {
