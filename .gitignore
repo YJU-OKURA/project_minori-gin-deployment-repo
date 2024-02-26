@@ -10,3 +10,5 @@ mysql_data
 tmp
 .idea
 .gitmessage.txt
+.air.toml
+*.exe
