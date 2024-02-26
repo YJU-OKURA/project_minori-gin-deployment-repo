@@ -1,19 +1,94 @@
 definitions:
-  dto.GroupCodeCheckRequest:
+  dto.GroupBoardCreateDTO:
     properties:
-      code:
+      cid:
+        type: integer
+      content:
+        example: Sample Content
         type: string
+      image:
+        type: string
+      is_announced:
+        default: false
+        type: boolean
+      title:
+        example: Sample Title
+        type: string
+      uid:
+        type: integer
     required:
-    - code
+    - cid
+    - content
+    - title
+    - uid
     type: object
-  dto.GroupCodeRequest:
+  dto.GroupBoardUpdateDTO:
     properties:
-      code:
+      content:
         type: string
-      secret:
+      id:
+        type: integer
+      image:
+        type: string
+      is_announced:
+        type: boolean
+      title:
         type: string
     required:
-    - code
+    - id
+    type: object
+  models.Class:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      limitation:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.GroupBoard:
+    properties:
+      cid:
+        description: Class ID
+        type: integer
+      class:
+        $ref: '#/definitions/models.Class'
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      isAnnounced:
+        type: boolean
+      title:
+        type: string
+      uid:
+        description: User ID
+        type: integer
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
     type: object
 info:
   contact: {}
@@ -33,18 +108,196 @@ paths:
       summary: ping example
       tags:
       - example
-  /gc/checkSecretExists:
+  /gb:
+    get:
+      consumes:
+      - application/json
+      description: 全てのグループ掲示板のリストを取得します。
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 全てのグループ掲示板のリスト
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.GroupBoard'
+              type: array
+            type: array
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: 全てのグループ掲示板を取得
+      tags:
+      - group_board
     post:
+      consumes:
+      - multipart/form-data
+      description: Create a new group board with the provided information, including
+        image upload.
+      parameters:
+      - description: Create group board
+        in: body
+        name: group_board_create
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GroupBoardCreateDTO'
+      - description: Upload image file
+        in: formData
+        name: image
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group board created successfully
+          schema:
+            $ref: '#/definitions/models.GroupBoard'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      summary: Create a new group board
+      tags:
+      - group_board
+  /gb/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 指定されたIDのグループ掲示板を削除します。
+      parameters:
+      - description: グループ掲示板ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: グループ掲示板が正常に削除されました
+          schema:
+            type: string
+        "404":
+          description: コードが見つかりません
+          schema:
+            type: string
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: グループ掲示板を削除
+      tags:
+      - group_board
+    get:
+      consumes:
+      - application/json
+      description: 指定されたIDのグループ掲示板の詳細を取得します。
+      parameters:
+      - description: グループ掲示板ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: グループ掲示板が取得されました
+          schema:
+            $ref: '#/definitions/models.GroupBoard'
+        "400":
+          description: 無効なリクエストです
+          schema:
+            type: string
+        "404":
+          description: コードが見つかりません
+          schema:
+            type: string
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: IDでグループ掲示板を取得
+      tags:
+      - group_board
+    patch:
+      consumes:
+      - application/json
+      description: 指定されたIDのグループ掲示板の詳細を更新します。
+      parameters:
+      - description: グループ掲示板ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: グループ掲示板の更新
+        in: body
+        name: group_board_update
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GroupBoardUpdateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: グループ掲示板が正常に更新されました
+          schema:
+            $ref: '#/definitions/models.GroupBoard'
+        "400":
+          description: リクエストが不正です
+          schema:
+            type: string
+        "404":
+          description: コードが見つかりません
+          schema:
+            type: string
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: グループ掲示板を更新
+      tags:
+      - group_board
+  /gb/announced:
+    get:
+      consumes:
+      - application/json
+      description: 公告されたグループ掲示板のリストを取得します。
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 公告されたグループ掲示板のリスト
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.GroupBoard'
+              type: array
+            type: array
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: 公告されたグループ掲示板を取得
+      tags:
+      - group_board
+  /gc/checkSecretExists:
+    get:
       consumes:
       - application/json
       description: 指定されたグループコードにシークレットがあるかどうかをチェックする。
       parameters:
-      - description: Check Secret
-        in: body
-        name: group_code_check_request
+      - description: Code to check
+        in: query
+        name: code
         required: true
-        schema:
-          $ref: '#/definitions/dto.GroupCodeCheckRequest'
+        type: string
       produces:
       - application/json
       responses:
@@ -53,45 +306,49 @@ paths:
           schema:
             type: boolean
         "400":
-          description: error" "無効なリクエストです
+          description: 無効なリクエストです
           schema:
             type: string
         "404":
-          description: error" "コードが見つかりません
+          description: コードが見つかりません
           schema:
             type: string
       summary: グループコードにシークレットが存在するかチェック
       tags:
       - group_code
   /gc/verifyGroupCode:
-    post:
+    get:
       consumes:
       - application/json
       description: グループコードと、該当する場合はそのシークレットを確認する。
       parameters:
-      - description: グループコードの確認
-        in: body
-        name: group_code_request
+      - description: Code to verify
+        in: query
+        name: code
         required: true
-        schema:
-          $ref: '#/definitions/dto.GroupCodeRequest'
+        type: string
+      - description: Secret for the code
+        in: query
+        name: secret
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: message" "グループコードが検証されました
+          description: グループコードが検証されました
           schema:
             type: string
         "400":
-          description: error" "無効なリクエストです
+          description: 無効なリクエストです
           schema:
             type: string
         "401":
-          description: error" "シークレットが一致しません
+          description: シークレットが一致しません
           schema:
             type: string
         "404":
-          description: error" "コードが見つかりません
+          description: コードが見つかりません
           schema:
             type: string
       summary: グループコードとシークレットを検証
