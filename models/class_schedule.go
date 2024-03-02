@@ -7,7 +7,7 @@ type ClassSchedule struct {
 	Title     string    `gorm:"size:255;not null"`
 	StartedAt time.Time `gorm:"not null"`
 	EndedAt   time.Time `gorm:"not null"`
-	CID       uint      `gorm:"column:cid;not null"` // Class ID
+	CID       uint      `gorm:"column:cid;not null;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	IsLive    bool      `gorm:"not null;default:false"`
 	Class     Class     `gorm:"foreignKey:CID"`
 }
