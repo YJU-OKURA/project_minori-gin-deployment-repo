@@ -48,9 +48,9 @@ func Migrate(db *gorm.DB) {
 		&models.User{},
 		&models.Class{},
 		&models.ClassUser{},
-		&models.GroupBoard{},
-		&models.GroupCode{},
-		&models.GroupSchedule{},
+		&models.ClassBoard{},
+		&models.ClassCode{},
+		&models.ClassSchedule{},
 		&models.Role{},
 		&models.Attendance{},
 	)

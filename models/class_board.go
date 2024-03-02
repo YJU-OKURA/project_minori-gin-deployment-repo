@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type GroupBoard struct {
+type ClassBoard struct {
 	ID          uint      `gorm:"primaryKey"`
 	Title       string    `gorm:"size:255;not null"`
 	Content     string    `gorm:"type:text;not null"`

@@ -47,48 +47,53 @@ func performMigrations(db *gorm.DB) {
 }
 
 // initializeControllers コントローラーを初期化する
-func initializeControllers(db *gorm.DB) (*controllers.GroupCodeController, *controllers.GroupBoardController) {
-	groupCodeRepo := repositories.NewGroupCodeRepository(db)
-	groupBoardRepo := repositories.NewGroupBoardRepository(db)
+func initializeControllers(db *gorm.DB) (*controllers.ClassCodeController, *controllers.ClassBoardController) {
+	classCodeRepo := repositories.NewClassCodeRepository(db)
+	classBoardRepo := repositories.NewClassBoardRepository(db)
+	classUserRepo := repositories.NewClassUserRepository(db)
+	roleRepo := repositories.NewRoleRepository(db)
+
+	classCodeService := services.NewClassCodeService(classCodeRepo)
+	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
+
+	classCodeController := controllers.NewClassCodeController(classCodeService, classUserService)
 	uploader := utils.NewAwsUploader()
+	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
 
-	groupCodeController := controllers.NewGroupCodeController(services.NewGroupCodeService(groupCodeRepo))
-	groupBoardController := controllers.NewGroupBoardController(services.NewGroupBoardService(groupBoardRepo), uploader)
-
-	return groupCodeController, groupBoardController
+	return classCodeController, classBoardController
 }
 
 // setupRouter ルーターをセットアップする
-func setupRouter(groupCodeController *controllers.GroupCodeController, groupBoardController *controllers.GroupBoardController) *gin.Engine {
+func setupRouter(classCodeController *controllers.ClassCodeController, classBoardController *controllers.ClassBoardController) *gin.Engine {
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	setupGroupCodeRoutes(r, groupCodeController)
-	setupGroupBoardRoutes(r, groupBoardController)
+	setupClassCodeRoutes(r, classCodeController)
+	setupClassBoardRoutes(r, classBoardController)
 
 	return r
 }
 
-// setupGroupCodeRoutes GroupCodeのルートをセットアップする
-func setupGroupCodeRoutes(r *gin.Engine, controller *controllers.GroupCodeController) {
-	gc := r.Group("/api/v1/gc")
+// setupClassCodeRoutes ClassCodeのルートをセットアップする
+func setupClassCodeRoutes(r *gin.Engine, controller *controllers.ClassCodeController) {
+	gc := r.Group("/api/v1/cc")
 	{
 		gc.GET("/checkSecretExists", controller.CheckSecretExists) // シークレットが存在するかどうかを確認する
-		gc.GET("/verifyGroupCode", controller.VerifyGroupCode)     // グループコードを検証する
+		gc.GET("/verifyClassCode", controller.VerifyClassCode)     // グループコードを検証する
 	}
 }
 
-// setupGroupBoardRoutes GroupBoardのルートをセットアップする
-func setupGroupBoardRoutes(r *gin.Engine, controller *controllers.GroupBoardController) {
-	gb := r.Group("/api/v1/gb")
+// setupClassBoardRoutes ClassBoardのルートをセットアップする
+func setupClassBoardRoutes(r *gin.Engine, controller *controllers.ClassBoardController) {
+	gb := r.Group("/api/v1/cb")
 	{
-		gb.POST("/", controller.CreateGroupBoard)                // グループ掲示板を作成する
-		gb.GET("/:id", controller.GetGroupBoardByID)             // グループ掲示板を取得する
-		gb.GET("/", controller.GetAllGroupBoards)                // 全てのグループ掲示板を取得する
-		gb.GET("/announced", controller.GetAnnouncedGroupBoards) // 公開されたグループ掲示板を取得する
-		gb.PATCH("/:id", controller.UpdateGroupBoard)            // グループ掲示板を更新する
-		gb.DELETE("/:id", controller.DeleteGroupBoard)           // グループ掲示板を削除する
+		gb.POST("/", controller.CreateClassBoard)                // グループ掲示板を作成する
+		gb.GET("/:id", controller.GetClassBoardByID)             // グループ掲示板を取得する
+		gb.GET("/", controller.GetAllClassBoards)                // 全てのグループ掲示板を取得する
+		gb.GET("/announced", controller.GetAnnouncedClassBoards) // 公開されたグループ掲示板を取得する
+		gb.PATCH("/:id", controller.UpdateClassBoard)            // グループ掲示板を更新する
+		gb.DELETE("/:id", controller.DeleteClassBoard)           // グループ掲示板を削除する
 	}
 }
 
