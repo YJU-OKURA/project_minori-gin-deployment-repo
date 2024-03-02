@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/example/helloworld": {
+        "/cb": {
             "get": {
-                "description": "do ping",
+                "description": "cidに基づいて、グループの全ての掲示板を取得します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,32 +25,18 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "example"
-                ],
-                "summary": "ping example",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/gb": {
-            "get": {
-                "description": "全てのグループ掲示板のリストを取得します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "group_board"
+                    "class_board"
                 ],
                 "summary": "全てのグループ掲示板を取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "クラスID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "全てのグループ掲示板のリスト",
@@ -59,7 +45,7 @@ const docTemplate = `{
                             "items": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/models.GroupBoard"
+                                    "$ref": "#/definitions/models.ClassBoard"
                                 }
                             }
                         }
@@ -73,7 +59,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new group board with the provided information, including image upload.",
+                "description": "Create a new class board with the provided information, including image upload.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -81,21 +67,46 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "group_board"
+                    "class_board"
                 ],
-                "summary": "Create a new group board",
+                "summary": "Create a new class board",
                 "parameters": [
                     {
-                        "description": "Create group board",
-                        "name": "group_board_create",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.GroupBoardCreateDTO"
-                        }
+                        "type": "string",
+                        "description": "Class board title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "string",
+                        "description": "Class board content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is announced",
+                        "name": "is_announced",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
                         "description": "Upload image file",
                         "name": "image",
                         "in": "formData"
@@ -103,9 +114,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Group board created successfully",
+                        "description": "Class board created successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.GroupBoard"
+                            "$ref": "#/definitions/models.ClassBoard"
                         }
                     },
                     "400": {
@@ -123,9 +134,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/gb/announced": {
+        "/cb/announced": {
             "get": {
-                "description": "公告されたグループ掲示板のリストを取得します。",
+                "description": "cidに基づいて、公告されたグループの掲示板を取得します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -133,9 +144,18 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "group_board"
+                    "class_board"
                 ],
                 "summary": "公告されたグループ掲示板を取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "クラスID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "公告されたグループ掲示板のリスト",
@@ -144,7 +164,7 @@ const docTemplate = `{
                             "items": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/models.GroupBoard"
+                                    "$ref": "#/definitions/models.ClassBoard"
                                 }
                             }
                         }
@@ -158,7 +178,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/gb/{id}": {
+        "/cb/{id}": {
             "get": {
                 "description": "指定されたIDのグループ掲示板の詳細を取得します。",
                 "consumes": [
@@ -168,7 +188,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "group_board"
+                    "class_board"
                 ],
                 "summary": "IDでグループ掲示板を取得",
                 "parameters": [
@@ -184,7 +204,7 @@ const docTemplate = `{
                     "200": {
                         "description": "グループ掲示板が取得されました",
                         "schema": {
-                            "$ref": "#/definitions/models.GroupBoard"
+                            "$ref": "#/definitions/models.ClassBoard"
                         }
                     },
                     "400": {
@@ -216,7 +236,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "group_board"
+                    "class_board"
                 ],
                 "summary": "グループ掲示板を削除",
                 "parameters": [
@@ -258,7 +278,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "group_board"
+                    "class_board"
                 ],
                 "summary": "グループ掲示板を更新",
                 "parameters": [
@@ -271,11 +291,11 @@ const docTemplate = `{
                     },
                     {
                         "description": "グループ掲示板の更新",
-                        "name": "group_board_update",
+                        "name": "class_board_update",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.GroupBoardUpdateDTO"
+                            "$ref": "#/definitions/dto.ClassBoardUpdateDTO"
                         }
                     }
                 ],
@@ -283,7 +303,7 @@ const docTemplate = `{
                     "200": {
                         "description": "グループ掲示板が正常に更新されました",
                         "schema": {
-                            "$ref": "#/definitions/models.GroupBoard"
+                            "$ref": "#/definitions/models.ClassBoard"
                         }
                     },
                     "400": {
@@ -307,7 +327,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/gc/checkSecretExists": {
+        "/cc/checkSecretExists": {
             "get": {
                 "description": "指定されたグループコードにシークレットがあるかどうかをチェックする。",
                 "consumes": [
@@ -317,7 +337,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "group_code"
+                    "class_code"
                 ],
                 "summary": "グループコードにシークレットが存在するかチェック",
                 "parameters": [
@@ -351,9 +371,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/gc/verifyGroupCode": {
+        "/cc/verifyClassCode": {
             "get": {
-                "description": "グループコードと、該当する場合はそのシークレットを確認する。",
+                "description": "グループコードと、該当する場合はそのシークレットを確認する。また、指定されたユーザーに役割を割り当てる。",
                 "consumes": [
                     "application/json"
                 ],
@@ -361,9 +381,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "group_code"
+                    "class_code"
                 ],
-                "summary": "グループコードとシークレットを検証",
+                "summary": "グループコードとシークレットを検証＆ユーザーに役割を割り当てる",
                 "parameters": [
                     {
                         "type": "string",
@@ -376,6 +396,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Secret for the code",
                         "name": "secret",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID to assign role",
+                        "name": "uid",
                         "in": "query",
                         "required": true
                     }
@@ -407,42 +433,33 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/example/helloworld": {
+            "get": {
+                "description": "do ping",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "example"
+                ],
+                "summary": "ping example",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "dto.GroupBoardCreateDTO": {
-            "type": "object",
-            "required": [
-                "cid",
-                "content",
-                "title",
-                "uid"
-            ],
-            "properties": {
-                "cid": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string",
-                    "example": "Sample Content"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "is_announced": {
-                    "type": "boolean",
-                    "default": false
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Sample Title"
-                },
-                "uid": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.GroupBoardUpdateDTO": {
+        "dto.ClassBoardUpdateDTO": {
             "type": "object",
             "required": [
                 "id"
@@ -485,11 +502,10 @@ const docTemplate = `{
                 }
             }
         },
-        "models.GroupBoard": {
+        "models.ClassBoard": {
             "type": "object",
             "properties": {
                 "cid": {
-                    "description": "Class ID",
                     "type": "integer"
                 },
                 "class": {

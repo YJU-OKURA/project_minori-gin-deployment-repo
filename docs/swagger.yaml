@@ -1,28 +1,5 @@
 definitions:
-  dto.GroupBoardCreateDTO:
-    properties:
-      cid:
-        type: integer
-      content:
-        example: Sample Content
-        type: string
-      image:
-        type: string
-      is_announced:
-        default: false
-        type: boolean
-      title:
-        example: Sample Title
-        type: string
-      uid:
-        type: integer
-    required:
-    - cid
-    - content
-    - title
-    - uid
-    type: object
-  dto.GroupBoardUpdateDTO:
+  dto.ClassBoardUpdateDTO:
     properties:
       content:
         type: string
@@ -50,10 +27,9 @@ definitions:
       name:
         type: string
     type: object
-  models.GroupBoard:
+  models.ClassBoard:
     properties:
       cid:
-        description: Class ID
         type: integer
       class:
         $ref: '#/definitions/models.Class'
@@ -93,26 +69,17 @@ definitions:
 info:
   contact: {}
 paths:
-  /example/helloworld:
+  /cb:
     get:
       consumes:
       - application/json
-      description: do ping
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: ping example
-      tags:
-      - example
-  /gb:
-    get:
-      consumes:
-      - application/json
-      description: 全てのグループ掲示板のリストを取得します。
+      description: cidに基づいて、グループの全ての掲示板を取得します。
+      parameters:
+      - description: クラスID
+        in: query
+        name: cid
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -121,7 +88,7 @@ paths:
           schema:
             items:
               items:
-                $ref: '#/definitions/models.GroupBoard'
+                $ref: '#/definitions/models.ClassBoard'
               type: array
             type: array
         "500":
@@ -130,30 +97,48 @@ paths:
             type: string
       summary: 全てのグループ掲示板を取得
       tags:
-      - group_board
+      - class_board
     post:
       consumes:
       - multipart/form-data
-      description: Create a new group board with the provided information, including
+      description: Create a new class board with the provided information, including
         image upload.
       parameters:
-      - description: Create group board
-        in: body
-        name: group_board_create
+      - description: Class board title
+        in: formData
+        name: title
         required: true
-        schema:
-          $ref: '#/definitions/dto.GroupBoardCreateDTO'
+        type: string
+      - description: Class board content
+        in: formData
+        name: content
+        required: true
+        type: string
+      - description: Class ID
+        in: formData
+        name: cid
+        required: true
+        type: integer
+      - description: User ID
+        in: formData
+        name: uid
+        required: true
+        type: integer
+      - description: Is announced
+        in: formData
+        name: is_announced
+        type: boolean
       - description: Upload image file
         in: formData
         name: image
-        type: string
+        type: file
       produces:
       - application/json
       responses:
         "200":
-          description: Group board created successfully
+          description: Class board created successfully
           schema:
-            $ref: '#/definitions/models.GroupBoard'
+            $ref: '#/definitions/models.ClassBoard'
         "400":
           description: Invalid request
           schema:
@@ -162,10 +147,10 @@ paths:
           description: Server error
           schema:
             type: string
-      summary: Create a new group board
+      summary: Create a new class board
       tags:
-      - group_board
-  /gb/{id}:
+      - class_board
+  /cb/{id}:
     delete:
       consumes:
       - application/json
@@ -193,7 +178,7 @@ paths:
             type: string
       summary: グループ掲示板を削除
       tags:
-      - group_board
+      - class_board
     get:
       consumes:
       - application/json
@@ -210,7 +195,7 @@ paths:
         "200":
           description: グループ掲示板が取得されました
           schema:
-            $ref: '#/definitions/models.GroupBoard'
+            $ref: '#/definitions/models.ClassBoard'
         "400":
           description: 無効なリクエストです
           schema:
@@ -225,7 +210,7 @@ paths:
             type: string
       summary: IDでグループ掲示板を取得
       tags:
-      - group_board
+      - class_board
     patch:
       consumes:
       - application/json
@@ -238,17 +223,17 @@ paths:
         type: integer
       - description: グループ掲示板の更新
         in: body
-        name: group_board_update
+        name: class_board_update
         required: true
         schema:
-          $ref: '#/definitions/dto.GroupBoardUpdateDTO'
+          $ref: '#/definitions/dto.ClassBoardUpdateDTO'
       produces:
       - application/json
       responses:
         "200":
           description: グループ掲示板が正常に更新されました
           schema:
-            $ref: '#/definitions/models.GroupBoard'
+            $ref: '#/definitions/models.ClassBoard'
         "400":
           description: リクエストが不正です
           schema:
@@ -263,12 +248,18 @@ paths:
             type: string
       summary: グループ掲示板を更新
       tags:
-      - group_board
-  /gb/announced:
+      - class_board
+  /cb/announced:
     get:
       consumes:
       - application/json
-      description: 公告されたグループ掲示板のリストを取得します。
+      description: cidに基づいて、公告されたグループの掲示板を取得します。
+      parameters:
+      - description: クラスID
+        in: query
+        name: cid
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -277,7 +268,7 @@ paths:
           schema:
             items:
               items:
-                $ref: '#/definitions/models.GroupBoard'
+                $ref: '#/definitions/models.ClassBoard'
               type: array
             type: array
         "500":
@@ -286,8 +277,8 @@ paths:
             type: string
       summary: 公告されたグループ掲示板を取得
       tags:
-      - group_board
-  /gc/checkSecretExists:
+      - class_board
+  /cc/checkSecretExists:
     get:
       consumes:
       - application/json
@@ -315,12 +306,12 @@ paths:
             type: string
       summary: グループコードにシークレットが存在するかチェック
       tags:
-      - group_code
-  /gc/verifyGroupCode:
+      - class_code
+  /cc/verifyClassCode:
     get:
       consumes:
       - application/json
-      description: グループコードと、該当する場合はそのシークレットを確認する。
+      description: グループコードと、該当する場合はそのシークレットを確認する。また、指定されたユーザーに役割を割り当てる。
       parameters:
       - description: Code to verify
         in: query
@@ -330,8 +321,12 @@ paths:
       - description: Secret for the code
         in: query
         name: secret
-        required: true
         type: string
+      - description: User ID to assign role
+        in: query
+        name: uid
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -351,7 +346,22 @@ paths:
           description: コードが見つかりません
           schema:
             type: string
-      summary: グループコードとシークレットを検証
+      summary: グループコードとシークレットを検証＆ユーザーに役割を割り当てる
       tags:
-      - group_code
+      - class_code
+  /example/helloworld:
+    get:
+      consumes:
+      - application/json
+      description: do ping
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: ping example
+      tags:
+      - example
 swagger: "2.0"
