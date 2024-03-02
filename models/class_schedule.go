@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type GroupSchedule struct {
+type ClassSchedule struct {
 	ID        uint      `gorm:"primaryKey"`
 	Title     string    `gorm:"size:255;not null"`
 	StartedAt time.Time `gorm:"not null"`

@@ -1,6 +1,6 @@
 package models
 
-type GroupCode struct {
+type ClassCode struct {
 	ID     string  `gorm:"primaryKey;size:255"`
 	Code   string  `gorm:"size:10;not null"`
 	Secret *string `gorm:"size:20"`
