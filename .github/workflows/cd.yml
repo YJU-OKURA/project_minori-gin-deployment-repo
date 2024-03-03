@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   workflow_run:
-    workflows: ['Docker Image CI']  # Docker Image CI ワークフローが実行された後に実行
+    workflows: ['Docker Image CI']
     types:
       - completed
 
@@ -11,24 +11,33 @@ jobs:
     runs-on: [self-hosted, macOS, X64]
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
+      - name: Pull Docker Image
+        run: sudo docker pull ghcr.io/yju-okura/minori_gin:latest
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: | # 最新のイメージが実行中でない場合、EC2 インスタンスにデプロイ
-            set -e
-            sudo docker pull ghcr.io/yju-okura/minori_gin:latest
-            sudo docker stop minori_gin || true
-            sudo docker rm minori_gin || true
-            sudo docker run -d --name minori_gin -p 80:8080 ghcr.io/yju-okura/minori_gin:latest
-            echo "Deployment completed successfully"
+      - name: Delete Old Docker Container
+        run: sudo docker rm -f minori-gin-container || true
 
-      - name: Check deployment status
+      - name: Delete Old Docker Images
         run: |
-          echo "Checking deployment status..."
-          curl -sSf http://${{ secrets.EC2_HOST }}:80/healthz || echo "Health check failed."
+          IMAGE_ID=$(sudo docker images -q ghcr.io/yju-okura/minori_gin:latest)
+          sudo docker images -q | grep -v $IMAGE_ID | xargs -r sudo docker rmi
+
+      - name: Run Docker Container
+        run: |
+          sudo docker run -d \
+          -p 80:8080 \
+          -p 3306:3306 \
+          -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
+          -e JWT_ACCESS_EXPIRATION=${{ secrets.JWT_ACCESS_EXPIRATION }} \
+          -e AWS_REGION=${{ secrets.AWS_REGION }} \
+          -e AWS_S3_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }} \
+          -e AWS_S3_SECRET_ACCESS_KEY=${{ secrets.AWS_S3_SECRET_ACCESS_KEY }} \
+          -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
+          -e AWS_CLOUDFRONT=${{ secrets.AWS_CLOUDFRONT }} \
+          -e OPENAI_API_KEY_FOR_NEST=${{ secrets.OPENAI_API_KEY_FOR_NEST }} \
+          -e LOCAL_STORAGE_PATH=${{ secrets.LOCAL_STORAGE_PATH }} \
+          -v ${{ secrets.VOLUME }}:${{ secrets.LOCAL_STORAGE_PATH }} \
+          --restart always \
+          --name minori-gin-container \
+          ghcr.io/yju-okura/minori_gin:latest
