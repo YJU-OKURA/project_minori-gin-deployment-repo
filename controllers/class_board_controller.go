@@ -13,16 +13,6 @@ import (
 	"strconv"
 )
 
-// classBoardController インタフェース
-type classBoardController interface {
-	CreateClassBoard(ctx *gin.Context)
-	GetClassBoardByID(ctx *gin.Context)
-	GetAllClassBoards(ctx *gin.Context)
-	GetAnnouncedClassBoards(ctx *gin.Context)
-	UpdateClassBoard(ctx *gin.Context)
-	DeleteClassBoard(ctx *gin.Context)
-}
-
 // ClassBoardController インタフェースを実装
 type ClassBoardController struct {
 	classBoardService services.ClassBoardService
