@@ -47,53 +47,72 @@ func performMigrations(db *gorm.DB) {
 }
 
 // initializeControllers コントローラーを初期化する
-func initializeControllers(db *gorm.DB) (*controllers.ClassCodeController, *controllers.ClassBoardController) {
-	classCodeRepo := repositories.NewClassCodeRepository(db)
+func initializeControllers(db *gorm.DB) (*controllers.ClassCodeController, *controllers.ClassBoardController, *controllers.ClassScheduleController) {
 	classBoardRepo := repositories.NewClassBoardRepository(db)
+	classCodeRepo := repositories.NewClassCodeRepository(db)
+	classScheduleRepo := repositories.NewClassScheduleRepository(db)
 	classUserRepo := repositories.NewClassUserRepository(db)
 	roleRepo := repositories.NewRoleRepository(db)
 
 	classCodeService := services.NewClassCodeService(classCodeRepo)
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
+	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
 
-	classCodeController := controllers.NewClassCodeController(classCodeService, classUserService)
 	uploader := utils.NewAwsUploader()
 	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
+	classCodeController := controllers.NewClassCodeController(classCodeService, classUserService)
+	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
 
-	return classCodeController, classBoardController
+	return classCodeController, classBoardController, classScheduleController
 }
 
 // setupRouter ルーターをセットアップする
-func setupRouter(classCodeController *controllers.ClassCodeController, classBoardController *controllers.ClassBoardController) *gin.Engine {
+func setupRouter(classCodeController *controllers.ClassCodeController, classBoardController *controllers.ClassBoardController, classScheduleController *controllers.ClassScheduleController) *gin.Engine {
 	r := gin.Default()
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = "/api/gin"
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	setupClassCodeRoutes(r, classCodeController)
+
 	setupClassBoardRoutes(r, classBoardController)
+	setupClassCodeRoutes(r, classCodeController)
+	setupClassScheduleRoutes(r, classScheduleController)
 
 	return r
 }
 
 // setupClassCodeRoutes ClassCodeのルートをセットアップする
 func setupClassCodeRoutes(r *gin.Engine, controller *controllers.ClassCodeController) {
-	gc := r.Group("/api/v1/cc")
+	cc := r.Group("/api/gin/cc")
 	{
-		gc.GET("/checkSecretExists", controller.CheckSecretExists) // シークレットが存在するかどうかを確認する
-		gc.GET("/verifyClassCode", controller.VerifyClassCode)     // グループコードを検証する
+		cc.GET("/checkSecretExists", controller.CheckSecretExists) // シークレットが存在するかどうかを確認する
+		cc.GET("/verifyClassCode", controller.VerifyClassCode)     // グループコードを検証する
 	}
 }
 
 // setupClassBoardRoutes ClassBoardのルートをセットアップする
 func setupClassBoardRoutes(r *gin.Engine, controller *controllers.ClassBoardController) {
-	gb := r.Group("/api/v1/cb")
+	cb := r.Group("/api/gin/cb")
 	{
-		gb.POST("/", controller.CreateClassBoard)                // グループ掲示板を作成する
-		gb.GET("/:id", controller.GetClassBoardByID)             // グループ掲示板を取得する
-		gb.GET("/", controller.GetAllClassBoards)                // 全てのグループ掲示板を取得する
-		gb.GET("/announced", controller.GetAnnouncedClassBoards) // 公開されたグループ掲示板を取得する
-		gb.PATCH("/:id", controller.UpdateClassBoard)            // グループ掲示板を更新する
-		gb.DELETE("/:id", controller.DeleteClassBoard)           // グループ掲示板を削除する
+		cb.GET("/", controller.GetAllClassBoards)                // 全てのグループ掲示板を取得する
+		cb.GET("/:id", controller.GetClassBoardByID)             // グループ掲示板を取得する
+		cb.POST("/", controller.CreateClassBoard)                // グループ掲示板を作成する
+		cb.GET("/announced", controller.GetAnnouncedClassBoards) // 公開されたグループ掲示板を取得する
+		cb.PATCH("/:id", controller.UpdateClassBoard)            // グループ掲示板を更新する
+		cb.DELETE("/:id", controller.DeleteClassBoard)           // グループ掲示板を削除する
+	}
+}
+
+// setupClassScheduleRoutes ClassScheduleのルートをセットアップする
+func setupClassScheduleRoutes(r *gin.Engine, controller *controllers.ClassScheduleController) {
+	cs := r.Group("/api/gin/cs")
+	{
+		cs.GET("/", controller.GetAllClassSchedules)        // 全てのクラススケジュールを取得する
+		cs.GET("/:id", controller.GetClassScheduleByID)     // クラススケジュールを取得する
+		cs.POST("/", controller.CreateClassSchedule)        // 新しいクラススケジュールを作成する
+		cs.PATCH("/:id", controller.UpdateClassSchedule)    // クラススケジュールを更新する
+		cs.DELETE("/:id", controller.DeleteClassSchedule)   // クラススケジュールを削除する
+		cs.GET("/live", controller.GetLiveClassSchedules)   // ライブ中のクラススケジュールを取得する
+		cs.GET("/date", controller.GetClassSchedulesByDate) // 日付でクラススケジュールを取得する
 	}
 }
 
