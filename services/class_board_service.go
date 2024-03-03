@@ -42,7 +42,7 @@ func (service *classBoardService) CreateClassBoard(b dto.ClassBoardCreateDTO) (*
 	var imageUrl string
 	var err error
 	if b.Image != nil {
-		imageUrl, err = service.uploader.UploadImage(b.Image)
+		imageUrl, err = service.uploader.UploadImage(b.Image, b.CID, false)
 		if err != nil {
 			return nil, err
 		}

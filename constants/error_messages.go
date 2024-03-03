@@ -31,9 +31,9 @@ const (
 
 // 成功時のメッセージ
 const (
-	Success                 = "成功"                 // 200 OK
-	GroupCodeExists         = "グループコードが存在します"      // 200 OK
-	SecretExists            = "シークレットが存在します"       // 200 OK
-	GroupCodeVerified       = "グループコードが検証されました"    // 200 OK
-	ClassMemberRegistration = "グループコードの確認と役割の割り当て" // 200 OK
+	Success                 = "成功"                // 200 OK
+	ClassCodeExists         = "クラスコードが存在します"      // 200 OK
+	SecretExists            = "シークレットが存在します"      // 200 OK
+	ClassCodeVerified       = "クラスコードが検証されました"    // 200 OK
+	ClassMemberRegistration = "クラスコードの確認と役割の割り当て" // 200 OK
 )

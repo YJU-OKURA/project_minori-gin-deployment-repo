@@ -10,8 +10,8 @@ type ClassBoard struct {
 	CreatedAt   time.Time `gorm:"not null;"`
 	UpdatedAt   time.Time `gorm:"not null;"`
 	IsAnnounced bool      `gorm:"not null;default:false"`
-	CID         uint      `gorm:"column:cid;not null"` // Class ID
+	CID         uint      `gorm:"column:cid;not null;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	UID         uint      `gorm:"column:uid;not null"` // User ID
-	Class       Class     `gorm:"foreignKey:CID"`
+	Class       Class     `gorm:"foreignKey:CID;"`
 	User        User      `gorm:"foreignKey:UID"`
 }
