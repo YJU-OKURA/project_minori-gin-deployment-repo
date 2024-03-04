@@ -9,6 +9,13 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+      MYSQL_USER: ${{ secrets.MYSQL_USER }}
+      MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+      MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+      RUN_MIGRATIONS: ${{ secrets.RUN_MIGRATIONS }}
     if: contains(github.event.pull_request.labels.*.name, '🆗 safe') && github.event.pull_request.merged == true # 「🆗 safe」 ラベルがあり、マージされたプルリクエストに対してのみ実行
 
     steps:
