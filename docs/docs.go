@@ -434,6 +434,331 @@ const docTemplate = `{
                 }
             }
         },
+        "/cs": {
+            "get": {
+                "description": "指定されたクラスIDの全てのクラススケジュールを取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "class_schedule"
+                ],
+                "summary": "全てのクラススケジュールを取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "クラススケジュールが見つかりました",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.ClassSchedule"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "新しいクラススケジュールを作成する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "class_schedule"
+                ],
+                "summary": "クラススケジュールを作成",
+                "parameters": [
+                    {
+                        "description": "Class schedule to create",
+                        "name": "classSchedule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClassScheduleDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "クラススケジュールが正常に作成されました",
+                        "schema": {
+                            "$ref": "#/definitions/models.ClassSchedule"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストが不正です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/cs/date": {
+            "get": {
+                "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "class_schedule"
+                ],
+                "summary": "日付でクラススケジュールを取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Date",
+                        "name": "date",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "指定された日付のクラススケジュールが見つかりました",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.ClassSchedule"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "日付が必要です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/cs/live": {
+            "get": {
+                "description": "指定されたクラスIDのライブ中のクラススケジュールを取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "class_schedule"
+                ],
+                "summary": "ライブ中のクラススケジュールを取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ライブ中のクラススケジュールが見つかりました",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.ClassSchedule"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/cs/{id}": {
+            "get": {
+                "description": "指定されたIDのクラススケジュールを取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "class_schedule"
+                ],
+                "summary": "IDでクラススケジュールを取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "クラススケジュールが見つかりました",
+                        "schema": {
+                            "$ref": "#/definitions/models.ClassSchedule"
+                        }
+                    },
+                    "400": {
+                        "description": "無効なID形式です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "クラススケジュールが見つかりません",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "指定されたIDのクラススケジュールを更新する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "class_schedule"
+                ],
+                "summary": "クラススケジュールを更新",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Class schedule to update",
+                        "name": "classSchedule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateClassScheduleDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "クラススケジュールが正常に更新されました",
+                        "schema": {
+                            "$ref": "#/definitions/models.ClassSchedule"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストが不正です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "指定されたIDのクラススケジュールを削除する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "class_schedule"
+                ],
+                "summary": "クラススケジュールを削除",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class schedule ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "クラススケジュールが正常に削除されました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "無効なID形式です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/example/helloworld": {
             "get": {
                 "description": "do ping",
@@ -476,6 +801,49 @@ const docTemplate = `{
                 },
                 "is_announced": {
                     "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClassScheduleDTO": {
+            "type": "object",
+            "required": [
+                "cid",
+                "ended_at",
+                "started_at",
+                "title"
+            ],
+            "properties": {
+                "cid": {
+                    "type": "integer"
+                },
+                "ended_at": {
+                    "type": "string"
+                },
+                "is_live": {
+                    "type": "boolean"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateClassScheduleDTO": {
+            "type": "object",
+            "properties": {
+                "ended_at": {
+                    "type": "string"
+                },
+                "is_live": {
+                    "type": "boolean"
+                },
+                "started_at": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -538,6 +906,32 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "models.ClassSchedule": {
+            "type": "object",
+            "properties": {
+                "cid": {
+                    "type": "integer"
+                },
+                "class": {
+                    "$ref": "#/definitions/models.Class"
+                },
+                "endedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isLive": {
+                    "type": "boolean"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },
