@@ -47,27 +47,30 @@ func performMigrations(db *gorm.DB) {
 }
 
 // initializeControllers コントローラーを初期化する
-func initializeControllers(db *gorm.DB) (*controllers.ClassCodeController, *controllers.ClassBoardController, *controllers.ClassScheduleController) {
+func initializeControllers(db *gorm.DB) (*controllers.ClassCodeController, *controllers.ClassBoardController, *controllers.ClassScheduleController, *controllers.AttendanceController) {
 	classBoardRepo := repositories.NewClassBoardRepository(db)
 	classCodeRepo := repositories.NewClassCodeRepository(db)
 	classScheduleRepo := repositories.NewClassScheduleRepository(db)
 	classUserRepo := repositories.NewClassUserRepository(db)
 	roleRepo := repositories.NewRoleRepository(db)
+	attendanceRepo := repositories.NewAttendanceRepository(db)
 
 	classCodeService := services.NewClassCodeService(classCodeRepo)
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
+	attendanceService := services.NewAttendanceService(attendanceRepo)
 
 	uploader := utils.NewAwsUploader()
 	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
 	classCodeController := controllers.NewClassCodeController(classCodeService, classUserService)
 	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
+	attendanceController := controllers.NewAttendanceController(attendanceService)
 
-	return classCodeController, classBoardController, classScheduleController
+	return classCodeController, classBoardController, classScheduleController, attendanceController
 }
 
 // setupRouter ルーターをセットアップする
-func setupRouter(classCodeController *controllers.ClassCodeController, classBoardController *controllers.ClassBoardController, classScheduleController *controllers.ClassScheduleController) *gin.Engine {
+func setupRouter(classCodeController *controllers.ClassCodeController, classBoardController *controllers.ClassBoardController, classScheduleController *controllers.ClassScheduleController, controller *controllers.AttendanceController) *gin.Engine {
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/api/gin"
 
@@ -76,6 +79,7 @@ func setupRouter(classCodeController *controllers.ClassCodeController, classBoar
 	setupClassBoardRoutes(r, classBoardController)
 	setupClassCodeRoutes(r, classCodeController)
 	setupClassScheduleRoutes(r, classScheduleController)
+	setupAttendanceRoutes(r, controller)
 
 	return r
 }
@@ -113,6 +117,17 @@ func setupClassScheduleRoutes(r *gin.Engine, controller *controllers.ClassSchedu
 		cs.DELETE("/:id", controller.DeleteClassSchedule)   // クラススケジュールを削除する
 		cs.GET("/live", controller.GetLiveClassSchedules)   // ライブ中のクラススケジュールを取得する
 		cs.GET("/date", controller.GetClassSchedulesByDate) // 日付でクラススケジュールを取得する
+	}
+}
+
+// setupAttendanceRoutes Attendanceのルートをセットアップする
+func setupAttendanceRoutes(r *gin.Engine, controller *controllers.AttendanceController) {
+	at := r.Group("/api/gin/at")
+	{
+		at.POST("/:cid/:uid", controller.CreateOrUpdateAttendance) // 全ての出席を取得する
+		at.GET("/:cid", controller.GetAllAttendances)              // グループの全ての出席を取得する
+		at.GET("/attendance/:id", controller.GetAttendance)        // 出席を取得する
+		at.DELETE("/attendance/:id", controller.DeleteAttendance)  // 出席を削除する
 	}
 }
 
