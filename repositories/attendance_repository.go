@@ -8,7 +8,7 @@ import (
 // AttendanceRepository インタフェース
 type AttendanceRepository interface {
 	CreateAttendance(attendance *models.Attendance) error
-	GetAttendanceByUIDAndCID(uid, cid uint) (*models.Attendance, error)
+	GetAttendanceByUIDAndCID(uid uint, cid uint) (*models.Attendance, error)
 	UpdateAttendance(attendance *models.Attendance) error
 	GetAllAttendancesByCID(cid uint) ([]models.Attendance, error)
 	GetAttendanceByID(id string) (*models.Attendance, error)
@@ -31,7 +31,7 @@ func (db *attendanceConnection) CreateAttendance(attendance *models.Attendance) 
 }
 
 // GetAttendanceByUIDAndCID UIDとCIDによって出席情報を取得
-func (db *attendanceConnection) GetAttendanceByUIDAndCID(uid, cid uint) (*models.Attendance, error) {
+func (db *attendanceConnection) GetAttendanceByUIDAndCID(uid uint, cid uint) (*models.Attendance, error) {
 	var attendance models.Attendance
 	err := db.DB.Where("uid = ? AND cid = ?", uid, cid).First(&attendance).Error
 	return &attendance, err

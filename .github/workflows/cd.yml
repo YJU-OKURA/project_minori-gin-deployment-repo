@@ -8,36 +8,34 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, macOS, X64]
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Pull Docker Image
-        run: sudo docker pull ghcr.io/yju-okura/minori_gin:latest
-
-      - name: Delete Old Docker Container
-        run: sudo docker rm -f minori-gin-container || true
-
-      - name: Delete Old Docker Images
+      - name: Fetch EC2 Instance IP
+        id: fetch_ip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          IMAGE_ID=$(sudo docker images -q ghcr.io/yju-okura/minori_gin:latest)
-          sudo docker images -q | grep -v $IMAGE_ID | xargs -r sudo docker rmi
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $AWS_DEFAULT_REGION
+          ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=minori_Gin" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
+          echo "::set-output name=ip::$ip"
 
-      - name: Run Docker Container
+      - name: Setup SSH Key and Scan EC2 Host
         run: |
-          sudo docker run -d \
-          -p 80:8080 \
-          -p 3306:3306 \
-          -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
-          -e JWT_ACCESS_EXPIRATION=${{ secrets.JWT_ACCESS_EXPIRATION }} \
-          -e AWS_REGION=${{ secrets.AWS_REGION }} \
-          -e AWS_S3_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }} \
-          -e AWS_S3_SECRET_ACCESS_KEY=${{ secrets.AWS_S3_SECRET_ACCESS_KEY }} \
-          -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
-          -e AWS_CLOUDFRONT=${{ secrets.AWS_CLOUDFRONT }} \
-          -e OPENAI_API_KEY_FOR_NEST=${{ secrets.OPENAI_API_KEY_FOR_NEST }} \
-          -e LOCAL_STORAGE_PATH=${{ secrets.LOCAL_STORAGE_PATH }} \
-          -v ${{ secrets.VOLUME }}:${{ secrets.LOCAL_STORAGE_PATH }} \
-          --restart always \
-          --name minori-gin-container \
-          ghcr.io/yju-okura/minori_gin:latest
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ steps.fetch_ip.outputs.ip }} >> ~/.ssh/known_hosts
+
+      - name: Execute Deployment Commands on EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@${{ steps.fetch_ip.outputs.ip }} "
+          sudo docker pull ghcr.io/yju-okura/minori_gin:latest;
+          sudo docker rm -f minori_gin || true;
+          IMAGE_ID=$(sudo docker images -q ghcr.io/yju-okura/minori_gin:latest);
+          sudo docker images -q | grep -v $IMAGE_ID | xargs -r sudo docker rmi;
+          sudo docker run -d -p 80:8080 --env-file /volume/.env --restart always --name minori_gin ghcr.io/yju-okura/minori_gin:latest"
