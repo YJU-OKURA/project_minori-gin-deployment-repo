@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, macOS, X64]
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Pull Docker Image
@@ -26,18 +26,7 @@ jobs:
         run: |
           sudo docker run -d \
           -p 80:8080 \
-          -p 3306:3306 \
-          -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          -e JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} \
-          -e JWT_ACCESS_EXPIRATION=${{ secrets.JWT_ACCESS_EXPIRATION }} \
-          -e AWS_REGION=${{ secrets.AWS_REGION }} \
-          -e AWS_S3_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }} \
-          -e AWS_S3_SECRET_ACCESS_KEY=${{ secrets.AWS_S3_SECRET_ACCESS_KEY }} \
-          -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
-          -e AWS_CLOUDFRONT=${{ secrets.AWS_CLOUDFRONT }} \
-          -e OPENAI_API_KEY_FOR_NEST=${{ secrets.OPENAI_API_KEY_FOR_NEST }} \
-          -e LOCAL_STORAGE_PATH=${{ secrets.LOCAL_STORAGE_PATH }} \
-          -v ${{ secrets.VOLUME }}:${{ secrets.LOCAL_STORAGE_PATH }} \
+          --env-file /volume/.env \
           --restart always \
           --name minori-gin-container \
           ghcr.io/yju-okura/minori_gin:latest
