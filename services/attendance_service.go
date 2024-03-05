@@ -9,7 +9,7 @@ import (
 
 // AttendanceService インタフェース
 type AttendanceService interface {
-	CreateOrUpdateAttendance(cid, uid uint, status string) error
+	CreateOrUpdateAttendance(cid uint, uid uint, csid uint, status string) error
 	GetAllAttendancesByCID(cid uint) ([]models.Attendance, error)
 	GetAttendanceByID(id string) (*models.Attendance, error)
 	DeleteAttendance(id string) error
@@ -43,7 +43,7 @@ func (service *attendanceService) GetAttendanceByID(id string) (*models.Attendan
 }
 
 // CreateOrUpdateAttendance 出席情報を作成または更新
-func (service *attendanceService) CreateOrUpdateAttendance(cid, uid uint, status string) error {
+func (service *attendanceService) CreateOrUpdateAttendance(cid uint, uid uint, csid uint, status string) error {
 	attendance, err := service.AttendanceRepository.GetAttendanceByUIDAndCID(uid, cid)
 	if err != nil {
 		// レコードが見つからない場合は新規作成
@@ -51,6 +51,7 @@ func (service *attendanceService) CreateOrUpdateAttendance(cid, uid uint, status
 			newAttendance := models.Attendance{
 				CID:          cid,
 				UID:          uid,
+				CSID:         csid,
 				IsAttendance: status,
 			}
 			return service.AttendanceRepository.CreateAttendance(&newAttendance)
