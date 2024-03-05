@@ -1,7 +1,7 @@
 package models
 
 type Attendance struct {
-	Key          string    `gorm:"primaryKey;size:255"`
+	ID           string    `gorm:"primaryKey;size:255"`
 	CID          uint      `gorm:"column:cid;not null"` // Class ID
 	UID          uint      `gorm:"column:uid;not null"` // User ID
 	AttendanceID string    `gorm:"size:255;not null"`
