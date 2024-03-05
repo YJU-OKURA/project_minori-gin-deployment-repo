@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
@@ -17,8 +18,9 @@ import (
 )
 
 func main() {
+	setGinMode()
 	if err := loadEnvironment(); err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Fatalf("Error: %v", err)
 	}
 
 	db := migration.InitDB()
@@ -33,9 +35,37 @@ func shouldRunMigrations() bool {
 	return os.Getenv("RUN_MIGRATIONS") == "true"
 }
 
-// loadEnvironment .envファイルを読み込む
+// setGinMode Ginのモードを設定する
+func setGinMode() {
+	ginMode := os.Getenv("GIN_MODE")
+	if ginMode == "" {
+		ginMode = gin.ReleaseMode // デフォルトモード
+	}
+	gin.SetMode(ginMode)
+}
+
+// loadEnvironment 環境変数をロードする
 func loadEnvironment() error {
-	return godotenv.Load()
+	if _, err := os.Stat(".env"); err == nil {
+		if err := godotenv.Load(); err != nil {
+			return err
+		}
+	} else {
+		log.Println("No .env file found, using environment variables")
+	}
+
+	return checkRequiredEnvVars()
+}
+
+// checkRequiredEnvVars 必要な環境変数が設定されているかどうかを確認する
+func checkRequiredEnvVars() error {
+	requiredVars := []string{"MYSQL_HOST", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_DATABASE", "MYSQL_PORT"}
+	for _, varName := range requiredVars {
+		if os.Getenv(varName) == "" {
+			return fmt.Errorf("Required environment variable not set: %s", varName)
+		}
+	}
+	return nil
 }
 
 // performMigrations マイグレーションを実行する
