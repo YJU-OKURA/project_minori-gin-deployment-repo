@@ -124,10 +124,10 @@ func setupClassScheduleRoutes(r *gin.Engine, controller *controllers.ClassSchedu
 func setupAttendanceRoutes(r *gin.Engine, controller *controllers.AttendanceController) {
 	at := r.Group("/api/gin/at")
 	{
-		at.POST("/:cid/:uid", controller.CreateOrUpdateAttendance) // 全ての出席を取得する
-		at.GET("/:cid", controller.GetAllAttendances)              // グループの全ての出席を取得する
-		at.GET("/attendance/:id", controller.GetAttendance)        // 出席を取得する
-		at.DELETE("/attendance/:id", controller.DeleteAttendance)  // 出席を削除する
+		at.POST("/:cid/:uid/:csid", controller.CreateOrUpdateAttendance) // 全ての出席を取得する
+		at.GET("/:cid", controller.GetAllAttendances)                    // グループの全ての出席を取得する
+		at.GET("/attendance/:id", controller.GetAttendance)              // 出席を取得する
+		at.DELETE("/attendance/:id", controller.DeleteAttendance)        // 出席を削除する
 	}
 }
 
