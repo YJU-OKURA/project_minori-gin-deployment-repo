@@ -79,9 +79,9 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 	initializeSwagger(router)
 
-	classBoardController, classCodeController, classScheduleController, attendanceController := initializeControllers(db)
+	classBoardController, classCodeController, classScheduleController, classUserController, attendanceController := initializeControllers(db)
 
-	setupRoutes(router, classBoardController, classCodeController, classScheduleController, attendanceController)
+	setupRoutes(router, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController)
 
 	return router
 }
@@ -96,7 +96,7 @@ func startServer(router *gin.Engine) {
 	log.Fatal(router.Run(":" + port))
 }
 
-func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.AttendanceController) {
+func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController) {
 	classBoardRepo := repositories.NewClassBoardRepository(db)
 	classCodeRepo := repositories.NewClassCodeRepository(db)
 	classScheduleRepo := repositories.NewClassScheduleRepository(db)
@@ -113,15 +113,17 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *con
 	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
 	classCodeController := controllers.NewClassCodeController(classCodeService, classUserService)
 	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
+	classUserController := controllers.NewClassUserController(classUserService)
 	attendanceController := controllers.NewAttendanceController(attendanceService)
 
-	return classBoardController, classCodeController, classScheduleController, attendanceController
+	return classBoardController, classCodeController, classScheduleController, classUserController, attendanceController
 }
 
-func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, attendanceController *controllers.AttendanceController) {
+func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController) {
 	setupClassBoardRoutes(router, classBoardController)
 	setupClassCodeRoutes(router, classCodeController)
 	setupClassScheduleRoutes(router, classScheduleController)
+	setupClassUserRoutes(router, classUserController)
 	setupAttendanceRoutes(router, attendanceController)
 }
 
@@ -158,6 +160,14 @@ func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassS
 		cs.DELETE("/:id", controller.DeleteClassSchedule)
 		cs.GET("/live", controller.GetLiveClassSchedules)
 		cs.GET("/date", controller.GetClassSchedulesByDate)
+	}
+}
+
+// setupClassUserRoutes ClassUserのルートをセットアップする
+func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserController) {
+	cu := router.Group("/api/gin/cu")
+	{
+		cu.PATCH("/:uid/:cid/:role", controller.ChangeUserRole)
 	}
 }
 
