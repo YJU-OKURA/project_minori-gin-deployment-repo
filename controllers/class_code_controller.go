@@ -8,14 +8,14 @@ import (
 )
 
 type ClassCodeController struct {
-	Service          services.ClassCodeService
-	ClassUserService services.ClassUserService
+	classCodeService services.ClassCodeService
+	classUserService services.ClassUserService
 }
 
 func NewClassCodeController(classCodeService services.ClassCodeService, classUserService services.ClassUserService) *ClassCodeController {
 	return &ClassCodeController{
-		Service:          classCodeService,
-		ClassUserService: classUserService,
+		classCodeService: classCodeService,
+		classUserService: classUserService,
 	}
 }
 
@@ -30,16 +30,16 @@ func NewClassCodeController(classCodeService services.ClassCodeService, classUse
 // @Failure 400 {object} string "無効なリクエストです"
 // @Failure 404 {object} string "コードが見つかりません"
 // @Router /cc/checkSecretExists [get]
-func (controller *ClassCodeController) CheckSecretExists(c *gin.Context) {
-	code := c.Query("code")
+func (c *ClassCodeController) CheckSecretExists(ctx *gin.Context) {
+	code := ctx.Query("code")
 
-	secretExists, err := controller.Service.CheckSecretExists(code)
+	secretExists, err := c.classCodeService.CheckSecretExists(code)
 	if err != nil {
-		handleServiceError(c, err)
+		handleServiceError(ctx, err)
 		return
 	}
 
-	respondWithSuccess(c, constants.StatusOK, gin.H{"secretExists": secretExists})
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"secretExists": secretExists})
 }
 
 // VerifyClassCode godoc
@@ -56,31 +56,30 @@ func (controller *ClassCodeController) CheckSecretExists(c *gin.Context) {
 // @Failure 401 {object} string "シークレットが一致しません"
 // @Failure 404 {object} string "コードが見つかりません"
 // @Router /cc/verifyClassCode [get]
-func (controller *ClassCodeController) VerifyClassCode(c *gin.Context) {
-	code := c.Query("code")
-	secret := c.Query("secret")
-	uid, err := strconv.ParseUint(c.Query("uid"), 10, 64)
+func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
+	code := ctx.Query("code")
+	secret := ctx.Query("secret")
+	uid, err := parseUintQueryParam(ctx, "uid")
 	if err != nil {
-		respondWithError(c, constants.StatusBadRequest, constants.InvalidRequest)
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
-	classCode, err := controller.Service.VerifyClassCode(code, secret)
+	classCode, err := c.classCodeService.VerifyClassCode(code, secret)
 	if err != nil {
-		respondWithError(c, constants.StatusUnauthorized, constants.SecretMismatch)
+		handleServiceError(ctx, err)
 		return
 	}
 
-	if classCode == nil {
-		respondWithError(c, constants.StatusNotFound, constants.CodeNotFound)
-		return
-	}
-
-	err = controller.ClassUserService.AssignRole(uint(uid), classCode.CID, "APPLICANT")
+	err = c.classUserService.AssignRole(uint(uid), classCode.CID, "APPLICANT")
 	if err != nil {
-		respondWithError(c, constants.StatusInternalServerError, constants.AssignError)
+		respondWithError(ctx, constants.StatusInternalServerError, constants.AssignError)
 		return
 	}
 
-	respondWithSuccess(c, constants.StatusOK, gin.H{"message": constants.ClassMemberRegistration})
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.ClassMemberRegistration})
+}
+
+func parseUintQueryParam(ctx *gin.Context, param string) (uint64, error) {
+	return strconv.ParseUint(ctx.Query(param), 10, 64)
 }
