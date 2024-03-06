@@ -17,34 +17,19 @@ type AttendanceService interface {
 
 // attendanceService インタフェースを実装
 type attendanceService struct {
-	AttendanceRepository repositories.AttendanceRepository
-}
-
-// attendanceServiceImpl はAttendanceの実装です。
-type attendanceServiceImpl struct {
-	Repo *repositories.AttendanceRepository
+	repo repositories.AttendanceRepository
 }
 
 // NewAttendanceService AttendanceServiceを生成
 func NewAttendanceService(repo repositories.AttendanceRepository) AttendanceService {
 	return &attendanceService{
-		AttendanceRepository: repo,
+		repo: repo,
 	}
 }
 
-// GetAllAttendancesByCID CIDによって全ての出席情報を取得
-func (service *attendanceService) GetAllAttendancesByCID(cid uint) ([]models.Attendance, error) {
-	return service.AttendanceRepository.GetAllAttendancesByCID(cid)
-}
-
-// GetAttendanceByID IDによって出席情報を取得
-func (service *attendanceService) GetAttendanceByID(id string) (*models.Attendance, error) {
-	return service.AttendanceRepository.GetAttendanceByID(id)
-}
-
 // CreateOrUpdateAttendance 出席情報を作成または更新
-func (service *attendanceService) CreateOrUpdateAttendance(cid uint, uid uint, csid uint, status string) error {
-	attendance, err := service.AttendanceRepository.GetAttendanceByUIDAndCID(uid, cid)
+func (s *attendanceService) CreateOrUpdateAttendance(cid uint, uid uint, csid uint, status string) error {
+	attendance, err := s.repo.GetAttendanceByUIDAndCID(uid, cid)
 	if err != nil {
 		// レコードが見つからない場合は新規作成
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -54,17 +39,27 @@ func (service *attendanceService) CreateOrUpdateAttendance(cid uint, uid uint, c
 				CSID:         csid,
 				IsAttendance: status,
 			}
-			return service.AttendanceRepository.CreateAttendance(&newAttendance)
+			return s.repo.CreateAttendance(&newAttendance)
 		}
 		return err
 	}
 
 	// レコードが見つかった場合は更新
 	attendance.IsAttendance = status
-	return service.AttendanceRepository.UpdateAttendance(attendance)
+	return s.repo.UpdateAttendance(attendance)
+}
+
+// GetAllAttendancesByCID CIDによって全ての出席情報を取得
+func (s *attendanceService) GetAllAttendancesByCID(cid uint) ([]models.Attendance, error) {
+	return s.repo.GetAllAttendancesByCID(cid)
+}
+
+// GetAttendanceByID IDによって出席情報を取得
+func (s *attendanceService) GetAttendanceByID(id string) (*models.Attendance, error) {
+	return s.repo.GetAttendanceByID(id)
 }
 
 // DeleteAttendance 出席情報を削除
-func (service *attendanceService) DeleteAttendance(id string) error {
-	return service.AttendanceRepository.DeleteAttendance(id)
+func (s *attendanceService) DeleteAttendance(id string) error {
+	return s.repo.DeleteAttendance(id)
 }

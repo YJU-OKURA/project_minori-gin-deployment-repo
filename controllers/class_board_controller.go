@@ -28,8 +28,8 @@ func NewClassBoardController(service services.ClassBoardService, uploader utils.
 }
 
 // CreateClassBoard godoc
-// @Summary Create a new class board
-// @Description Create a new class board with the provided information, including image upload.
+// @Summary クラス掲示板を作成
+// @Description クラス掲示板を作成します。
 // @Tags class_board
 // @Accept multipart/form-data
 // @Produce json
@@ -45,9 +45,7 @@ func NewClassBoardController(service services.ClassBoardService, uploader utils.
 // @Router /cb [post]
 func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 	var createDTO dto.ClassBoardCreateDTO
-
 	if err := ctx.ShouldBindWith(&createDTO, binding.FormMultipart); err != nil {
-		log.Printf("Error in ShouldBindWith: %v", err)
 		respondWithError(ctx, constants.StatusBadRequest, constants.BadRequestMessage)
 		return
 	}
@@ -57,12 +55,10 @@ func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 		handleServiceError(ctx, err)
 		return
 	}
-
 	createDTO.ImageURL = imageUrl
-	// Proceed with service call
+
 	result, err := c.classBoardService.CreateClassBoard(createDTO)
 	if err != nil {
-		log.Printf("Error in CreateClassBoard service: %v", err)
 		handleServiceError(ctx, err)
 		return
 	}
@@ -85,14 +81,16 @@ func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 func (c *ClassBoardController) GetClassBoardByID(ctx *gin.Context) {
 	ID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.BadRequestMessage)
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
+
 	result, err := c.classBoardService.GetClassBoardByID(uint(ID))
 	if err != nil {
 		handleServiceError(ctx, err)
 		return
 	}
+
 	respondWithSuccess(ctx, constants.StatusOK, result)
 }
 
@@ -205,7 +203,7 @@ func (c *ClassBoardController) DeleteClassBoard(ctx *gin.Context) {
 		handleServiceError(ctx, err)
 		return
 	}
-	respondWithSuccess(ctx, constants.StatusOK, "Class board deleted successfully")
+	respondWithSuccess(ctx, constants.StatusOK, constants.DeleteSuccess)
 }
 
 // respondWithError エラーレスポンスを返す
@@ -221,7 +219,7 @@ func (c *ClassBoardController) handleImageUpload(ctx *gin.Context) (string, erro
 		if errors.Is(err, http.ErrMissingFile) {
 			return "", nil // No file was uploaded
 		}
-		return "", err // Error handling file upload
+		return "", err
 	}
 
 	imageUrl, err := c.uploader.UploadImage(fileHeader, uint(cid), false)

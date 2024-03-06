@@ -8,7 +8,7 @@ import (
 // ClassBoardRepository インタフェース
 type ClassBoardRepository interface {
 	InsertClassBoard(b *models.ClassBoard) (*models.ClassBoard, error)
-	FindByID(ID uint) (*models.ClassBoard, error)
+	FindByID(id uint) (*models.ClassBoard, error)
 	FindAll(cid uint) ([]models.ClassBoard, error)
 	FindAnnounced(isAnnounced bool, cid uint) ([]models.ClassBoard, error)
 	UpdateClassBoard(b *models.ClassBoard) error
@@ -16,51 +16,48 @@ type ClassBoardRepository interface {
 }
 
 // classBoardConnection グループ掲示板リポジトリ
-type classBoardConnection struct {
-	DB *gorm.DB
+type classBoardRepository struct {
+	db *gorm.DB
 }
 
 // NewClassBoardRepository グループ掲示板リポジトリを生成
 func NewClassBoardRepository(db *gorm.DB) ClassBoardRepository {
-	return &classBoardConnection{DB: db}
+	return &classBoardRepository{db: db}
 }
 
 // InsertClassBoard グループ掲示板を作成
-func (db *classBoardConnection) InsertClassBoard(b *models.ClassBoard) (*models.ClassBoard, error) {
-	result := db.DB.Create(b)
+func (repo *classBoardRepository) InsertClassBoard(b *models.ClassBoard) (*models.ClassBoard, error) {
+	result := repo.db.Create(b)
 	return b, result.Error
 }
 
 // FindByID IDでグループ掲示板を取得
-func (db *classBoardConnection) FindByID(ID uint) (*models.ClassBoard, error) {
+func (repo *classBoardRepository) FindByID(id uint) (*models.ClassBoard, error) {
 	var classBoard models.ClassBoard
-	result := db.DB.First(&classBoard, ID)
-	return &classBoard, result.Error
-}
-
-// FindAnnounced 公開されたグループ掲示板を取得
-func (db *classBoardConnection) FindAnnounced(isAnnounced bool, cid uint) ([]models.ClassBoard, error) {
-	var classBoards []models.ClassBoard
-	result := db.DB.Where("is_announced = ? AND cid = ?", isAnnounced, cid).Find(&classBoards)
-	return classBoards, result.Error
+	err := repo.db.First(&classBoard, id).Error
+	return &classBoard, err
 }
 
 // FindAll 全てのグループ掲示板を取得
-func (db *classBoardConnection) FindAll(cid uint) ([]models.ClassBoard, error) {
+func (repo *classBoardRepository) FindAll(cid uint) ([]models.ClassBoard, error) {
 	var classBoards []models.ClassBoard
-	result := db.DB.Where("cid = ?", cid).Find(&classBoards)
-	return classBoards, result.Error
+	err := repo.db.Where("cid = ?", cid).Find(&classBoards).Error
+	return classBoards, err
+}
+
+// FindAnnounced 公開されたグループ掲示板を取得
+func (repo *classBoardRepository) FindAnnounced(isAnnounced bool, cid uint) ([]models.ClassBoard, error) {
+	var classBoards []models.ClassBoard
+	err := repo.db.Where("is_announced = ? AND cid = ?", isAnnounced, cid).Find(&classBoards).Error
+	return classBoards, err
 }
 
 // UpdateClassBoard グループ掲示板を更新
-func (db *classBoardConnection) UpdateClassBoard(b *models.ClassBoard) error {
-	result := db.DB.Save(b)
-	return result.Error
+func (repo *classBoardRepository) UpdateClassBoard(b *models.ClassBoard) error {
+	return repo.db.Save(b).Error
 }
 
 // DeleteClassBoard グループ掲示板を削除
-func (db *classBoardConnection) DeleteClassBoard(id uint) error {
-	var classBoard models.ClassBoard
-	result := db.DB.Delete(&classBoard, id)
-	return result.Error
+func (repo *classBoardRepository) DeleteClassBoard(id uint) error {
+	return repo.db.Delete(&models.ClassBoard{}, id).Error
 }

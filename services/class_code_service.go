@@ -14,17 +14,17 @@ type ClassCodeService interface {
 
 // classCodeServiceImpl はClassCodeServiceの実装です。
 type classCodeServiceImpl struct {
-	Repo *repositories.ClassCodeRepository
+	repo *repositories.ClassCodeRepository
 }
 
 // NewClassCodeService はClassCodeServiceを生成します。
 func NewClassCodeService(repo *repositories.ClassCodeRepository) ClassCodeService {
-	return &classCodeServiceImpl{Repo: repo}
+	return &classCodeServiceImpl{repo: repo}
 }
 
 // CheckSecretExists は指定されたグループコードにシークレットがあるかどうかをチェックします。
-func (service *classCodeServiceImpl) CheckSecretExists(code string) (bool, error) {
-	classCode, err := service.Repo.FindByCode(code)
+func (s *classCodeServiceImpl) CheckSecretExists(code string) (bool, error) {
+	classCode, err := s.repo.FindByCode(code)
 	if err != nil {
 		return false, err
 	}
@@ -32,8 +32,8 @@ func (service *classCodeServiceImpl) CheckSecretExists(code string) (bool, error
 }
 
 // VerifyClassCode はグループコードと、該当する場合はそのシークレットを確認します。
-func (service *classCodeServiceImpl) VerifyClassCode(code, secret string) (*models.ClassCode, error) {
-	classCode, err := service.Repo.FindByCode(code)
+func (s *classCodeServiceImpl) VerifyClassCode(code string, secret string) (*models.ClassCode, error) {
+	classCode, err := s.repo.FindByCode(code)
 	if err != nil {
 		return nil, err
 	}

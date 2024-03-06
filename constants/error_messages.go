@@ -7,6 +7,8 @@ const (
 	ErrNoFileHeaderJP = "ファイルヘッダが提供されていません"   // 400 Bad Request
 	ErrFileSizeJP     = "ファイルサイズが10MBを超えています" // 400 Bad Request
 	ErrMimeTypeJP     = "ファイルタイプが画像ではありません"   // 400 Bad Request
+	ErrNoDateJP       = "日付が提供されていません"        // 400 Bad Request
+	ErrInvalidInput   = "無効な入力です"             // 400 Bad Request
 )
 
 // 認証関連のエラーメッセージ
@@ -14,6 +16,7 @@ const (
 	Unauthorized   = "認証に失敗しました"     // 401 Unauthorized
 	SecretMismatch = "シークレットが一致しません" // 401 Unauthorized
 	CodeNotFound   = "コードが見つかりません"   // 404 Not Found
+	ClassNotFound  = "クラスが見つかりません"   // 404 Not Found
 )
 
 // サーバーエラー&データベース関連のエラーメッセージ
@@ -36,4 +39,6 @@ const (
 	SecretExists            = "シークレットが存在します"      // 200 OK
 	ClassCodeVerified       = "クラスコードが検証されました"    // 200 OK
 	ClassMemberRegistration = "クラスコードの確認と役割の割り当て" // 200 OK
+	CreateOrUpdateSuccess   = "作成または更新に成功しました"    // 200 OK
+	DeleteSuccess           = "削除に成功しました"         // 200 OK
 )

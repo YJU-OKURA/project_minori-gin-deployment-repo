@@ -45,7 +45,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Server error",
+                        "description": "サーバーエラーが発生しました",
                         "schema": {
                             "type": "string"
                         }
@@ -75,54 +75,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Attendance deleted successfully",
+                        "description": "削除に成功しました",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/at/{cid}": {
-            "get": {
-                "description": "クラスの全ての出席情報を取得",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "attendance"
-                ],
-                "summary": "クラスの全ての出席情報を取得",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "cid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of attendances",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Attendance"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
+                        "description": "サーバーエラーが発生しました",
                         "schema": {
                             "type": "string"
                         }
@@ -175,13 +134,54 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "success",
+                        "description": "作成または更新に成功しました",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Server error",
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/at/{classID}": {
+            "get": {
+                "description": "クラスの全ての出席情報を取得",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "attendance"
+                ],
+                "summary": "クラスの全ての出席情報を取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "classID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attendance",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Attendance"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
                         "schema": {
                             "type": "string"
                         }
@@ -233,7 +233,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new class board with the provided information, including image upload.",
+                "description": "クラス掲示板を作成します。",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -243,7 +243,7 @@ const docTemplate = `{
                 "tags": [
                     "class_board"
                 ],
-                "summary": "Create a new class board",
+                "summary": "クラス掲示板を作成",
                 "parameters": [
                     {
                         "type": "string",

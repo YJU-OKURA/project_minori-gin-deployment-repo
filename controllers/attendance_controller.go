@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
@@ -19,46 +20,6 @@ func NewAttendanceController(service services.AttendanceService) *AttendanceCont
 	}
 }
 
-// GetAllAttendances godoc
-// @Summary クラスの全ての出席情報を取得
-// @Description クラスの全ての出席情報を取得
-// @Tags attendance
-// @Accept json
-// @Produce json
-// @Param cid path int true "Class ID"
-// @Success 200 {array} models.Attendance "List of attendances"
-// @Failure 500 {string} string "Server error"
-// @Router /at/{cid} [get]
-func (controller *AttendanceController) GetAllAttendances(c *gin.Context) {
-	cid, _ := strconv.ParseUint(c.Param("cid"), 10, 32)
-	attendances, err := controller.attendanceService.GetAllAttendancesByCID(uint(cid))
-	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(constants.StatusOK, attendances)
-}
-
-// GetAttendance godoc
-// @Summary 出席情報を取得
-// @Description 指定されたIDの出席情報を取得
-// @Tags attendance
-// @Accept json
-// @Produce json
-// @Param id path int true "Attendance ID"
-// @Success 200 {object} models.Attendance "Attendance"
-// @Failure 500 {string} string "Server error"
-// @Router /at/attendance/{id} [get]
-func (controller *AttendanceController) GetAttendance(c *gin.Context) {
-	id := c.Param("id")
-	attendance, err := controller.attendanceService.GetAttendanceByID(id)
-	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(constants.StatusOK, attendance)
-}
-
 // CreateOrUpdateAttendance godoc
 // @Summary 出席情報を作成または更新
 // @Description 出席情報を作成または更新
@@ -69,21 +30,71 @@ func (controller *AttendanceController) GetAttendance(c *gin.Context) {
 // @Param uid path int true "User ID"
 // @Param csid path int true "Class Schedule ID"
 // @Param status query string true "Status"
-// @Success 200 {string} string "success"
-// @Failure 500 {string} string "Server error"
+// @Success 200 {string} string "作成または更新に成功しました"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /at/{cid}/{uid}/{csid} [post]
-func (controller *AttendanceController) CreateOrUpdateAttendance(c *gin.Context) {
-	cid, _ := strconv.ParseUint(c.Param("cid"), 10, 32)
-	uid, _ := strconv.ParseUint(c.Param("uid"), 10, 32)
-	csid, _ := strconv.ParseUint(c.Param("csid"), 10, 32)
-	status := c.Query("status")
+func (ac *AttendanceController) CreateOrUpdateAttendance(ctx *gin.Context) {
+	classID, classIDErr := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+	userID, userIDErr := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	scheduleID, scheduleIDErr := strconv.ParseUint(ctx.Param("csid"), 10, 32)
 
-	err := controller.attendanceService.CreateOrUpdateAttendance(uint(cid), uint(uid), uint(csid), status)
-	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+	if classIDErr != nil || userIDErr != nil || scheduleIDErr != nil {
+		handleServiceError(ctx, fmt.Errorf(constants.InvalidRequest))
 		return
 	}
-	c.JSON(constants.StatusOK, gin.H{"message": "success"})
+
+	status := ctx.Query("status")
+	err := ac.attendanceService.CreateOrUpdateAttendance(uint(classID), uint(userID), uint(scheduleID), status)
+	if err != nil {
+		handleServiceError(ctx, err)
+		return
+	}
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.CreateOrUpdateSuccess})
+}
+
+// GetAllAttendances godoc
+// @Summary クラスの全ての出席情報を取得
+// @Description クラスの全ての出席情報を取得
+// @Tags attendance
+// @Accept json
+// @Produce json
+// @Param classID path int true "Class ID"
+// @Success 200 {array} models.Attendance "Attendance"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
+// @Router /at/{classID} [get]
+func (ac *AttendanceController) GetAllAttendances(ctx *gin.Context) {
+	classID, err := strconv.ParseUint(ctx.Param("classID"), 10, 32)
+	if err != nil {
+		handleServiceError(ctx, fmt.Errorf(constants.InvalidRequest))
+		return
+	}
+
+	attendances, serviceErr := ac.attendanceService.GetAllAttendancesByCID(uint(classID))
+	if serviceErr != nil {
+		handleServiceError(ctx, serviceErr)
+		return
+	}
+	respondWithSuccess(ctx, constants.StatusOK, attendances)
+}
+
+// GetAttendance godoc
+// @Summary 出席情報を取得
+// @Description 指定されたIDの出席情報を取得
+// @Tags attendance
+// @Accept json
+// @Produce json
+// @Param id path int true "Attendance ID"
+// @Success 200 {object} models.Attendance "Attendance"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
+// @Router /at/attendance/{id} [get]
+func (ac *AttendanceController) GetAttendance(ctx *gin.Context) {
+	attendanceID := ctx.Param("id")
+	attendance, err := ac.attendanceService.GetAttendanceByID(attendanceID)
+	if err != nil {
+		handleServiceError(ctx, err)
+		return
+	}
+	respondWithSuccess(ctx, constants.StatusOK, attendance)
 }
 
 // DeleteAttendance godoc
@@ -93,15 +104,15 @@ func (controller *AttendanceController) CreateOrUpdateAttendance(c *gin.Context)
 // @Accept json
 // @Produce json
 // @Param id path int true "Attendance ID"
-// @Success 200 {string} string "Attendance deleted successfully"
-// @Failure 500 {string} string "Server error"
+// @Success 200 {string} string "削除に成功しました"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /at/attendance/{id} [delete]
-func (controller *AttendanceController) DeleteAttendance(c *gin.Context) {
-	id := c.Param("id")
-	err := controller.attendanceService.DeleteAttendance(id)
-	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+func (ac *AttendanceController) DeleteAttendance(ctx *gin.Context) {
+	attendanceID := ctx.Param("id")
+	if err := ac.attendanceService.DeleteAttendance(attendanceID); err != nil {
+		handleServiceError(ctx, err)
 		return
 	}
-	c.JSON(constants.StatusOK, gin.H{"message": "Attendance deleted successfully"})
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.DeleteSuccess})
 }
