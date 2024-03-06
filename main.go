@@ -7,12 +7,14 @@ import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/utils"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -65,6 +67,16 @@ func migrateDatabaseIfNeeded(db *gorm.DB) {
 
 func setupRouter(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},                                                         // 許可するオリジン
+		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE"},                     // リクエストメソッド
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"}, // リクエストヘッダに含めるヘッダ
+		ExposeHeaders:    []string{"Content-Length"},                                            // レスポンスヘッダに含めるヘッダ
+		AllowCredentials: true,                                                                  // クッキーを許可
+		MaxAge:           12 * time.Hour,                                                        // 12時間
+	}))
+
 	initializeSwagger(router)
 
 	classBoardController, classCodeController, classScheduleController, attendanceController := initializeControllers(db)
