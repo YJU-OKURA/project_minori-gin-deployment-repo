@@ -8,9 +8,9 @@ import (
 
 // ClassScheduleService インタフェース
 type ClassScheduleService interface {
+	CreateClassSchedule(classSchedule *models.ClassSchedule) (*models.ClassSchedule, error)
 	GetClassScheduleByID(cid uint) (*models.ClassSchedule, error)
 	GetAllClassSchedules(cid uint) ([]models.ClassSchedule, error)
-	CreateClassSchedule(classSchedule *models.ClassSchedule) (*models.ClassSchedule, error)
 	UpdateClassSchedule(id uint, dto *dto.UpdateClassScheduleDTO) (*models.ClassSchedule, error)
 	DeleteClassSchedule(id uint) error
 	GetLiveClassSchedules(cid uint) ([]models.ClassSchedule, error)
@@ -19,40 +19,35 @@ type ClassScheduleService interface {
 
 // classScheduleService インタフェースを実装
 type classScheduleService struct {
-	ClassScheduleRepository repositories.ClassScheduleRepository
-}
-
-// classScheduleServiceImpl はClassScheduleServiceの実装です。
-type classScheduleServiceImpl struct {
-	Repo *repositories.ClassScheduleRepository
+	repo repositories.ClassScheduleRepository
 }
 
 // NewClassScheduleService ClassScheduleServiceを生成
 func NewClassScheduleService(repo repositories.ClassScheduleRepository) ClassScheduleService {
 	return &classScheduleService{
-		ClassScheduleRepository: repo,
+		repo: repo,
 	}
 }
 
 // GetClassScheduleByID クラススケジュールを取得
-func (service *classScheduleService) GetClassScheduleByID(cid uint) (*models.ClassSchedule, error) {
-	return service.ClassScheduleRepository.GetClassScheduleByID(cid)
+func (s *classScheduleService) GetClassScheduleByID(cid uint) (*models.ClassSchedule, error) {
+	return s.repo.GetClassScheduleByID(cid)
 }
 
 // GetAllClassSchedules 全てのクラススケジュールを取得
-func (service *classScheduleService) GetAllClassSchedules(cid uint) ([]models.ClassSchedule, error) {
-	return service.ClassScheduleRepository.GetAllClassSchedules(cid)
+func (s *classScheduleService) GetAllClassSchedules(cid uint) ([]models.ClassSchedule, error) {
+	return s.repo.GetAllClassSchedules(cid)
 }
 
 // CreateClassSchedule 新しいクラススケジュールを作成
-func (service *classScheduleService) CreateClassSchedule(classSchedule *models.ClassSchedule) (*models.ClassSchedule, error) {
-	err := service.ClassScheduleRepository.CreateClassSchedule(classSchedule)
+func (s *classScheduleService) CreateClassSchedule(classSchedule *models.ClassSchedule) (*models.ClassSchedule, error) {
+	err := s.repo.CreateClassSchedule(classSchedule)
 	return classSchedule, err
 }
 
 // UpdateClassSchedule クラススケジュールを更新
-func (service *classScheduleService) UpdateClassSchedule(id uint, dto *dto.UpdateClassScheduleDTO) (*models.ClassSchedule, error) {
-	classSchedule, err := service.ClassScheduleRepository.GetClassScheduleByID(id)
+func (s *classScheduleService) UpdateClassSchedule(id uint, dto *dto.UpdateClassScheduleDTO) (*models.ClassSchedule, error) {
+	classSchedule, err := s.repo.GetClassScheduleByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +65,7 @@ func (service *classScheduleService) UpdateClassSchedule(id uint, dto *dto.Updat
 		classSchedule.IsLive = *dto.IsLive
 	}
 
-	err = service.ClassScheduleRepository.UpdateClassSchedule(classSchedule)
+	err = s.repo.UpdateClassSchedule(classSchedule)
 	if err != nil {
 		return nil, err
 	}
@@ -79,16 +74,16 @@ func (service *classScheduleService) UpdateClassSchedule(id uint, dto *dto.Updat
 }
 
 // DeleteClassSchedule クラススケジュールを削除
-func (service *classScheduleService) DeleteClassSchedule(id uint) error {
-	return service.ClassScheduleRepository.DeleteClassSchedule(id)
+func (s *classScheduleService) DeleteClassSchedule(id uint) error {
+	return s.repo.DeleteClassSchedule(id)
 }
 
 // GetLiveClassSchedules ライブ中のクラススケジュールを取得
-func (service *classScheduleService) GetLiveClassSchedules(cid uint) ([]models.ClassSchedule, error) {
-	return service.ClassScheduleRepository.FindLiveClassSchedules(cid)
+func (s *classScheduleService) GetLiveClassSchedules(cid uint) ([]models.ClassSchedule, error) {
+	return s.repo.FindLiveClassSchedules(cid)
 }
 
 // GetClassSchedulesByDate 日付でクラススケジュールを取得
-func (service *classScheduleService) GetClassSchedulesByDate(cid uint, date string) ([]models.ClassSchedule, error) {
-	return service.ClassScheduleRepository.FindClassSchedulesByDate(cid, date)
+func (s *classScheduleService) GetClassSchedulesByDate(cid uint, date string) ([]models.ClassSchedule, error) {
+	return s.repo.FindClassSchedulesByDate(cid, date)
 }
