@@ -19,30 +19,24 @@ type ClassBoardService interface {
 
 // classBoardService インタフェースを実装
 type classBoardService struct {
-	ClassBoardRepository repositories.ClassBoardRepository
-	uploader             utils.Uploader
-}
-
-// classBoardServiceImpl はClassBoardServiceの実装です。
-type classBoardServiceImpl struct {
-	Repo *repositories.ClassBoardRepository
+	repo     repositories.ClassBoardRepository
+	uploader utils.Uploader
 }
 
 // NewClassBoardService ClassClassServiceを生成
 func NewClassBoardService(repo repositories.ClassBoardRepository) ClassBoardService {
 	return &classBoardService{
-		ClassBoardRepository: repo,
-		uploader:             utils.NewAwsUploader(),
+		repo:     repo,
+		uploader: utils.NewAwsUploader(),
 	}
 }
 
 // CreateClassBoard 新しいグループ掲示板を作成
-// func (service *classBoardService) CreateClassBoard(b dto.ClassBoardCreateDTO, imageUrl string) (*models.ClassBoard, error) {
-func (service *classBoardService) CreateClassBoard(b dto.ClassBoardCreateDTO) (*models.ClassBoard, error) {
+func (s *classBoardService) CreateClassBoard(b dto.ClassBoardCreateDTO) (*models.ClassBoard, error) {
 	var imageUrl string
 	var err error
 	if b.Image != nil {
-		imageUrl, err = service.uploader.UploadImage(b.Image, b.CID, false)
+		imageUrl, err = s.uploader.UploadImage(b.Image, b.CID, false)
 		if err != nil {
 			return nil, err
 		}
@@ -56,27 +50,27 @@ func (service *classBoardService) CreateClassBoard(b dto.ClassBoardCreateDTO) (*
 		CID:         b.CID,
 		UID:         b.UID,
 	}
-	return service.ClassBoardRepository.InsertClassBoard(&classBoard)
-}
-
-// GetClassBoardByID IDでグループ掲示板を取得
-func (service *classBoardService) GetClassBoardByID(id uint) (*models.ClassBoard, error) {
-	return service.ClassBoardRepository.FindByID(id)
+	return s.repo.InsertClassBoard(&classBoard)
 }
 
 // GetAllClassBoards 全てのグループ掲示板を取得
-func (service *classBoardService) GetAllClassBoards(cid uint) ([]models.ClassBoard, error) {
-	return service.ClassBoardRepository.FindAll(cid)
+func (s *classBoardService) GetAllClassBoards(cid uint) ([]models.ClassBoard, error) {
+	return s.repo.FindAll(cid)
+}
+
+// GetClassBoardByID IDでグループ掲示板を取得
+func (s *classBoardService) GetClassBoardByID(id uint) (*models.ClassBoard, error) {
+	return s.repo.FindByID(id)
 }
 
 // GetAnnouncedClassBoards 公開されたグループ掲示板を取得
-func (service *classBoardService) GetAnnouncedClassBoards(cid uint) ([]models.ClassBoard, error) {
-	return service.ClassBoardRepository.FindAnnounced(true, cid)
+func (s *classBoardService) GetAnnouncedClassBoards(cid uint) ([]models.ClassBoard, error) {
+	return s.repo.FindAnnounced(true, cid)
 }
 
 // UpdateClassBoard 更新
-func (service *classBoardService) UpdateClassBoard(id uint, b dto.ClassBoardUpdateDTO, imageUrl string) (*models.ClassBoard, error) {
-	classBoard, err := service.GetClassBoardByID(id)
+func (s *classBoardService) UpdateClassBoard(id uint, b dto.ClassBoardUpdateDTO, imageUrl string) (*models.ClassBoard, error) {
+	classBoard, err := s.GetClassBoardByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -90,9 +84,10 @@ func (service *classBoardService) UpdateClassBoard(id uint, b dto.ClassBoardUpda
 	if b.Content != "" {
 		classBoard.Content = b.Content
 	}
+
 	classBoard.IsAnnounced = b.IsAnnounced
 
-	err = service.ClassBoardRepository.UpdateClassBoard(classBoard)
+	err = s.repo.UpdateClassBoard(classBoard)
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +96,6 @@ func (service *classBoardService) UpdateClassBoard(id uint, b dto.ClassBoardUpda
 }
 
 // DeleteClassBoard 削除
-func (service *classBoardService) DeleteClassBoard(id uint) error {
-	return service.ClassBoardRepository.DeleteClassBoard(id)
+func (s *classBoardService) DeleteClassBoard(id uint) error {
+	return s.repo.DeleteClassBoard(id)
 }
