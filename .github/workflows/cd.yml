@@ -9,33 +9,24 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      EC2_IP: ${{ secrets.AWS_EC2_GIN_IP }}
 
     steps:
-      - name: Fetch EC2 Instance IP
-        id: fetch_ip
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          aws configure set default.region $AWS_DEFAULT_REGION
-          ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=minori_Gin" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
-          echo "::set-output name=ip::$ip"
-
       - name: Setup SSH Key and Scan EC2 Host
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ steps.fetch_ip.outputs.ip }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ env.EC2_IP }} >> ~/.ssh/known_hosts
 
       - name: Execute Deployment Commands on EC2
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@${{ steps.fetch_ip.outputs.ip }} "
+          ssh -i ~/.ssh/id_rsa ubuntu@${{ env.EC2_IP }} "
           sudo docker pull ghcr.io/yju-okura/minori_gin:latest;
           sudo docker rm -f minori_gin || true;
-          IMAGE_ID=$(sudo docker images -q ghcr.io/yju-okura/minori_gin:latest);
-          sudo docker images -q | grep -v $IMAGE_ID | xargs -r sudo docker rmi;
+          IMAGE_ID=$(sudo docker images -q ghcr.io/yju-okura/minori_gin:latest | head -n 1);
+          if [ ! -z \"$IMAGE_ID\" ]; then
+            sudo docker images -q | grep -v $IMAGE_ID | xargs -r sudo docker rmi;
+          fi;
           sudo docker run -d -p 80:8080 --env-file /volume/.env --restart always --name minori_gin ghcr.io/yju-okura/minori_gin:latest"
