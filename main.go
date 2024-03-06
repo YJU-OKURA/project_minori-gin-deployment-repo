@@ -1,6 +1,10 @@
 package main
 
 import (
+	"log"
+	"os"
+	"time"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
@@ -12,9 +16,6 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
-	"log"
-	"os"
-	"time"
 )
 
 func main() {
@@ -79,9 +80,9 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 	initializeSwagger(router)
 
-	classBoardController, classCodeController, classScheduleController, classUserController, attendanceController := initializeControllers(db)
+	classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController := initializeControllers(db)
 
-	setupRoutes(router, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController)
+	setupRoutes(router, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController)
 
 	return router
 }
@@ -96,7 +97,7 @@ func startServer(router *gin.Engine) {
 	log.Fatal(router.Run(":" + port))
 }
 
-func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController) {
+func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, *controllers.GoogleAuthController) {
 	classBoardRepo := repositories.NewClassBoardRepository(db)
 	classCodeRepo := repositories.NewClassCodeRepository(db)
 	classScheduleRepo := repositories.NewClassScheduleRepository(db)
@@ -108,6 +109,7 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *con
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
 	attendanceService := services.NewAttendanceService(attendanceRepo)
+	googleAuthService := services.NewGoogleAuthService()
 
 	uploader := utils.NewAwsUploader()
 	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
@@ -115,16 +117,28 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *con
 	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
 	classUserController := controllers.NewClassUserController(classUserService)
 	attendanceController := controllers.NewAttendanceController(attendanceService)
+	googleAuthController := controllers.NewGoogleAuthController(googleAuthService)
 
-	return classBoardController, classCodeController, classScheduleController, classUserController, attendanceController
+	return classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController
 }
 
-func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController) {
+func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, googleAuthController *controllers.GoogleAuthController) {
 	setupClassBoardRoutes(router, classBoardController)
 	setupClassCodeRoutes(router, classCodeController)
 	setupClassScheduleRoutes(router, classScheduleController)
 	setupClassUserRoutes(router, classUserController)
 	setupAttendanceRoutes(router, attendanceController)
+	setupGoogleAuthRoutes(router, googleAuthController)
+
+}
+
+// setupGoogleAuthRoutes GoogleLoginのルートをセットアップする
+func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAuthController) {
+	g := router.Group("/api/gin/auth/google")
+	{
+		g.GET("/login", controller.GoogleLoginHandler)
+		g.GET("/callback", controller.GoogleAuthCallback)
+	}
 }
 
 // setupClassBoardRoutes ClassBoardのルートをセットアップする
