@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
@@ -9,7 +8,6 @@ import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
@@ -18,66 +16,75 @@ import (
 )
 
 func main() {
-	setGinMode()
-	if err := loadEnvironment(); err != nil {
-		log.Fatalf("Error: %v", err)
-	}
+	configureGinMode()
+	ensureEnvVariables()
 
-	db := migration.InitDB()
-	performMigrations(db)
+	db := initializeDatabase()
+	migrateDatabaseIfNeeded(db)
 
-	r := setupRouter(initializeControllers(db))
-	startServer(r)
+	router := setupRouter(db)
+	startServer(router)
 }
 
-// shouldRunMigrations マイグレーションだけ実行するかどうか
-func shouldRunMigrations() bool {
-	return os.Getenv("RUN_MIGRATIONS") == "true"
-}
-
-// setGinMode Ginのモードを設定する
-func setGinMode() {
-	ginMode := os.Getenv("GIN_MODE")
-	if ginMode == "" {
-		ginMode = gin.ReleaseMode // デフォルトモード
-	}
+func configureGinMode() {
+	ginMode := getEnvOrDefault("GIN_MODE", gin.ReleaseMode)
 	gin.SetMode(ginMode)
 }
 
-// loadEnvironment 環境変数をロードする
-func loadEnvironment() error {
-	if _, err := os.Stat(".env"); err == nil {
-		if err := godotenv.Load(); err != nil {
-			return err
-		}
-	} else {
-		log.Println("No .env file found, using environment variables")
+func getEnvOrDefault(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
 	}
-
-	return checkRequiredEnvVars()
+	return value
 }
 
-// checkRequiredEnvVars 必要な環境変数が設定されているかどうかを確認する
-func checkRequiredEnvVars() error {
+func ensureEnvVariables() {
 	requiredVars := []string{"MYSQL_HOST", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_DATABASE", "MYSQL_PORT"}
 	for _, varName := range requiredVars {
-		if os.Getenv(varName) == "" {
-			return fmt.Errorf("Required environment variable not set: %s", varName)
+		if value := os.Getenv(varName); value == "" {
+			log.Fatalf("Environment variable %s not set", varName)
 		}
 	}
-	return nil
 }
 
-// performMigrations マイグレーションを実行する
-func performMigrations(db *gorm.DB) {
-	if shouldRunMigrations() {
+func initializeDatabase() *gorm.DB {
+	db, err := migration.InitDB()
+	if err != nil {
+		log.Fatalf("Database initialization failed: %v", err)
+	}
+	return db
+}
+
+func migrateDatabaseIfNeeded(db *gorm.DB) {
+	if getEnvOrDefault("RUN_MIGRATIONS", "false") == "true" {
 		migration.Migrate(db)
-		os.Exit(0)
+		log.Println("Database migrations executed")
 	}
 }
 
-// initializeControllers コントローラーを初期化する
-func initializeControllers(db *gorm.DB) (*controllers.ClassCodeController, *controllers.ClassBoardController, *controllers.ClassScheduleController, *controllers.AttendanceController) {
+func setupRouter(db *gorm.DB) *gin.Engine {
+	router := gin.Default()
+	initializeSwagger(router)
+
+	classBoardController, classCodeController, classScheduleController, attendanceController := initializeControllers(db)
+
+	setupRoutes(router, classBoardController, classCodeController, classScheduleController, attendanceController)
+
+	return router
+}
+
+func initializeSwagger(router *gin.Engine) {
+	docs.SwaggerInfo.BasePath = "/api/gin"
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+}
+
+func startServer(router *gin.Engine) {
+	port := getEnvOrDefault("PORT", "8080")
+	log.Fatal(router.Run(":" + port))
+}
+
+func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.AttendanceController) {
 	classBoardRepo := repositories.NewClassBoardRepository(db)
 	classCodeRepo := repositories.NewClassCodeRepository(db)
 	classScheduleRepo := repositories.NewClassScheduleRepository(db)
@@ -96,83 +103,59 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassCodeController, *cont
 	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
 	attendanceController := controllers.NewAttendanceController(attendanceService)
 
-	return classCodeController, classBoardController, classScheduleController, attendanceController
+	return classBoardController, classCodeController, classScheduleController, attendanceController
 }
 
-// setupRouter ルーターをセットアップする
-func setupRouter(classCodeController *controllers.ClassCodeController, classBoardController *controllers.ClassBoardController, classScheduleController *controllers.ClassScheduleController, controller *controllers.AttendanceController) *gin.Engine {
-	r := gin.Default()
-	docs.SwaggerInfo.BasePath = "/api/gin"
-
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
-	setupClassBoardRoutes(r, classBoardController)
-	setupClassCodeRoutes(r, classCodeController)
-	setupClassScheduleRoutes(r, classScheduleController)
-	setupAttendanceRoutes(r, controller)
-
-	return r
-}
-
-// setupClassCodeRoutes ClassCodeのルートをセットアップする
-func setupClassCodeRoutes(r *gin.Engine, controller *controllers.ClassCodeController) {
-	cc := r.Group("/api/gin/cc")
-	{
-		cc.GET("/checkSecretExists", controller.CheckSecretExists) // シークレットが存在するかどうかを確認する
-		cc.GET("/verifyClassCode", controller.VerifyClassCode)     // グループコードを検証する
-	}
+func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, attendanceController *controllers.AttendanceController) {
+	setupClassBoardRoutes(router, classBoardController)
+	setupClassCodeRoutes(router, classCodeController)
+	setupClassScheduleRoutes(router, classScheduleController)
+	setupAttendanceRoutes(router, attendanceController)
 }
 
 // setupClassBoardRoutes ClassBoardのルートをセットアップする
-func setupClassBoardRoutes(r *gin.Engine, controller *controllers.ClassBoardController) {
-	cb := r.Group("/api/gin/cb")
+func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoardController) {
+	cb := router.Group("/api/gin/cb")
 	{
-		cb.GET("/", controller.GetAllClassBoards)                // 全てのグループ掲示板を取得する
-		cb.GET("/:id", controller.GetClassBoardByID)             // グループ掲示板を取得する
-		cb.POST("/", controller.CreateClassBoard)                // グループ掲示板を作成する
-		cb.GET("/announced", controller.GetAnnouncedClassBoards) // 公開されたグループ掲示板を取得する
-		cb.PATCH("/:id", controller.UpdateClassBoard)            // グループ掲示板を更新する
-		cb.DELETE("/:id", controller.DeleteClassBoard)           // グループ掲示板を削除する
+		cb.GET("/", controller.GetAllClassBoards)
+		cb.GET("/:id", controller.GetClassBoardByID)
+		cb.POST("/", controller.CreateClassBoard)
+		cb.GET("/announced", controller.GetAnnouncedClassBoards)
+		cb.PATCH("/:id", controller.UpdateClassBoard)
+		cb.DELETE("/:id", controller.DeleteClassBoard)
+	}
+}
+
+// setupClassCodeRoutes ClassCodeのルートをセットアップする
+func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeController) {
+	cc := router.Group("/api/gin/cc")
+	{
+		cc.GET("/checkSecretExists", controller.CheckSecretExists)
+		cc.GET("/verifyClassCode", controller.VerifyClassCode)
 	}
 }
 
 // setupClassScheduleRoutes ClassScheduleのルートをセットアップする
-func setupClassScheduleRoutes(r *gin.Engine, controller *controllers.ClassScheduleController) {
-	cs := r.Group("/api/gin/cs")
+func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassScheduleController) {
+	cs := router.Group("/api/gin/cs")
 	{
-		cs.GET("/", controller.GetAllClassSchedules)        // 全てのクラススケジュールを取得する
-		cs.GET("/:id", controller.GetClassScheduleByID)     // クラススケジュールを取得する
-		cs.POST("/", controller.CreateClassSchedule)        // 新しいクラススケジュールを作成する
-		cs.PATCH("/:id", controller.UpdateClassSchedule)    // クラススケジュールを更新する
-		cs.DELETE("/:id", controller.DeleteClassSchedule)   // クラススケジュールを削除する
-		cs.GET("/live", controller.GetLiveClassSchedules)   // ライブ中のクラススケジュールを取得する
-		cs.GET("/date", controller.GetClassSchedulesByDate) // 日付でクラススケジュールを取得する
+		cs.GET("/", controller.GetAllClassSchedules)
+		cs.GET("/:id", controller.GetClassScheduleByID)
+		cs.POST("/", controller.CreateClassSchedule)
+		cs.PATCH("/:id", controller.UpdateClassSchedule)
+		cs.DELETE("/:id", controller.DeleteClassSchedule)
+		cs.GET("/live", controller.GetLiveClassSchedules)
+		cs.GET("/date", controller.GetClassSchedulesByDate)
 	}
 }
 
 // setupAttendanceRoutes Attendanceのルートをセットアップする
-func setupAttendanceRoutes(r *gin.Engine, controller *controllers.AttendanceController) {
-	at := r.Group("/api/gin/at")
+func setupAttendanceRoutes(router *gin.Engine, controller *controllers.AttendanceController) {
+	at := router.Group("/api/gin/at")
 	{
-		at.POST("/:cid/:uid/:csid", controller.CreateOrUpdateAttendance) // 全ての出席を取得する
-		at.GET("/:cid", controller.GetAllAttendances)                    // グループの全ての出席を取得する
-		at.GET("/attendance/:id", controller.GetAttendance)              // 出席を取得する
-		at.DELETE("/attendance/:id", controller.DeleteAttendance)        // 出席を削除する
+		at.POST("/:cid/:uid/:csid", controller.CreateOrUpdateAttendance)
+		at.GET("/:cid", controller.GetAllAttendances)
+		at.GET("/attendance/:id", controller.GetAttendance)
+		at.DELETE("/attendance/:id", controller.DeleteAttendance)
 	}
-}
-
-// startServer サーバーを起動する
-func startServer(r *gin.Engine) {
-	if err := r.Run(getServerPort()); err != nil {
-		log.Fatalf("Failed to start the server: %v", err)
-	}
-}
-
-// getServerPort サーバーポートを取得する
-func getServerPort() string {
-	port := os.Getenv("PORT")
-	if port == "" {
-		return ":8080" // デフォルトポート
-	}
-	return ":" + port
 }
