@@ -11,17 +11,16 @@ type RoleRepository interface {
 }
 
 // roleConnection　はRoleRepositoryの実装です。
-type roleConnection struct {
-	DB *gorm.DB
+type roleRepository struct {
+	db *gorm.DB
 }
 
 // NewRoleRepository はRoleRepositoryを生成します。
 func NewRoleRepository(db *gorm.DB) RoleRepository {
-	return &roleConnection{DB: db}
+	return &roleRepository{db: db}
 }
 
 // FindByRoleName は指定されたロール名のロールを取得します。
-func (r *roleConnection) FindByRoleName(roleName string, role *models.Role) error {
-	result := r.DB.Where("role = ?", roleName).First(role)
-	return result.Error
+func (r *roleRepository) FindByRoleName(roleName string, role *models.Role) error {
+	return r.db.Where("role = ?", roleName).First(role).Error
 }

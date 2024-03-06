@@ -153,33 +153,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /at/{cid}:
-    get:
-      consumes:
-      - application/json
-      description: クラスの全ての出席情報を取得
-      parameters:
-      - description: Class ID
-        in: path
-        name: cid
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of attendances
-          schema:
-            items:
-              $ref: '#/definitions/models.Attendance'
-            type: array
-        "500":
-          description: Server error
-          schema:
-            type: string
-      summary: クラスの全ての出席情報を取得
-      tags:
-      - attendance
   /at/{cid}/{uid}/{csid}:
     post:
       consumes:
@@ -210,14 +183,41 @@ paths:
       - application/json
       responses:
         "200":
-          description: success
+          description: 作成または更新に成功しました
           schema:
             type: string
         "500":
-          description: Server error
+          description: サーバーエラーが発生しました
           schema:
             type: string
       summary: 出席情報を作成または更新
+      tags:
+      - attendance
+  /at/{classID}:
+    get:
+      consumes:
+      - application/json
+      description: クラスの全ての出席情報を取得
+      parameters:
+      - description: Class ID
+        in: path
+        name: classID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Attendance
+          schema:
+            items:
+              $ref: '#/definitions/models.Attendance'
+            type: array
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: クラスの全ての出席情報を取得
       tags:
       - attendance
   /at/attendance/{id}:
@@ -235,11 +235,11 @@ paths:
       - application/json
       responses:
         "200":
-          description: Attendance deleted successfully
+          description: 削除に成功しました
           schema:
             type: string
         "500":
-          description: Server error
+          description: サーバーエラーが発生しました
           schema:
             type: string
       summary: 出席情報を削除
@@ -263,7 +263,7 @@ paths:
           schema:
             $ref: '#/definitions/models.Attendance'
         "500":
-          description: Server error
+          description: サーバーエラーが発生しました
           schema:
             type: string
       summary: 出席情報を取得
@@ -315,8 +315,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
-      description: Create a new class board with the provided information, including
-        image upload.
+      description: クラス掲示板を作成します。
       parameters:
       - description: Class board title
         in: formData
@@ -361,7 +360,7 @@ paths:
           description: Server error
           schema:
             type: string
-      summary: Create a new class board
+      summary: クラス掲示板を作成
       tags:
       - class_board
   /cb/{id}:
@@ -778,6 +777,40 @@ paths:
       summary: ライブ中のクラススケジュールを取得
       tags:
       - class_schedule
+  /cu/{uid}/{cid}/{role}:
+    patch:
+      consumes:
+      - application/json
+      description: ユーザーのロールを変更します。
+      operationId: change-user-role
+      parameters:
+      - description: User ID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      - description: Class ID
+        in: path
+        name: cid
+        required: true
+        type: integer
+      - description: Role Name
+        in: path
+        name: role
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            type: string
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: ユーザーのロールを変更します。
   /example/helloworld:
     get:
       consumes:

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
@@ -21,6 +22,40 @@ func NewClassScheduleController(service services.ClassScheduleService) *ClassSch
 	}
 }
 
+// CreateClassSchedule godoc
+// @Summary クラススケジュールを作成
+// @Description 新しいクラススケジュールを作成する。
+// @Tags class_schedule
+// @Accept json
+// @Produce json
+// @Param classSchedule body dto.ClassScheduleDTO true "Class schedule to create"
+// @Success 200 {object} models.ClassSchedule "クラススケジュールが正常に作成されました"
+// @Failure 400 {object} string "リクエストが不正です"
+// @Failure 500 {object} string "サーバーエラーが発生しました"
+// @Router /cs [post]
+func (controller *ClassScheduleController) CreateClassSchedule(c *gin.Context) {
+	var dto dto.ClassScheduleDTO
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		respondWithError(c, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	classSchedule := models.ClassSchedule{
+		Title:     dto.Title,
+		StartedAt: dto.StartedAt,
+		EndedAt:   dto.EndedAt,
+		CID:       dto.CID,
+		IsLive:    dto.IsLive,
+	}
+
+	createdClassSchedule, err := controller.classScheduleService.CreateClassSchedule(&classSchedule)
+	if err != nil {
+		handleServiceError(c, err)
+		return
+	}
+	respondWithSuccess(c, constants.StatusOK, createdClassSchedule)
+}
+
 // GetClassScheduleByID godoc
 // @Summary IDでクラススケジュールを取得
 // @Description 指定されたIDのクラススケジュールを取得する。
@@ -35,17 +70,17 @@ func NewClassScheduleController(service services.ClassScheduleService) *ClassSch
 func (controller *ClassScheduleController) GetClassScheduleByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		respondWithError(c, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
 	classSchedule, err := controller.classScheduleService.GetClassScheduleByID(uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Class schedule not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": constants.ClassNotFound})
 		return
 	}
 
-	c.JSON(http.StatusOK, classSchedule)
+	respondWithSuccess(c, constants.StatusOK, classSchedule)
 }
 
 // GetAllClassSchedules godoc
@@ -62,44 +97,10 @@ func (controller *ClassScheduleController) GetAllClassSchedules(c *gin.Context) 
 	cid, _ := strconv.ParseUint(c.DefaultQuery("cid", "0"), 10, 32)
 	classSchedules, err := controller.classScheduleService.GetAllClassSchedules(uint(cid))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, classSchedules)
-}
-
-// CreateClassSchedule godoc
-// @Summary クラススケジュールを作成
-// @Description 新しいクラススケジュールを作成する。
-// @Tags class_schedule
-// @Accept json
-// @Produce json
-// @Param classSchedule body dto.ClassScheduleDTO true "Class schedule to create"
-// @Success 200 {object} models.ClassSchedule "クラススケジュールが正常に作成されました"
-// @Failure 400 {object} string "リクエストが不正です"
-// @Failure 500 {object} string "サーバーエラーが発生しました"
-// @Router /cs [post]
-func (controller *ClassScheduleController) CreateClassSchedule(c *gin.Context) {
-	var dto dto.ClassScheduleDTO
-	if err := c.ShouldBindJSON(&dto); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	classSchedule := models.ClassSchedule{
-		Title:     dto.Title,
-		StartedAt: dto.StartedAt,
-		EndedAt:   dto.EndedAt,
-		CID:       dto.CID,
-		IsLive:    dto.IsLive,
-	}
-
-	createdClassSchedule, err := controller.classScheduleService.CreateClassSchedule(&classSchedule)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, createdClassSchedule)
+	respondWithSuccess(c, constants.StatusOK, classSchedules)
 }
 
 // UpdateClassSchedule godoc
@@ -117,23 +118,23 @@ func (controller *ClassScheduleController) CreateClassSchedule(c *gin.Context) {
 func (controller *ClassScheduleController) UpdateClassSchedule(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		respondWithError(c, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
 	var dto dto.UpdateClassScheduleDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondWithError(c, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
 	updatedClassSchedule, err := controller.classScheduleService.UpdateClassSchedule(uint(id), &dto)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, updatedClassSchedule)
+	respondWithSuccess(c, constants.StatusOK, updatedClassSchedule)
 }
 
 // DeleteClassSchedule godoc
@@ -150,16 +151,16 @@ func (controller *ClassScheduleController) UpdateClassSchedule(c *gin.Context) {
 func (controller *ClassScheduleController) DeleteClassSchedule(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		respondWithError(c, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
 	err = controller.classScheduleService.DeleteClassSchedule(uint(id))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Class schedule deleted successfully"})
+	respondWithSuccess(c, constants.StatusOK, constants.DeleteSuccess)
 }
 
 // GetLiveClassSchedules godoc
@@ -176,10 +177,10 @@ func (controller *ClassScheduleController) GetLiveClassSchedules(c *gin.Context)
 	cid, _ := strconv.ParseUint(c.Query("cid"), 10, 32)
 	classSchedules, err := controller.classScheduleService.GetLiveClassSchedules(uint(cid))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, classSchedules)
+	respondWithSuccess(c, constants.StatusOK, classSchedules)
 }
 
 // GetClassSchedulesByDate godoc
@@ -199,14 +200,14 @@ func (controller *ClassScheduleController) GetClassSchedulesByDate(c *gin.Contex
 	date := c.Query("date") // Expecting date in the format 'YYYY-MM-DD'
 
 	if date == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Date is required"})
+		respondWithError(c, constants.StatusBadRequest, constants.ErrNoDateJP)
 		return
 	}
 
 	classSchedules, err := controller.classScheduleService.GetClassSchedulesByDate(uint(cid), date)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, classSchedules)
+	respondWithSuccess(c, constants.StatusOK, classSchedules)
 }

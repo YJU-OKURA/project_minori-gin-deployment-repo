@@ -10,18 +10,18 @@ type ClassUserRepository interface {
 	UpdateUserRole(uid uint, cid uint, rid int) error
 }
 
-type classUserConnection struct {
-	DB *gorm.DB
+type classUserRepository struct {
+	db *gorm.DB
 }
 
 func NewClassUserRepository(db *gorm.DB) ClassUserRepository {
-	return &classUserConnection{DB: db}
+	return &classUserRepository{db: db}
 }
 
 // UpdateUserRole はユーザーのロールを更新します。
-func (r *classUserConnection) UpdateUserRole(uid uint, cid uint, rid int) error {
+func (r *classUserRepository) UpdateUserRole(uid uint, cid uint, rid int) error {
 	var classUser models.ClassUser
-	result := r.DB.First(&classUser, "uid = ? AND cid = ?", uid, cid)
+	result := r.db.First(&classUser, "uid = ? AND cid = ?", uid, cid)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		newUser := models.ClassUser{
@@ -29,10 +29,10 @@ func (r *classUserConnection) UpdateUserRole(uid uint, cid uint, rid int) error 
 			CID:    cid,
 			RoleID: rid,
 		}
-		return r.DB.Create(&newUser).Error
+		return r.db.Create(&newUser).Error
 	} else if result.Error != nil {
 		return result.Error
 	}
 
-	return r.DB.Model(&classUser).Update("role_id", rid).Error
+	return r.db.Model(&classUser).Update("role_id", rid).Error
 }
