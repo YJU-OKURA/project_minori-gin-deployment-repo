@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func InitDB() *gorm.DB {
+func InitDB() (*gorm.DB, error) {
 	user := os.Getenv("MYSQL_USER")
 	pass := os.Getenv("MYSQL_PASSWORD")
 	dbName := os.Getenv("MYSQL_DATABASE")
@@ -40,7 +40,7 @@ func InitDB() *gorm.DB {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	return db
+	return db, nil
 }
 
 func Migrate(db *gorm.DB) {
