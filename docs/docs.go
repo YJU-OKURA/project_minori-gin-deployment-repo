@@ -189,6 +189,27 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/google/login": {
+            "get": {
+                "description": "Get Google Login URL",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Google Login",
+                "operationId": "google-login",
+                "responses": {
+                    "200": {
+                        "description": "url",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/cb": {
             "get": {
                 "description": "cidに基づいて、グループの全ての掲示板を取得します。",
@@ -1024,6 +1045,36 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Attendance": {
+            "type": "object",
+            "properties": {
+                "cid": {
+                    "description": "Class ID",
+                    "type": "integer"
+                },
+                "classSchedule": {
+                    "$ref": "#/definitions/models.ClassSchedule"
+                },
+                "classUser": {
+                    "$ref": "#/definitions/models.ClassUser"
+                },
+                "csid": {
+                    "description": "Class Schedule ID",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isAttendance": {
+                    "description": "出席, 遅刻, 欠席",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "User ID",
+                    "type": "integer"
+                }
+            }
+        },
         "models.Class": {
             "type": "object",
             "properties": {
@@ -1109,13 +1160,36 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ClassUser": {
+            "type": "object",
+            "properties": {
+                "cid": {
+                    "type": "integer"
+                },
+                "class": {
+                    "$ref": "#/definitions/models.Class"
+                },
+                "isFavorite": {
+                    "type": "boolean"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "roleID": {
+                    "type": "integer"
+                },
+                "uid": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
                 "createdAt": {
-                    "type": "string"
-                },
-                "email": {
                     "type": "string"
                 },
                 "id": {
@@ -1125,6 +1199,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "pid": {
                     "type": "string"
                 }
             }

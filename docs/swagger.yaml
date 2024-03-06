@@ -43,6 +43,27 @@ definitions:
       title:
         type: string
     type: object
+  models.Attendance:
+    properties:
+      cid:
+        description: Class ID
+        type: integer
+      classSchedule:
+        $ref: '#/definitions/models.ClassSchedule'
+      classUser:
+        $ref: '#/definitions/models.ClassUser'
+      csid:
+        description: Class Schedule ID
+        type: integer
+      id:
+        type: integer
+      isAttendance:
+        description: 出席, 遅刻, 欠席
+        type: string
+      uid:
+        description: User ID
+        type: integer
+    type: object
   models.Class:
     properties:
       description:
@@ -99,17 +120,34 @@ definitions:
       title:
         type: string
     type: object
+  models.ClassUser:
+    properties:
+      cid:
+        type: integer
+      class:
+        $ref: '#/definitions/models.Class'
+      isFavorite:
+        type: boolean
+      nickname:
+        type: string
+      roleID:
+        type: integer
+      uid:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
   models.User:
     properties:
       createdAt:
-        type: string
-      email:
         type: string
       id:
         type: integer
       image:
         type: string
       name:
+        type: string
+      pid:
         type: string
     type: object
 info:
@@ -231,6 +269,20 @@ paths:
       summary: 出席情報を取得
       tags:
       - attendance
+  /auth/google/login:
+    get:
+      description: Get Google Login URL
+      operationId: google-login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: url
+          schema:
+            type: string
+      summary: Google Login
+      tags:
+      - Login
   /cb:
     get:
       consumes:
