@@ -23,10 +23,11 @@ jobs:
       - name: Execute Deployment Commands on EC2
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@${{ env.EC2_IP }} "
-          sudo docker pull ghcr.io/yju-okura/minori_gin:latest;
-          sudo docker rm -f minori_gin || true;
+          docker pull ghcr.io/yju-okura/minori_gin:latest;
+          docker stop minori_gin;
+          docker rm minori_gin;
           IMAGE_ID=$(sudo docker images -q ghcr.io/yju-okura/minori_gin:latest | head -n 1);
           if [ ! -z \"$IMAGE_ID\" ]; then
-            sudo docker images -q | grep -v $IMAGE_ID | xargs -r sudo docker rmi;
+            docker images -q | grep -v $IMAGE_ID | xargs -r sudo docker rmi;
           fi;
-          sudo docker run -d -p 80:8080 --env-file /volume/.env --restart always --name minori_gin ghcr.io/yju-okura/minori_gin:latest"
+          docker run -d -p 80:8080 --env-file /volume/.env --restart always --name minori_gin ghcr.io/yju-okura/minori_gin:latest"
