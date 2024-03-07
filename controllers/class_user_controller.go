@@ -22,6 +22,7 @@ func NewClassUserController(service services.ClassUserService) *ClassUserControl
 // ChangeUserRole godoc
 // @Summary ユーザーのロールを変更します。
 // @Description ユーザーのロールを変更します。
+// @Tags Class User
 // @ID change-user-role
 // @Accept  json
 // @Produce  json
