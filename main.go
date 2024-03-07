@@ -9,6 +9,7 @@ import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
@@ -42,10 +43,15 @@ func getEnvOrDefault(key, defaultValue string) string {
 }
 
 func ensureEnvVariables() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("環境変数ファイルが読み込めませんでした。")
+	}
+
 	requiredVars := []string{"MYSQL_HOST", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_DATABASE", "MYSQL_PORT"}
+
 	for _, varName := range requiredVars {
 		if value := os.Getenv(varName); value == "" {
-			log.Fatalf("Environment variable %s not set", varName)
+			log.Fatalf("環境変数 %s が設定されていません。", varName)
 		}
 	}
 }
@@ -53,7 +59,7 @@ func ensureEnvVariables() {
 func initializeDatabase() *gorm.DB {
 	db, err := migration.InitDB()
 	if err != nil {
-		log.Fatalf("Database initialization failed: %v", err)
+		log.Fatalf("データベースの初期化に失敗しました: %v", err)
 	}
 	return db
 }
@@ -61,7 +67,7 @@ func initializeDatabase() *gorm.DB {
 func migrateDatabaseIfNeeded(db *gorm.DB) {
 	if getEnvOrDefault("RUN_MIGRATIONS", "false") == "true" {
 		migration.Migrate(db)
-		log.Println("Database migrations executed")
+		log.Println("データベース移行の実行が完了しました。")
 	}
 }
 
