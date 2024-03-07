@@ -8,6 +8,7 @@ import (
 
 type ClassUserRepository interface {
 	UpdateUserRole(uid uint, cid uint, rid int) error
+	GetRole(uid uint, cid uint) (int, error)
 }
 
 type classUserRepository struct {
@@ -35,4 +36,18 @@ func (r *classUserRepository) UpdateUserRole(uid uint, cid uint, rid int) error 
 	}
 
 	return r.db.Model(&classUser).Update("role_id", rid).Error
+}
+
+// GetRole はユーザーのロールを取得します。
+func (r *classUserRepository) GetRole(uid uint, cid uint) (int, error) {
+	var classUser models.ClassUser
+	result := r.db.First(&classUser, "uid = ? AND cid = ?", uid, cid)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return 0, result.Error
+	} else if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return classUser.RoleID, nil
 }

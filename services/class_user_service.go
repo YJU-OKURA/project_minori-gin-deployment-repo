@@ -8,6 +8,7 @@ import (
 // ClassUserService はグループコードのサービスです。
 type ClassUserService interface {
 	AssignRole(uid uint, cid uint, roleName string) error
+	GetRole(uid uint, cid uint) (int, error)
 }
 
 // classUserServiceImpl はClassCodeServiceの実装です。
@@ -28,4 +29,13 @@ func (s *classUserServiceImpl) AssignRole(uid uint, cid uint, roleName string) e
 	}
 
 	return s.classUserRepo.UpdateUserRole(uid, cid, role.ID)
+}
+
+func (s *classUserServiceImpl) GetRole(uid uint, cid uint) (int, error) {
+	roleID, err := s.classUserRepo.GetRole(uid, cid)
+	if err != nil {
+		return 0, err
+	}
+
+	return roleID, nil
 }

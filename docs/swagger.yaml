@@ -231,6 +231,16 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: uid
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -275,7 +285,7 @@ paths:
       - application/json
       description: cidに基づいて、グループの全ての掲示板を取得します。
       parameters:
-      - description: クラスID
+      - description: Class ID
         in: query
         name: cid
         required: true
@@ -355,16 +365,26 @@ paths:
       - application/json
       description: 指定されたIDのグループ掲示板を削除します。
       parameters:
-      - description: グループ掲示板ID
+      - description: Class Board ID
         in: path
         name: id
+        required: true
+        type: integer
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: uid
         required: true
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: グループ掲示板が正常に削除されました
+          description: クラス掲示板が正常に削除されました
           schema:
             type: string
         "404":
@@ -383,7 +403,7 @@ paths:
       - application/json
       description: 指定されたIDのグループ掲示板の詳細を取得します。
       parameters:
-      - description: グループ掲示板ID
+      - description: Class Board ID
         in: path
         name: id
         required: true
@@ -415,12 +435,22 @@ paths:
       - application/json
       description: 指定されたIDのグループ掲示板の詳細を更新します。
       parameters:
-      - description: グループ掲示板ID
+      - description: Class Board ID
         in: path
         name: id
         required: true
         type: integer
-      - description: グループ掲示板の更新
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: uid
+        required: true
+        type: integer
+      - description: クラス掲示板の更新
         in: body
         name: class_board_update
         required: true
@@ -454,7 +484,7 @@ paths:
       - application/json
       description: cidに基づいて、公告されたグループの掲示板を取得します。
       parameters:
-      - description: クラスID
+      - description: Class ID
         in: query
         name: cid
         required: true
@@ -581,6 +611,16 @@ paths:
       - application/json
       description: 新しいクラススケジュールを作成する。
       parameters:
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: uid
+        required: true
+        type: integer
       - description: Class schedule to create
         in: body
         name: classSchedule
@@ -614,6 +654,16 @@ paths:
       - description: Class schedule ID
         in: path
         name: id
+        required: true
+        type: integer
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: uid
         required: true
         type: integer
       produces:
@@ -670,6 +720,16 @@ paths:
       - description: Class schedule ID
         in: path
         name: id
+        required: true
+        type: integer
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: uid
         required: true
         type: integer
       - description: Class schedule to update
@@ -799,19 +859,4 @@ paths:
       summary: ユーザーのロールを変更します。
       tags:
       - Class User
-  /example/helloworld:
-    get:
-      consumes:
-      - application/json
-      description: do ping
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: ping example
-      tags:
-      - example
 swagger: "2.0"
