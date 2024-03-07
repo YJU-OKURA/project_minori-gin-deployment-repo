@@ -30,7 +30,7 @@ func NewClassBoardController(service services.ClassBoardService, uploader utils.
 // CreateClassBoard godoc
 // @Summary クラス掲示板を作成
 // @Description クラス掲示板を作成します。
-// @Tags class_board
+// @Tags Class Board
 // @Accept multipart/form-data
 // @Produce json
 // @Param title formData string true "Class board title"
@@ -69,7 +69,7 @@ func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 // GetClassBoardByID godoc
 // @Summary IDでグループ掲示板を取得
 // @Description 指定されたIDのグループ掲示板の詳細を取得します。
-// @Tags class_board
+// @Tags Class Board
 // @Accept json
 // @Produce json
 // @Param id path int true "グループ掲示板ID"
@@ -97,7 +97,7 @@ func (c *ClassBoardController) GetClassBoardByID(ctx *gin.Context) {
 // GetAllClassBoards godoc
 // @Summary 全てのグループ掲示板を取得
 // @Description cidに基づいて、グループの全ての掲示板を取得します。
-// @Tags class_board
+// @Tags Class Board
 // @Accept json
 // @Produce json
 // @Param cid query int true "クラスID"
@@ -121,7 +121,7 @@ func (c *ClassBoardController) GetAllClassBoards(ctx *gin.Context) {
 // GetAnnouncedClassBoards godoc
 // @Summary 公告されたグループ掲示板を取得
 // @Description cidに基づいて、公告されたグループの掲示板を取得します。
-// @Tags class_board
+// @Tags Class Board
 // @Accept json
 // @Produce json
 // @Param cid query int true "クラスID"
@@ -146,7 +146,7 @@ func (c *ClassBoardController) GetAnnouncedClassBoards(ctx *gin.Context) {
 // UpdateClassBoard godoc
 // @Summary グループ掲示板を更新
 // @Description 指定されたIDのグループ掲示板の詳細を更新します。
-// @Tags class_board
+// @Tags Class Board
 // @Accept json
 // @Produce json
 // @Param id path int true "グループ掲示板ID"
@@ -184,7 +184,7 @@ func (c *ClassBoardController) UpdateClassBoard(ctx *gin.Context) {
 // DeleteClassBoard godoc
 // @Summary グループ掲示板を削除
 // @Description 指定されたIDのグループ掲示板を削除します。
-// @Tags class_board
+// @Tags Class Board
 // @Accept json
 // @Produce json
 // @Param id path int true "グループ掲示板ID"
