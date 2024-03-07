@@ -104,6 +104,8 @@ func (ac *AttendanceController) GetAttendance(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Attendance ID"
+// @Param cid query int true "Class ID"
+// @Param uid query int true "User ID"
 // @Success 200 {string} string "削除に成功しました"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /at/attendance/{id} [delete]
