@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attendance"
+                    "Attendance"
                 ],
                 "summary": "出席情報を取得",
                 "parameters": [
@@ -61,7 +61,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attendance"
+                    "Attendance"
                 ],
                 "summary": "出席情報を削除",
                 "parameters": [
@@ -99,7 +99,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attendance"
+                    "Attendance"
                 ],
                 "summary": "出席情報を作成または更新",
                 "parameters": [
@@ -158,7 +158,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "attendance"
+                    "Attendance"
                 ],
                 "summary": "クラスの全ての出席情報を取得",
                 "parameters": [
@@ -199,7 +199,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_board"
+                    "Class Board"
                 ],
                 "summary": "全てのグループ掲示板を取得",
                 "parameters": [
@@ -241,7 +241,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_board"
+                    "Class Board"
                 ],
                 "summary": "クラス掲示板を作成",
                 "parameters": [
@@ -318,7 +318,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_board"
+                    "Class Board"
                 ],
                 "summary": "公告されたグループ掲示板を取得",
                 "parameters": [
@@ -362,7 +362,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_board"
+                    "Class Board"
                 ],
                 "summary": "IDでグループ掲示板を取得",
                 "parameters": [
@@ -410,7 +410,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_board"
+                    "Class Board"
                 ],
                 "summary": "グループ掲示板を削除",
                 "parameters": [
@@ -452,7 +452,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_board"
+                    "Class Board"
                 ],
                 "summary": "グループ掲示板を更新",
                 "parameters": [
@@ -511,7 +511,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_code"
+                    "Class Code"
                 ],
                 "summary": "グループコードにシークレットが存在するかチェック",
                 "parameters": [
@@ -555,7 +555,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_code"
+                    "Class Code"
                 ],
                 "summary": "グループコードとシークレットを検証＆ユーザーに役割を割り当てる",
                 "parameters": [
@@ -618,7 +618,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_schedule"
+                    "Class Schedule"
                 ],
                 "summary": "全てのクラススケジュールを取得",
                 "parameters": [
@@ -659,7 +659,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_schedule"
+                    "Class Schedule"
                 ],
                 "summary": "クラススケジュールを作成",
                 "parameters": [
@@ -705,7 +705,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_schedule"
+                    "Class Schedule"
                 ],
                 "summary": "日付でクラススケジュールを取得",
                 "parameters": [
@@ -762,7 +762,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_schedule"
+                    "Class Schedule"
                 ],
                 "summary": "ライブ中のクラススケジュールを取得",
                 "parameters": [
@@ -806,7 +806,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_schedule"
+                    "Class Schedule"
                 ],
                 "summary": "IDでクラススケジュールを取得",
                 "parameters": [
@@ -848,7 +848,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_schedule"
+                    "Class Schedule"
                 ],
                 "summary": "クラススケジュールを更新",
                 "parameters": [
@@ -899,7 +899,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "class_schedule"
+                    "Class Schedule"
                 ],
                 "summary": "クラススケジュールを削除",
                 "parameters": [
@@ -941,6 +941,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Class User"
                 ],
                 "summary": "ユーザーのロールを変更します。",
                 "operationId": "change-user-role",

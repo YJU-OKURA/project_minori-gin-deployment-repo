@@ -192,7 +192,7 @@ paths:
             type: string
       summary: 出席情報を作成または更新
       tags:
-      - attendance
+      - Attendance
   /at/{classID}:
     get:
       consumes:
@@ -219,7 +219,7 @@ paths:
             type: string
       summary: クラスの全ての出席情報を取得
       tags:
-      - attendance
+      - Attendance
   /at/attendance/{id}:
     delete:
       consumes:
@@ -244,7 +244,7 @@ paths:
             type: string
       summary: 出席情報を削除
       tags:
-      - attendance
+      - Attendance
     get:
       consumes:
       - application/json
@@ -268,7 +268,7 @@ paths:
             type: string
       summary: 出席情報を取得
       tags:
-      - attendance
+      - Attendance
   /cb:
     get:
       consumes:
@@ -297,7 +297,7 @@ paths:
             type: string
       summary: 全てのグループ掲示板を取得
       tags:
-      - class_board
+      - Class Board
     post:
       consumes:
       - multipart/form-data
@@ -348,7 +348,7 @@ paths:
             type: string
       summary: クラス掲示板を作成
       tags:
-      - class_board
+      - Class Board
   /cb/{id}:
     delete:
       consumes:
@@ -377,7 +377,7 @@ paths:
             type: string
       summary: グループ掲示板を削除
       tags:
-      - class_board
+      - Class Board
     get:
       consumes:
       - application/json
@@ -409,7 +409,7 @@ paths:
             type: string
       summary: IDでグループ掲示板を取得
       tags:
-      - class_board
+      - Class Board
     patch:
       consumes:
       - application/json
@@ -447,7 +447,7 @@ paths:
             type: string
       summary: グループ掲示板を更新
       tags:
-      - class_board
+      - Class Board
   /cb/announced:
     get:
       consumes:
@@ -476,7 +476,7 @@ paths:
             type: string
       summary: 公告されたグループ掲示板を取得
       tags:
-      - class_board
+      - Class Board
   /cc/checkSecretExists:
     get:
       consumes:
@@ -505,7 +505,7 @@ paths:
             type: string
       summary: グループコードにシークレットが存在するかチェック
       tags:
-      - class_code
+      - Class Code
   /cc/verifyClassCode:
     get:
       consumes:
@@ -547,7 +547,7 @@ paths:
             type: string
       summary: グループコードとシークレットを検証＆ユーザーに役割を割り当てる
       tags:
-      - class_code
+      - Class Code
   /cs:
     get:
       consumes:
@@ -575,7 +575,7 @@ paths:
             type: string
       summary: 全てのクラススケジュールを取得
       tags:
-      - class_schedule
+      - Class Schedule
     post:
       consumes:
       - application/json
@@ -604,7 +604,7 @@ paths:
             type: string
       summary: クラススケジュールを作成
       tags:
-      - class_schedule
+      - Class Schedule
   /cs/{id}:
     delete:
       consumes:
@@ -633,7 +633,7 @@ paths:
             type: string
       summary: クラススケジュールを削除
       tags:
-      - class_schedule
+      - Class Schedule
     get:
       consumes:
       - application/json
@@ -661,7 +661,7 @@ paths:
             type: string
       summary: IDでクラススケジュールを取得
       tags:
-      - class_schedule
+      - Class Schedule
     put:
       consumes:
       - application/json
@@ -695,7 +695,7 @@ paths:
             type: string
       summary: クラススケジュールを更新
       tags:
-      - class_schedule
+      - Class Schedule
   /cs/date:
     get:
       consumes:
@@ -733,7 +733,7 @@ paths:
             type: string
       summary: 日付でクラススケジュールを取得
       tags:
-      - class_schedule
+      - Class Schedule
   /cs/live:
     get:
       consumes:
@@ -762,7 +762,7 @@ paths:
             type: string
       summary: ライブ中のクラススケジュールを取得
       tags:
-      - class_schedule
+      - Class Schedule
   /cu/{uid}/{cid}/{role}:
     patch:
       consumes:
@@ -797,6 +797,8 @@ paths:
           schema:
             type: string
       summary: ユーザーのロールを変更します。
+      tags:
+      - Class User
   /example/helloworld:
     get:
       consumes:

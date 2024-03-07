@@ -25,7 +25,7 @@ func NewClassScheduleController(service services.ClassScheduleService) *ClassSch
 // CreateClassSchedule godoc
 // @Summary クラススケジュールを作成
 // @Description 新しいクラススケジュールを作成する。
-// @Tags class_schedule
+// @Tags Class Schedule
 // @Accept json
 // @Produce json
 // @Param classSchedule body dto.ClassScheduleDTO true "Class schedule to create"
@@ -59,7 +59,7 @@ func (controller *ClassScheduleController) CreateClassSchedule(c *gin.Context) {
 // GetClassScheduleByID godoc
 // @Summary IDでクラススケジュールを取得
 // @Description 指定されたIDのクラススケジュールを取得する。
-// @Tags class_schedule
+// @Tags Class Schedule
 // @Accept json
 // @Produce json
 // @Param id path int true "Class schedule ID"
@@ -86,7 +86,7 @@ func (controller *ClassScheduleController) GetClassScheduleByID(c *gin.Context) 
 // GetAllClassSchedules godoc
 // @Summary 全てのクラススケジュールを取得
 // @Description 指定されたクラスIDの全てのクラススケジュールを取得する。
-// @Tags class_schedule
+// @Tags Class Schedule
 // @Accept json
 // @Produce json
 // @Param cid query uint false "Class ID"
@@ -106,7 +106,7 @@ func (controller *ClassScheduleController) GetAllClassSchedules(c *gin.Context) 
 // UpdateClassSchedule godoc
 // @Summary クラススケジュールを更新
 // @Description 指定されたIDのクラススケジュールを更新する。
-// @Tags class_schedule
+// @Tags Class Schedule
 // @Accept json
 // @Produce json
 // @Param id path int true "Class schedule ID"
@@ -140,7 +140,7 @@ func (controller *ClassScheduleController) UpdateClassSchedule(c *gin.Context) {
 // DeleteClassSchedule godoc
 // @Summary クラススケジュールを削除
 // @Description 指定されたIDのクラススケジュールを削除する。
-// @Tags class_schedule
+// @Tags Class Schedule
 // @Accept json
 // @Produce json
 // @Param id path int true "Class schedule ID"
@@ -166,7 +166,7 @@ func (controller *ClassScheduleController) DeleteClassSchedule(c *gin.Context) {
 // GetLiveClassSchedules godoc
 // @Summary ライブ中のクラススケジュールを取得
 // @Description 指定されたクラスIDのライブ中のクラススケジュールを取得する。
-// @Tags class_schedule
+// @Tags Class Schedule
 // @Accept json
 // @Produce json
 // @Param cid query uint true "Class ID"
@@ -186,7 +186,7 @@ func (controller *ClassScheduleController) GetLiveClassSchedules(c *gin.Context)
 // GetClassSchedulesByDate godoc
 // @Summary 日付でクラススケジュールを取得
 // @Description 指定されたクラスIDと日付のクラススケジュールを取得する。
-// @Tags class_schedule
+// @Tags Class Schedule
 // @Accept json
 // @Produce json
 // @Param cid query uint true "Class ID"

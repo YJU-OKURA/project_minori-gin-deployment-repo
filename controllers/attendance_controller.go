@@ -23,7 +23,7 @@ func NewAttendanceController(service services.AttendanceService) *AttendanceCont
 // CreateOrUpdateAttendance godoc
 // @Summary 出席情報を作成または更新
 // @Description 出席情報を作成または更新
-// @Tags attendance
+// @Tags Attendance
 // @Accept json
 // @Produce json
 // @Param cid path int true "Class ID"
@@ -55,7 +55,7 @@ func (ac *AttendanceController) CreateOrUpdateAttendance(ctx *gin.Context) {
 // GetAllAttendances godoc
 // @Summary クラスの全ての出席情報を取得
 // @Description クラスの全ての出席情報を取得
-// @Tags attendance
+// @Tags Attendance
 // @Accept json
 // @Produce json
 // @Param classID path int true "Class ID"
@@ -80,7 +80,7 @@ func (ac *AttendanceController) GetAllAttendances(ctx *gin.Context) {
 // GetAttendance godoc
 // @Summary 出席情報を取得
 // @Description 指定されたIDの出席情報を取得
-// @Tags attendance
+// @Tags Attendance
 // @Accept json
 // @Produce json
 // @Param id path int true "Attendance ID"
@@ -100,7 +100,7 @@ func (ac *AttendanceController) GetAttendance(ctx *gin.Context) {
 // DeleteAttendance godoc
 // @Summary 出席情報を削除
 // @Description 指定されたIDの出席情報を削除
-// @Tags attendance
+// @Tags Attendance
 // @Accept json
 // @Produce json
 // @Param id path int true "Attendance ID"

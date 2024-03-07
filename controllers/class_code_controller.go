@@ -22,7 +22,7 @@ func NewClassCodeController(classCodeService services.ClassCodeService, classUse
 // CheckSecretExists godoc
 // @Summary グループコードにシークレットが存在するかチェック
 // @Description 指定されたグループコードにシークレットがあるかどうかをチェックする。
-// @Tags class_code
+// @Tags Class Code
 // @Accept json
 // @Produce json
 // @Param code query string true "Code to check"
@@ -45,7 +45,7 @@ func (c *ClassCodeController) CheckSecretExists(ctx *gin.Context) {
 // VerifyClassCode godoc
 // @Summary グループコードとシークレットを検証＆ユーザーに役割を割り当てる
 // @Description グループコードと、該当する場合はそのシークレットを確認する。また、指定されたユーザーに役割を割り当てる。
-// @Tags class_code
+// @Tags Class Code
 // @Accept json
 // @Produce json
 // @Param code query string true "Code to verify"
