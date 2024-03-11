@@ -21,6 +21,14 @@ func NewGoogleAuthController(service services.GoogleAuthService) *GoogleAuthCont
 	}
 }
 
+// GoogleLoginHandler godoc
+// @Summary Googleのログインページへリダイレクトします。
+// @Description ユーザーをGoogleのログインページへリダイレクトして認証を行います。
+// @Tags GoogleAuth
+// @ID google-login-handler
+// @Produce html
+// @Success 302 "Googleのログインページへのリダイレクト"
+// @Router /auth/google/login [get]
 func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 	oauthStateString := controller.Service.GenerateStateOauthCookie(c.Writer)
 
@@ -28,6 +36,18 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, url)
 }
 
+// GoogleAuthCallback godoc
+// @Summary Googleログイン認証のコールバック処理
+// @Description Googleログイン後にコールバックで受け取ったコードを使用してユーザー情報を取得し、ユーザー情報を基にトークンを生成します。
+// @Tags GoogleAuth
+// @ID google-auth-callback
+// @Accept json
+// @Produce json
+// @Param code query string true "Googleから返された認証コード"
+// @Success 200 {object} map[string]interface{} "認証成功時、アクセストークン、リフレッシュトークン、ユーザー情報を返す"
+// @Failure 400 {string} string "ユーザー情報の取得に失敗"
+// @Failure 500 {string} string "内部サーバーエラー"
+// @Router /auth/google/callback [get]
 func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
 
