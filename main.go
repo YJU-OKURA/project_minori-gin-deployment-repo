@@ -110,12 +110,13 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *con
 	classUserRepo := repositories.NewClassUserRepository(db)
 	roleRepo := repositories.NewRoleRepository(db)
 	attendanceRepo := repositories.NewAttendanceRepository(db)
+	googleAuthRepo := repositories.NewGoogleAuthRepository(db)
 
 	classCodeService := services.NewClassCodeService(classCodeRepo)
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
 	attendanceService := services.NewAttendanceService(attendanceRepo)
-	googleAuthService := services.NewGoogleAuthService()
+	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
 
 	uploader := utils.NewAwsUploader()
 	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
