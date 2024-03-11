@@ -141,13 +141,13 @@ definitions:
     properties:
       createdAt:
         type: string
-      email:
-        type: string
       id:
         type: integer
       image:
         type: string
       name:
+        type: string
+      pid:
         type: string
     type: object
 info:
@@ -279,6 +279,49 @@ paths:
       summary: 出席情報を取得
       tags:
       - Attendance
+  /auth/google/callback:
+    get:
+      consumes:
+      - application/json
+      description: Googleログイン後にコールバックで受け取ったコードを使用してユーザー情報を取得し、ユーザー情報を基にトークンを生成します。
+      operationId: google-auth-callback
+      parameters:
+      - description: Googleから返された認証コード
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 認証成功時、アクセストークン、リフレッシュトークン、ユーザー情報を返す
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: ユーザー情報の取得に失敗
+          schema:
+            type: string
+        "500":
+          description: 内部サーバーエラー
+          schema:
+            type: string
+      summary: Googleログイン認証のコールバック処理
+      tags:
+      - GoogleAuth
+  /auth/google/login:
+    get:
+      description: ユーザーをGoogleのログインページへリダイレクトして認証を行います。
+      operationId: google-login-handler
+      produces:
+      - text/html
+      responses:
+        "302":
+          description: Googleのログインページへのリダイレクト
+      summary: Googleのログインページへリダイレクトします。
+      tags:
+      - GoogleAuth
   /cb:
     get:
       consumes:

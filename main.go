@@ -1,6 +1,10 @@
 package main
 
 import (
+	"log"
+	"os"
+	"time"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
@@ -13,9 +17,6 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
-	"log"
-	"os"
-	"time"
 )
 
 func main() {
@@ -91,9 +92,9 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 	initializeSwagger(router)
 
-	classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService := initializeControllers(db)
+	classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController := initializeControllers(db)
 
-	setupRoutes(router, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService)
+	setupRoutes(router, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController)
 
 	return router
 }
@@ -111,18 +112,20 @@ func startServer(router *gin.Engine) {
 }
 
 // initializeControllers コントローラーを初期化する
-func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService) {
+func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController) {
 	classBoardRepo := repositories.NewClassBoardRepository(db)
 	classCodeRepo := repositories.NewClassCodeRepository(db)
 	classScheduleRepo := repositories.NewClassScheduleRepository(db)
 	classUserRepo := repositories.NewClassUserRepository(db)
 	roleRepo := repositories.NewRoleRepository(db)
 	attendanceRepo := repositories.NewAttendanceRepository(db)
+	googleAuthRepo := repositories.NewGoogleAuthRepository(db)
 
 	classCodeService := services.NewClassCodeService(classCodeRepo)
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
 	attendanceService := services.NewAttendanceService(attendanceRepo)
+	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
 
 	uploader := utils.NewAwsUploader()
 	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
@@ -130,17 +133,19 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *con
 	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
 	classUserController := controllers.NewClassUserController(classUserService)
 	attendanceController := controllers.NewAttendanceController(attendanceService)
+	googleAuthController := controllers.NewGoogleAuthController(googleAuthService)
 
-	return classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService
+	return classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController
 }
 
 // setupRoutes ルートをセットアップする
-func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService) {
+func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController) {
 	setupClassBoardRoutes(router, classBoardController, classUserService)
 	setupClassCodeRoutes(router, classCodeController)
 	setupClassScheduleRoutes(router, classScheduleController, classUserService)
 	setupClassUserRoutes(router, classUserController, classUserService)
 	setupAttendanceRoutes(router, attendanceController, classUserService)
+	setupGoogleAuthRoutes(router, googleAuthController)
 }
 
 // setupClassBoardRoutes ClassBoardのルートをセットアップする
@@ -200,6 +205,15 @@ func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassS
 		//	protected.GET("/live", controller.GetLiveClassSchedules)
 		//	protected.GET("/date", controller.GetClassSchedulesByDate)
 		//}
+	}
+}
+
+// setupGoogleAuthRoutes GoogleLoginのルートをセットアップする
+func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAuthController) {
+	g := router.Group("/api/gin/auth/google")
+	{
+		g.GET("/login", controller.GoogleLoginHandler)
+		g.GET("/callback", controller.GoogleAuthCallback)
 	}
 }
 

@@ -192,6 +192,70 @@
                 }
             }
         },
+        "/auth/google/callback": {
+            "get": {
+                "description": "Googleログイン後にコールバックで受け取ったコードを使用してユーザー情報を取得し、ユーザー情報を基にトークンを生成します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GoogleAuth"
+                ],
+                "summary": "Googleログイン認証のコールバック処理",
+                "operationId": "google-auth-callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Googleから返された認証コード",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "認証成功時、アクセストークン、リフレッシュトークン、ユーザー情報を返す",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "ユーザー情報の取得に失敗",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "内部サーバーエラー",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/login": {
+            "get": {
+                "description": "ユーザーをGoogleのログインページへリダイレクトして認証を行います。",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "GoogleAuth"
+                ],
+                "summary": "Googleのログインページへリダイレクトします。",
+                "operationId": "google-login-handler",
+                "responses": {
+                    "302": {
+                        "description": "Googleのログインページへのリダイレクト"
+                    }
+                }
+            }
+        },
         "/cb": {
             "get": {
                 "description": "cidに基づいて、グループの全ての掲示板を取得します。",
@@ -1274,9 +1338,6 @@
                 "createdAt": {
                     "type": "string"
                 },
-                "email": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -1284,6 +1345,9 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "pid": {
                     "type": "string"
                 }
             }
