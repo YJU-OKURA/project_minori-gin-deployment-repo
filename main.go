@@ -145,6 +145,7 @@ func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoar
 	setupClassScheduleRoutes(router, classScheduleController, classUserService)
 	setupClassUserRoutes(router, classUserController, classUserService)
 	setupAttendanceRoutes(router, attendanceController, classUserService)
+	setupGoogleAuthRoutes(router, googleAuthController)
 }
 
 // setupClassBoardRoutes ClassBoardのルートをセットアップする
@@ -204,6 +205,15 @@ func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassS
 		//	protected.GET("/live", controller.GetLiveClassSchedules)
 		//	protected.GET("/date", controller.GetClassSchedulesByDate)
 		//}
+	}
+}
+
+// setupGoogleAuthRoutes GoogleLoginのルートをセットアップする
+func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAuthController) {
+	g := router.Group("/api/gin/auth/google")
+	{
+		g.GET("/login", controller.GoogleLoginHandler)
+		g.GET("/callback", controller.GoogleAuthCallback)
 	}
 }
 
