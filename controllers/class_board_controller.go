@@ -72,7 +72,7 @@ func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 // @Tags Class Board
 // @Accept json
 // @Produce json
-// @Param id path int true "グループ掲示板ID"
+// @Param id path int true "Class Board ID"
 // @Success 200 {object} models.ClassBoard "グループ掲示板が取得されました"
 // @Failure 400 {object} string "無効なリクエストです"
 // @Failure 404 {object} string "コードが見つかりません"
@@ -100,7 +100,7 @@ func (c *ClassBoardController) GetClassBoardByID(ctx *gin.Context) {
 // @Tags Class Board
 // @Accept json
 // @Produce json
-// @Param cid query int true "クラスID"
+// @Param cid query int true "Class ID"
 // @Success 200 {array} []models.ClassBoard "全てのグループ掲示板のリスト"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb [get]
@@ -124,7 +124,7 @@ func (c *ClassBoardController) GetAllClassBoards(ctx *gin.Context) {
 // @Tags Class Board
 // @Accept json
 // @Produce json
-// @Param cid query int true "クラスID"
+// @Param cid query int true "Class ID"
 // @Success 200 {array} []models.ClassBoard "公告されたグループ掲示板のリスト"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb/announced [get]
@@ -149,8 +149,10 @@ func (c *ClassBoardController) GetAnnouncedClassBoards(ctx *gin.Context) {
 // @Tags Class Board
 // @Accept json
 // @Produce json
-// @Param id path int true "グループ掲示板ID"
-// @Param class_board_update body dto.ClassBoardUpdateDTO true "グループ掲示板の更新"
+// @Param id path int true "Class Board ID"
+// @Param cid query int true "Class ID"
+// @Param uid query int true "User ID"
+// @Param class_board_update body dto.ClassBoardUpdateDTO true "クラス掲示板の更新"
 // @Success 200 {object} models.ClassBoard "グループ掲示板が正常に更新されました"
 // @Failure 400 {object} string "リクエストが不正です"
 // @Failure 404 {object} string "コードが見つかりません"
@@ -187,8 +189,10 @@ func (c *ClassBoardController) UpdateClassBoard(ctx *gin.Context) {
 // @Tags Class Board
 // @Accept json
 // @Produce json
-// @Param id path int true "グループ掲示板ID"
-// @Success 200 {object} string "グループ掲示板が正常に削除されました"
+// @Param id path int true "Class Board ID"
+// @Param cid query int true "Class ID"
+// @Param uid query int true "User ID"
+// @Success 200 {object} string "クラス掲示板が正常に削除されました"
 // @Failure 404 {object} string "コードが見つかりません"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb/{id} [delete]

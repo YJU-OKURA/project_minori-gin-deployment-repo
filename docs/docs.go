@@ -71,6 +71,20 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -226,7 +240,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "クラスID",
+                        "description": "Class ID",
                         "name": "cid",
                         "in": "query",
                         "required": true
@@ -345,7 +359,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "クラスID",
+                        "description": "Class ID",
                         "name": "cid",
                         "in": "query",
                         "required": true
@@ -389,7 +403,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "グループ掲示板ID",
+                        "description": "Class Board ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -437,15 +451,29 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "グループ掲示板ID",
+                        "description": "Class Board ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "グループ掲示板が正常に削除されました",
+                        "description": "クラス掲示板が正常に削除されました",
                         "schema": {
                             "type": "string"
                         }
@@ -479,13 +507,27 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "グループ掲示板ID",
+                        "description": "Class Board ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "グループ掲示板の更新",
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "クラス掲示板の更新",
                         "name": "class_board_update",
                         "in": "body",
                         "required": true,
@@ -685,6 +727,20 @@ const docTemplate = `{
                 "summary": "クラススケジュールを作成",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "description": "Class schedule to create",
                         "name": "classSchedule",
                         "in": "body",
@@ -881,6 +937,20 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "description": "Class schedule to update",
                         "name": "classSchedule",
                         "in": "body",
@@ -929,6 +999,20 @@ const docTemplate = `{
                         "description": "Class schedule ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -1000,29 +1084,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "サーバーエラーが発生しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/example/helloworld": {
-            "get": {
-                "description": "do ping",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "example"
-                ],
-                "summary": "ping example",
-                "responses": {
-                    "200": {
-                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }

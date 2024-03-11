@@ -28,6 +28,8 @@ func NewClassScheduleController(service services.ClassScheduleService) *ClassSch
 // @Tags Class Schedule
 // @Accept json
 // @Produce json
+// @Param cid query int true "Class ID"
+// @Param uid query int true "User ID"
 // @Param classSchedule body dto.ClassScheduleDTO true "Class schedule to create"
 // @Success 200 {object} models.ClassSchedule "クラススケジュールが正常に作成されました"
 // @Failure 400 {object} string "リクエストが不正です"
@@ -110,6 +112,8 @@ func (controller *ClassScheduleController) GetAllClassSchedules(c *gin.Context) 
 // @Accept json
 // @Produce json
 // @Param id path int true "Class schedule ID"
+// @Param cid query int true "Class ID"
+// @Param uid query int true "User ID"
 // @Param classSchedule body dto.UpdateClassScheduleDTO true "Class schedule to update"
 // @Success 200 {object} models.ClassSchedule "クラススケジュールが正常に更新されました"
 // @Failure 400 {object} string "リクエストが不正です"
@@ -144,6 +148,8 @@ func (controller *ClassScheduleController) UpdateClassSchedule(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Class schedule ID"
+// @Param cid query int true "Class ID"
+// @Param uid query int true "User ID"
 // @Success 200 {object} string "クラススケジュールが正常に削除されました"
 // @Failure 400 {object} string "無効なID形式です"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
