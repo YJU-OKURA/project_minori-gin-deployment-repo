@@ -28,7 +28,11 @@ func (s *classCodeServiceImpl) CheckSecretExists(code string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return classCode.Secret != nil, nil
+	if classCode == nil {
+		return false, nil
+	}
+
+	return classCode.Secret != nil && *classCode.Secret != "", nil
 }
 
 // VerifyClassCode はグループコードと、該当する場合はそのシークレットを確認します。
