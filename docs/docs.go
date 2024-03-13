@@ -1081,6 +1081,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/cu/{uid}/{cid}/rename": {
+            "put": {
+                "description": "特定のユーザーIDとグループIDに対してユーザーの名前を更新します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "ユーザーの名前を更新します。",
+                "operationId": "update-user-name",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "新しいニックネーム",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UpdateUserNameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/cu/{uid}/{cid}/{role}": {
             "patch": {
                 "description": "ユーザーのロールを変更します。",
@@ -1136,6 +1191,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.UpdateUserNameRequest": {
+            "type": "object",
+            "properties": {
+                "new_name": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ClassBoardUpdateDTO": {
             "type": "object",
             "required": [
