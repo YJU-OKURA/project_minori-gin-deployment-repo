@@ -9,6 +9,7 @@ import (
 type ClassUserService interface {
 	AssignRole(uid uint, cid uint, roleName string) error
 	GetRole(uid uint, cid uint) (int, error)
+	UpdateUserName(uid uint, cid uint, newName string) error
 }
 
 // classUserServiceImpl はClassCodeServiceの実装です。
@@ -38,4 +39,8 @@ func (s *classUserServiceImpl) GetRole(uid uint, cid uint) (int, error) {
 	}
 
 	return roleID, nil
+}
+
+func (s *classUserServiceImpl) UpdateUserName(uid uint, cid uint, newName string) error {
+	return s.classUserRepo.UpdateUserName(uid, cid, newName)
 }
