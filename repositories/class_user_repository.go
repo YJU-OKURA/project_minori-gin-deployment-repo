@@ -2,12 +2,14 @@ package repositories
 
 import (
 	"errors"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"gorm.io/gorm"
 )
 
 type ClassUserRepository interface {
 	UpdateUserRole(uid uint, cid uint, rid int) error
+	UpdateUserName(uid uint, cid uint, newName string) error
 	GetRole(uid uint, cid uint) (int, error)
 }
 
@@ -50,4 +52,18 @@ func (r *classUserRepository) GetRole(uid uint, cid uint) (int, error) {
 	}
 
 	return classUser.RoleID, nil
+}
+
+// UpdateUserName はユーザーの名前を更新します。
+func (r *classUserRepository) UpdateUserName(uid uint, cid uint, newName string) error {
+	var classUser models.ClassUser
+	result := r.db.First(&classUser, "uid = ? AND cid = ?", uid, cid)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return result.Error
+	} else if result.Error != nil {
+		return result.Error
+	}
+
+	return r.db.Model(&classUser).Update("nickname", newName).Error
 }
