@@ -92,9 +92,9 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 	initializeSwagger(router)
 
-	classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController := initializeControllers(db)
+	classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController := initializeControllers(db)
 
-	setupRoutes(router, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController)
+	setupRoutes(router, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController)
 
 	return router
 }
@@ -112,7 +112,8 @@ func startServer(router *gin.Engine) {
 }
 
 // initializeControllers コントローラーを初期化する
-func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController) {
+func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController) {
+	createClassRepo := repositories.NewCreateClassRepository(db)
 	classBoardRepo := repositories.NewClassBoardRepository(db)
 	classCodeRepo := repositories.NewClassCodeRepository(db)
 	classScheduleRepo := repositories.NewClassScheduleRepository(db)
@@ -121,6 +122,7 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *con
 	attendanceRepo := repositories.NewAttendanceRepository(db)
 	googleAuthRepo := repositories.NewGoogleAuthRepository(db)
 
+	createClassService := services.NewCreateClassService(createClassRepo)
 	classCodeService := services.NewClassCodeService(classCodeRepo)
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
@@ -128,6 +130,7 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *con
 	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
 
 	uploader := utils.NewAwsUploader()
+	createClassController := controllers.NewCreateClassController(createClassService, uploader)
 	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
 	classCodeController := controllers.NewClassCodeController(classCodeService, classUserService)
 	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
@@ -135,17 +138,18 @@ func initializeControllers(db *gorm.DB) (*controllers.ClassBoardController, *con
 	attendanceController := controllers.NewAttendanceController(attendanceService)
 	googleAuthController := controllers.NewGoogleAuthController(googleAuthService)
 
-	return classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController
+	return classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController
 }
 
 // setupRoutes ルートをセットアップする
-func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController) {
+func setupRoutes(router *gin.Engine, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController) {
 	setupClassBoardRoutes(router, classBoardController, classUserService)
 	setupClassCodeRoutes(router, classCodeController)
 	setupClassScheduleRoutes(router, classScheduleController, classUserService)
 	setupClassUserRoutes(router, classUserController, classUserService)
 	setupAttendanceRoutes(router, attendanceController, classUserService)
 	setupGoogleAuthRoutes(router, googleAuthController)
+	setupCreateClassRoutes(router, createClassController)
 }
 
 // setupClassBoardRoutes ClassBoardのルートをセットアップする
@@ -214,6 +218,15 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 	{
 		g.GET("/login", controller.GoogleLoginHandler)
 		g.GET("/callback", controller.GoogleAuthCallback)
+	}
+}
+
+//setupCreateClassRoutes CreateClassのルートをセットアップする
+
+func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController) {
+	cs := router.Group("/api/gin/cs")
+	{
+		cs.POST("/create", controller.CreateClass)
 	}
 }
 
