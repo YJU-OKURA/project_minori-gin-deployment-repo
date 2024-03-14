@@ -815,6 +815,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/cs/create": {
+            "post": {
+                "description": "名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "新しいクラスを作成します",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "クラスの名前",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "クラスの定員数",
+                        "name": "limitation",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "クラスの説明",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "クラスの画像",
+                        "name": "image",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "message: クラスが正常に作成されました",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "error: 不正なリクエストのエラーメッセージ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error: サーバー内部エラー",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/cs/date": {
             "get": {
                 "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
