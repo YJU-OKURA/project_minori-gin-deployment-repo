@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"gorm.io/gorm"
 )
@@ -11,6 +12,7 @@ type ClassUserRepository interface {
 	UpdateUserRole(uid uint, cid uint, rid int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
 	GetRole(uid uint, cid uint) (int, error)
+	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 }
 
 type classUserRepository struct {
@@ -66,4 +68,15 @@ func (r *classUserRepository) UpdateUserName(uid uint, cid uint, newName string)
 	}
 
 	return r.db.Model(&classUser).Update("nickname", newName).Error
+}
+
+func (r *classUserRepository) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
+	var userClassesInfo []dto.UserClassInfoDTO
+	err := r.db.Table("classes").
+		Select("classes.id, classes.name, classes.limitation, classes.description, classes.image, class_users.is_favorite").
+		Joins("INNER JOIN class_users ON classes.id = class_users.cid").
+		Where("class_users.uid = ?", uid).
+		Scan(&userClassesInfo).Error
+
+	return userClassesInfo, err
 }
