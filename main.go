@@ -239,6 +239,8 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 
 		cu.PUT("/:uid/:cid/:rename", controller.UpdateUserName)
 
+		cu.GET("/:uid/classes", controller.GetUserClasses)
+
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
 		//protected := cu.Group("/:uid/:cid")
 		//protected.Use(middlewares.AdminMiddleware(classUserService), middlewares.AssistantMiddleware(classUserService))
