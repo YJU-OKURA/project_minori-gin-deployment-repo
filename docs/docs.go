@@ -1148,7 +1148,7 @@ const docTemplate = `{
         },
         "/cu/{uid}/classes": {
             "get": {
-                "description": "특정 유저가 가입한 모든 클래스의 정보를 조회합니다.",
+                "description": "特定のユーザーが参加している全てのクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -1158,11 +1158,11 @@ const docTemplate = `{
                 "tags": [
                     "Class User"
                 ],
-                "summary": "유저가 가입한 클래스 목록 조회",
+                "summary": "ユーザーが参加しているクラスのリストを取得",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "ユーザーID",
                         "name": "uid",
                         "in": "path",
                         "required": true
@@ -1170,7 +1170,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "成功",
                         "schema": {
                             "type": "array",
                             "items": {
