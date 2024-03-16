@@ -1135,6 +1135,41 @@
                 }
             }
         },
+        "/cu/{uid}/classes": {
+            "get": {
+                "description": "특정 유저가 가입한 모든 클래스의 정보를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "유저가 가입한 클래스 목록 조회",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Class"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/cu/{uid}/{cid}/rename": {
             "put": {
                 "description": "特定のユーザーIDとグループIDに対してユーザーの名前を更新します。",

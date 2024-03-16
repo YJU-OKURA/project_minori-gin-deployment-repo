@@ -988,4 +988,27 @@ paths:
       summary: ユーザーの名前を更新します。
       tags:
       - Class User
+  /cu/{uid}/classes:
+    get:
+      consumes:
+      - application/json
+      description: 특정 유저가 가입한 모든 클래스의 정보를 조회합니다.
+      parameters:
+      - description: User ID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Class'
+            type: array
+      summary: 유저가 가입한 클래스 목록 조회
+      tags:
+      - Class User
 swagger: "2.0"
