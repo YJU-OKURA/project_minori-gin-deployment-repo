@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
@@ -89,4 +90,39 @@ func (c *ClassUserController) UpdateUserName(ctx *gin.Context) {
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.Success})
+}
+
+// GetUserClasses godoc
+// @Summary ユーザーが参加しているクラスのリストを取得
+// @Description 特定のユーザーが参加している全てのクラスの情報を取得します。
+// @Tags Class User
+// @Accept json
+// @Produce json
+// @Param uid path int true "ユーザーID"
+// @Success 200 {array} models.Class "成功"
+// @Router /cu/{uid}/classes [get]
+func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
+	uidStr := ctx.Param("uid")
+	uid, err := strconv.ParseUint(uidStr, 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	classes, err := c.classUserService.GetUserClasses(uint(uid))
+	if err != nil {
+		if errors.Is(err, services.ErrNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+		} else {
+			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		}
+		return
+	}
+
+	if len(classes) == 0 {
+		respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, classes)
 }

@@ -1146,6 +1146,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/cu/{uid}/classes": {
+            "get": {
+                "description": "特定のユーザーが参加している全てのクラスの情報を取得します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "ユーザーが参加しているクラスのリストを取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ユーザーID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Class"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/cu/{uid}/{cid}/rename": {
             "put": {
                 "description": "特定のユーザーIDとグループIDに対してユーザーの名前を更新します。",

@@ -235,6 +235,8 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 	cu := router.Group("/api/gin/cu")
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
+		cu.GET("/:uid/classes", controller.GetUserClasses)
+
 		cu.PATCH("/:uid/:cid/:role", controller.ChangeUserRole)
 
 		cu.PUT("/:uid/:cid/:rename", controller.UpdateUserName)

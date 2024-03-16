@@ -988,4 +988,27 @@ paths:
       summary: ユーザーの名前を更新します。
       tags:
       - Class User
+  /cu/{uid}/classes:
+    get:
+      consumes:
+      - application/json
+      description: 特定のユーザーが参加している全てのクラスの情報を取得します。
+      parameters:
+      - description: ユーザーID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/models.Class'
+            type: array
+      summary: ユーザーが参加しているクラスのリストを取得
+      tags:
+      - Class User
 swagger: "2.0"
