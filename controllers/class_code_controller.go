@@ -36,7 +36,7 @@ func (c *ClassCodeController) CheckSecretExists(ctx *gin.Context) {
 	secretExists, err := c.classCodeService.CheckSecretExists(ctx, code)
 	if err != nil {
 		// エラーメッセージに基づいて適切なHTTPステータスを返す
-		if err.Error() == "class not found" {
+		if err.Error() == services.ErrClassNotFound {
 			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
 			return
 		}
