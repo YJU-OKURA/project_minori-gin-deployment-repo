@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const ErrClassNotFound = "class not found"
+
 // ClassCodeService はグループコードのサービスです。
 type ClassCodeService interface {
 	CheckSecretExists(c *gin.Context, code string) (bool, error)
@@ -30,7 +32,7 @@ func (s *classCodeServiceImpl) CheckSecretExists(c *gin.Context, code string) (b
 		return false, err
 	}
 	if classCode == nil {
-		return false, errors.New("class not found")
+		return false, errors.New(ErrUserNotFound)
 	}
 	if classCode.Secret == nil || *classCode.Secret == "" {
 		return false, nil // シークレットが存在しない場合はfalseを返す
