@@ -33,9 +33,14 @@ func NewClassCodeController(classCodeService services.ClassCodeService, classUse
 func (c *ClassCodeController) CheckSecretExists(ctx *gin.Context) {
 	code := ctx.Query("code")
 
-	secretExists, err := c.classCodeService.CheckSecretExists(code)
+	secretExists, err := c.classCodeService.CheckSecretExists(ctx, code)
 	if err != nil {
-		handleServiceError(ctx, err)
+		// エラーメッセージに基づいて適切なHTTPステータスを返す
+		if err.Error() == "class not found" {
+			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+			return
+		}
+		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
 		return
 	}
 
