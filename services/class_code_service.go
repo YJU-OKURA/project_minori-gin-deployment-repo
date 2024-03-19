@@ -4,11 +4,12 @@ import (
 	"errors"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
+	"github.com/gin-gonic/gin"
 )
 
 // ClassCodeService はグループコードのサービスです。
 type ClassCodeService interface {
-	CheckSecretExists(code string) (bool, error)
+	CheckSecretExists(c *gin.Context, code string) (bool, error)
 	VerifyClassCode(code, secret string) (*models.ClassCode, error)
 }
 
@@ -23,16 +24,19 @@ func NewClassCodeService(repo *repositories.ClassCodeRepository) ClassCodeServic
 }
 
 // CheckSecretExists は指定されたグループコードにシークレットがあるかどうかをチェックします。
-func (s *classCodeServiceImpl) CheckSecretExists(code string) (bool, error) {
+func (s *classCodeServiceImpl) CheckSecretExists(c *gin.Context, code string) (bool, error) {
 	classCode, err := s.repo.FindByCode(code)
 	if err != nil {
 		return false, err
 	}
 	if classCode == nil {
-		return false, nil
+		return false, errors.New("class not found")
+	}
+	if classCode.Secret == nil || *classCode.Secret == "" {
+		return false, nil // シークレットが存在しない場合はfalseを返す
 	}
 
-	return classCode.Secret != nil && *classCode.Secret != "", nil
+	return true, nil
 }
 
 // VerifyClassCode はグループコードと、該当する場合はそのシークレットを確認します。
