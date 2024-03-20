@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"log"
-	"net/http"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -33,7 +32,7 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 	oauthStateString := controller.Service.GenerateStateOauthCookie(c.Writer)
 
 	url := controller.Service.OauthConfig().AuthCodeURL(oauthStateString)
-	c.JSON(http.StatusOK, gin.H{"url": url})
+	c.JSON(constants.StatusOK, gin.H{"url": url})
 }
 
 // GoogleAuthCallback godoc
