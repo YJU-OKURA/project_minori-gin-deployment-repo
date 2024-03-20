@@ -33,7 +33,7 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 	oauthStateString := controller.Service.GenerateStateOauthCookie(c.Writer)
 
 	url := controller.Service.OauthConfig().AuthCodeURL(oauthStateString)
-	c.Redirect(http.StatusTemporaryRedirect, url)
+	c.JSON(http.StatusOK, gin.H{"url": url})
 }
 
 // GoogleAuthCallback godoc
