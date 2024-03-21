@@ -125,6 +125,7 @@ func initializeControllers(db *gorm.DB) (*controllers.UserController, *controlle
 
 	userService := services.NewCreateUserService(userRepo)
 	createClassService := services.NewCreateClassService(createClassRepo)
+	classBoardService := services.NewClassBoardService(classBoardRepo)
 	classCodeService := services.NewClassCodeService(classCodeRepo)
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
@@ -134,7 +135,7 @@ func initializeControllers(db *gorm.DB) (*controllers.UserController, *controlle
 	uploader := utils.NewAwsUploader()
 	userController := controllers.NewCreateUserController(userService)
 	createClassController := controllers.NewCreateClassController(createClassService, uploader)
-	classBoardController := controllers.NewClassBoardController(services.NewClassBoardService(classBoardRepo), uploader)
+	classBoardController := controllers.NewClassBoardController(classBoardService, uploader)
 	classCodeController := controllers.NewClassCodeController(classCodeService, classUserService)
 	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
 	classUserController := controllers.NewClassUserController(classUserService)
