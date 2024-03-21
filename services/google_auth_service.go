@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -134,8 +134,14 @@ func (s *GoogleAuthServiceImpl) GetGoogleUserInfo(code string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to Get UserInfo %s\n", err.Error())
 	}
+	defer resp.Body.Close()
 
-	return ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read response body: %s\n", err.Error())
+	}
+
+	return body, nil
 }
 
 func (s *GoogleAuthServiceImpl) RefreshAccessToken(refreshToken string) (*oauth2.Token, error) {
