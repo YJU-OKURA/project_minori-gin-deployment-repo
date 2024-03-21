@@ -8,6 +8,7 @@ import (
 )
 
 const ErrClassNotFound = "class not found"
+const ErrInvalidClassCodeOrSecret = "invalid class code or secret"
 
 // ClassCodeService はグループコードのサービスです。
 type ClassCodeService interface {
@@ -25,14 +26,26 @@ func NewClassCodeService(repo *repositories.ClassCodeRepository) ClassCodeServic
 	return &classCodeServiceImpl{repo: repo}
 }
 
+// findClassCode は指定されたグループコードを取得します。
+func (s *classCodeServiceImpl) findClassCode(code string) (*models.ClassCode, error) {
+	classCode, err := s.repo.FindByCode(code)
+	if err != nil {
+		return nil, err
+	}
+	if classCode == nil {
+		return nil, errors.New(ErrClassNotFound)
+	}
+	return classCode, nil
+}
+
 // CheckSecretExists は指定されたグループコードにシークレットがあるかどうかをチェックします。
 func (s *classCodeServiceImpl) CheckSecretExists(c *gin.Context, code string) (bool, error) {
-	classCode, err := s.repo.FindByCode(code)
+	classCode, err := s.findClassCode(code)
 	if err != nil {
 		return false, err
 	}
 	if classCode == nil {
-		return false, errors.New(ErrUserNotFound)
+		return false, errors.New(ErrClassNotFound)
 	}
 	if classCode.Secret == nil || *classCode.Secret == "" {
 		return false, nil // シークレットが存在しない場合はfalseを返す
@@ -43,13 +56,13 @@ func (s *classCodeServiceImpl) CheckSecretExists(c *gin.Context, code string) (b
 
 // VerifyClassCode はグループコードと、該当する場合はそのシークレットを確認します。
 func (s *classCodeServiceImpl) VerifyClassCode(code string, secret string) (*models.ClassCode, error) {
-	classCode, err := s.repo.FindByCode(code)
+	classCode, err := s.findClassCode(code)
 	if err != nil {
 		return nil, err
 	}
 
 	if classCode == nil || (classCode.Secret != nil && *classCode.Secret != secret) {
-		return nil, errors.New("無効なグループコードまたはシークレットです。")
+		return nil, errors.New(ErrInvalidClassCodeOrSecret)
 	}
 
 	return classCode, nil
