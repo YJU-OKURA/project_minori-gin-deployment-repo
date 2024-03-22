@@ -7,6 +7,10 @@ import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
+
+	"log"
+	"net/http"
+	"time"
 )
 
 type GoogleAuthController struct {
@@ -48,41 +52,60 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 // @Router /auth/google/callback [get]
 func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
-	if code == "" {
-		c.JSON(constants.StatusBadRequest, gin.H{"error": "code is required"})
-		return
-	}
 
 	userInfo, err := controller.Service.GetGoogleUserInfo(code)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		log.Printf("Failed to get user info: %v", err)
+		handleServiceError(c, err)
 	}
 
 	var userInput dto.UserInput
 	err = json.Unmarshal(userInfo, &userInput)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("Failed to parse user info: %v", err)
+		handleServiceError(c, err)
 		return
 	}
 
 	user, err := controller.Service.UpdateOrCreateUser(userInput)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("Failed to create or update user: %v", err)
+		handleServiceError(c, err)
 		return
 	}
 
 	token, err := controller.Service.GenerateToken(user.ID)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("Failed to generate token: %v", err)
+		handleServiceError(c, err)
 		return
 	}
 
 	refreshToken, err := controller.Service.GenerateRefreshToken(user.ID)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("Failed to generate refreshToken: %v", err)
+		handleServiceError(c, err)
 		return
 	}
 
-	c.JSON(constants.StatusOK, gin.H{"token": token, "refresh_token": refreshToken})
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: false,
+		Secure:   false,
+		Path:     "/",
+	})
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		Expires:  time.Now().Add(7 * 24 * time.Hour),
+		HttpOnly: false,
+		Secure:   false,
+		Path:     "/",
+	})
+
+	finalRedirectURL := "http://localhost:3000/"
+	c.Redirect(http.StatusTemporaryRedirect, finalRedirectURL)
 }
