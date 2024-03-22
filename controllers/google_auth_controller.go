@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -49,45 +48,41 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 // @Router /auth/google/callback [get]
 func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
+	if code == "" {
+		c.JSON(constants.StatusBadRequest, gin.H{"error": "code is required"})
+		return
+	}
 
 	userInfo, err := controller.Service.GetGoogleUserInfo(code)
 	if err != nil {
-		log.Printf("Failed to get user info: %v", err)
-		handleServiceError(c, err)
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	var userInput dto.UserInput
 	err = json.Unmarshal(userInfo, &userInput)
 	if err != nil {
-		log.Printf("Failed to parse user info: %v", err)
-		handleServiceError(c, err)
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	user, err := controller.Service.UpdateOrCreateUser(userInput)
 	if err != nil {
-		log.Printf("Failed to create or update user: %v", err)
-		handleServiceError(c, err)
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	token, err := controller.Service.GenerateToken(user.ID)
 	if err != nil {
-		log.Printf("Failed to generate token: %v", err)
-		handleServiceError(c, err)
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	refreshToken, err := controller.Service.GenerateRefreshToken(user.ID)
 	if err != nil {
-		log.Printf("Failed to generate refreshToken: %v", err)
-		handleServiceError(c, err)
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(constants.StatusOK, gin.H{
-		"access_token":  token,
-		"refresh_token": refreshToken,
-		"user":          user,
-	})
+	c.JSON(constants.StatusOK, gin.H{"token": token, "refresh_token": refreshToken})
 }
