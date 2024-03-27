@@ -70,19 +70,35 @@ func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
 		return
 	}
 
-	classCode, err := c.classCodeService.VerifyClassCode(code, secret)
+	isValid, err := c.classCodeService.VerifyClassCode(code, secret)
 	if err != nil {
-		handleServiceError(ctx, err)
+		if err.Error() == services.ErrClassNotFound {
+			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+			return
+		}
+		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
 		return
 	}
 
-	err = c.classUserService.AssignRole(uint(uid), classCode.CID, "APPLICANT")
+	if !isValid {
+		// Class code is found, but secret is invalid.
+		ctx.JSON(constants.StatusOK, gin.H{"valid": false})
+		return
+	}
+
+	codeUint, err := strconv.ParseUint(code, 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid class code format")
+		return
+	}
+
+	err = c.classUserService.AssignRole(uint(uid), uint(codeUint), "APPLICANT")
 	if err != nil {
 		respondWithError(ctx, constants.StatusInternalServerError, constants.AssignError)
 		return
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.ClassMemberRegistration})
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"valid": true, "message": constants.ClassMemberRegistration})
 }
 
 func parseUintQueryParam(ctx *gin.Context, param string) (uint64, error) {
