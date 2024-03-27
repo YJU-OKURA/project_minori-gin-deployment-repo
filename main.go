@@ -125,7 +125,7 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 func CORS() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
@@ -200,7 +200,7 @@ func setupRoutes(router *gin.Engine, userController *controllers.UserController,
 func setupUserRoutes(router *gin.Engine, controller *controllers.UserController) {
 	u := router.Group("/api/gin/u")
 	{
-		u.GET("/:userID/applying-classes", controller.GetApplyingClasses)
+		u.GET(":userID/applying-classes", controller.GetApplyingClasses)
 	}
 }
 
@@ -208,14 +208,14 @@ func setupUserRoutes(router *gin.Engine, controller *controllers.UserController)
 func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoardController, classUserService services.ClassUserService) {
 	cb := router.Group("/api/gin/cb")
 	{
-		cb.GET("/", controller.GetAllClassBoards)
-		cb.GET("/:id", controller.GetClassBoardByID)
-		cb.GET("/announced", controller.GetAnnouncedClassBoards)
+		cb.GET("", controller.GetAllClassBoards)
+		cb.GET(":id", controller.GetClassBoardByID)
+		cb.GET("announced", controller.GetAnnouncedClassBoards)
 
 		// TODO: フロントエンド側の実装が完了したら、削除
-		cb.POST("/", controller.CreateClassBoard)
-		cb.PATCH("/:id", controller.UpdateClassBoard)
-		cb.DELETE("/:id", controller.DeleteClassBoard)
+		cb.POST("", controller.CreateClassBoard)
+		cb.PATCH(":id", controller.UpdateClassBoard)
+		cb.DELETE(":id", controller.DeleteClassBoard)
 
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
 		//protected := cb.Group("/:uid/:cid")
@@ -232,8 +232,8 @@ func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoar
 func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeController) {
 	cc := router.Group("/api/gin/cc")
 	{
-		cc.GET("/checkSecretExists", controller.CheckSecretExists)
-		cc.GET("/verifyClassCode", controller.VerifyClassCode)
+		cc.GET("checkSecretExists", controller.CheckSecretExists)
+		cc.GET("verifyClassCode", controller.VerifyClassCode)
 	}
 }
 
@@ -241,15 +241,15 @@ func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeC
 func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassScheduleController, classUserService services.ClassUserService) {
 	cs := router.Group("/api/gin/cs")
 	{
-		cs.GET("/", controller.GetAllClassSchedules)
-		cs.GET("/:id", controller.GetClassScheduleByID)
+		cs.GET("", controller.GetAllClassSchedules)
+		cs.GET(":id", controller.GetClassScheduleByID)
 
 		// TODO: フロントエンド側の実装が完了したら、削除
-		cs.POST("/", controller.CreateClassSchedule)
-		cs.PATCH("/:id", controller.UpdateClassSchedule)
-		cs.DELETE("/:id", controller.DeleteClassSchedule)
-		cs.GET("/live", controller.GetLiveClassSchedules)
-		cs.GET("/date", controller.GetClassSchedulesByDate)
+		cs.POST("", controller.CreateClassSchedule)
+		cs.PATCH(":id", controller.UpdateClassSchedule)
+		cs.DELETE(":id", controller.DeleteClassSchedule)
+		cs.GET("live", controller.GetLiveClassSchedules)
+		cs.GET("date", controller.GetClassSchedulesByDate)
 
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
 		//protected := cs.Group("/:uid/:cid")
@@ -268,8 +268,8 @@ func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassS
 func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAuthController) {
 	g := router.Group("/api/gin/auth/google")
 	{
-		g.GET("/login", controller.GoogleLoginHandler)
-		g.GET("/callback", controller.GoogleAuthCallback)
+		g.GET("login", controller.GoogleLoginHandler)
+		g.GET("callback", controller.GoogleAuthCallback)
 	}
 }
 
@@ -278,7 +278,7 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController) {
 	cs := router.Group("/api/gin/cs")
 	{
-		cs.POST("/create", controller.CreateClass)
+		cs.POST("create", controller.CreateClass)
 	}
 }
 
@@ -287,11 +287,11 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 	cu := router.Group("/api/gin/cu")
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
-		cu.GET("/:uid/classes", controller.GetUserClasses)
+		cu.GET(":uid/classes", controller.GetUserClasses)
 
-		cu.PATCH("/:uid/:cid/:role", controller.ChangeUserRole)
+		cu.PATCH(":uid/:cid/:role", controller.ChangeUserRole)
 
-		cu.PUT("/:uid/:cid/:rename", controller.UpdateUserName)
+		cu.PUT(":uid/:cid/:rename", controller.UpdateUserName)
 
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
 		//protected := cu.Group("/:uid/:cid")
@@ -307,10 +307,10 @@ func setupAttendanceRoutes(router *gin.Engine, controller *controllers.Attendanc
 	at := router.Group("/api/gin/at")
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
-		at.POST("/:cid/:uid/:csid", controller.CreateOrUpdateAttendance)
-		at.GET("/:cid", controller.GetAllAttendances)
-		at.GET("/attendance/:id", controller.GetAttendance)
-		at.DELETE("/attendance/:id", controller.DeleteAttendance)
+		at.POST(":cid/:uid/:csid", controller.CreateOrUpdateAttendance)
+		at.GET(":cid", controller.GetAllAttendances)
+		at.GET("attendance/:id", controller.GetAttendance)
+		at.DELETE("attendance/:id", controller.DeleteAttendance)
 
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
 		//protected := at.Group("/:uid/:cid")
