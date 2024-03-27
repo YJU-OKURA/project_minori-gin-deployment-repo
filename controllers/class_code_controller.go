@@ -81,18 +81,17 @@ func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
 	}
 
 	if !isValid {
-		// Class code is found, but secret is invalid.
-		ctx.JSON(constants.StatusOK, gin.H{"valid": false})
+		respondWithSuccess(ctx, constants.StatusOK, gin.H{"valid": false})
 		return
 	}
 
-	codeUint, err := strconv.ParseUint(code, 10, 32)
+	uidUint, err := strconv.ParseUint(strconv.FormatUint(uid, 10), 10, 32)
 	if err != nil {
 		respondWithError(ctx, constants.StatusBadRequest, "Invalid class code format")
 		return
 	}
 
-	err = c.classUserService.AssignRole(uint(uid), uint(codeUint), "APPLICANT")
+	err = c.classUserService.AssignRole(uint(uid), uint(uidUint), "APPLICANT")
 	if err != nil {
 		respondWithError(ctx, constants.StatusInternalServerError, constants.AssignError)
 		return
