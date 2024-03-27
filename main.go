@@ -1,22 +1,19 @@
 package main
 
 import (
-	"log"
-	"os"
-	"time"
-
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/utils"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
+	"log"
+	"os"
 )
 
 func main() {
@@ -81,15 +78,38 @@ func migrateDatabaseIfNeeded(db *gorm.DB) {
 func setupRouter(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
 
-	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:3000"}, // 許可するオリジン
-		//AllowOrigins:     []string{"*"},                                                         // 許可するオリジン
-		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE"},                     // リクエストメソッド
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"}, // リクエストヘッダに含めるヘッダ
-		ExposeHeaders:    []string{"Content-Length"},                                            // レスポンスヘッダに含めるヘッダ
-		AllowCredentials: true,                                                                  // クッキーを許可
-		MaxAge:           12 * time.Hour,                                                        // 12時間
-	}))
+	//router.Use(cors.New(cors.Config{
+	//	AllowOrigins:     []string{"http://localhost:3000"},                                     // 許可するオリジン
+	//	AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE"},                     // リクエストメソッド
+	//	AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"}, // リクエストヘッダに含めるヘッダ
+	//	ExposeHeaders:    []string{"Content-Length"},                                            // レスポンスヘッダに含めるヘッダ
+	//	AllowCredentials: true,                                                                  // クッキーを許可
+	//	MaxAge:           12 * time.Hour,                                                        // 12時間
+	//}))
+	router.Use(func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+		allowOrigins := []string{"http://localhost:3000", "http://localhost:3000/", "http://127.0.0.1:3000", "https://localhost:3000", "https://127.0.0.1:3000"}
+
+		for _, o := range allowOrigins {
+			if origin == o {
+				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+				break
+			}
+		}
+
+		// 다른 CORS 관련 헤더 설정
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Length, Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// OPTIONS 메소드에 대한 Preflight 요청 처리
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+		} else {
+			c.Next()
+		}
+	})
 
 	initializeSwagger(router)
 
