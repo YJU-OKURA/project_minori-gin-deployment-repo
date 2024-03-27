@@ -27,7 +27,7 @@ func NewClassUserRepository(db *gorm.DB) ClassUserRepository {
 func (r *classUserRepository) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
 	var userClassesInfo []dto.UserClassInfoDTO
 	err := r.db.Table("classes").
-		Select("classes.id, classes.name, classes.limitation, classes.description, classes.image, class_users.is_favorite").
+		Select("classes.id, classes.name, classes.limitation, classes.description, classes.image, class_users.is_favorite, class_users.role_id").
 		Joins("INNER JOIN class_users ON classes.id = class_users.cid").
 		Where("class_users.uid = ?", uid).
 		Scan(&userClassesInfo).Error
