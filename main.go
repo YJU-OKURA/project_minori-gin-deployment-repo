@@ -78,6 +78,8 @@ func migrateDatabaseIfNeeded(db *gorm.DB) {
 func setupRouter(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
 
+	router.Use(CORS())
+
 	//router.Use(cors.New(cors.Config{
 	//	AllowOrigins:     []string{"http://localhost:3000"},                                     // 許可するオリジン
 	//	AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE"},                     // リクエストメソッド
@@ -86,30 +88,31 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	//	AllowCredentials: true,                                                                  // クッキーを許可
 	//	MaxAge:           12 * time.Hour,                                                        // 12時間
 	//}))
-	router.Use(func(c *gin.Context) {
-		origin := c.Request.Header.Get("Origin")
-		allowOrigins := []string{"http://localhost:3000", "http://localhost:3000/", "http://127.0.0.1:3000", "https://localhost:3000", "https://127.0.0.1:3000"}
 
-		for _, o := range allowOrigins {
-			if origin == o {
-				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-				break
-			}
-		}
-
-		// 다른 CORS 관련 헤더 설정
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Length, Content-Type, Authorization")
-		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-
-		// OPTIONS 메소드에 대한 Preflight 요청 처리
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-		} else {
-			c.Next()
-		}
-	})
+	//router.Use(func(c *gin.Context) {
+	//	origin := c.Request.Header.Get("Origin")
+	//	allowOrigins := []string{"http://localhost:3000", "http://localhost:3000/", "http://127.0.0.1:3000", "https://localhost:3000", "https://127.0.0.1:3000"}
+	//
+	//	for _, o := range allowOrigins {
+	//		if origin == o {
+	//			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+	//			break
+	//		}
+	//	}
+	//
+	//	// 다른 CORS 관련 헤더 설정
+	//	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE")
+	//	c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Length, Content-Type, Authorization")
+	//	c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+	//	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+	//
+	//	// OPTIONS 메소드에 대한 Preflight 요청 처리
+	//	if c.Request.Method == "OPTIONS" {
+	//		c.AbortWithStatus(204)
+	//	} else {
+	//		c.Next()
+	//	}
+	//})
 
 	initializeSwagger(router)
 
@@ -118,6 +121,22 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController)
 
 	return router
+}
+
+func CORS() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }
 
 // initializeSwagger Swaggerを初期化する
