@@ -13,7 +13,7 @@ const ErrInvalidClassCodeOrSecret = "invalid class code or secret"
 // ClassCodeService はグループコードのサービスです。
 type ClassCodeService interface {
 	CheckSecretExists(c *gin.Context, code string) (bool, error)
-	VerifyClassCode(code, secret string) (*models.ClassCode, error)
+	VerifyClassCode(code, secret string) (bool, error)
 }
 
 // classCodeServiceImpl はClassCodeServiceの実装です。
@@ -55,15 +55,15 @@ func (s *classCodeServiceImpl) CheckSecretExists(c *gin.Context, code string) (b
 }
 
 // VerifyClassCode はグループコードと、該当する場合はそのシークレットを確認します。
-func (s *classCodeServiceImpl) VerifyClassCode(code string, secret string) (*models.ClassCode, error) {
+func (s *classCodeServiceImpl) VerifyClassCode(code string, secret string) (bool, error) {
 	classCode, err := s.findClassCode(code)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	if classCode == nil || (classCode.Secret != nil && *classCode.Secret != secret) {
-		return nil, errors.New(ErrInvalidClassCodeOrSecret)
+	if classCode.Secret == nil || *classCode.Secret != secret {
+		return false, nil
 	}
 
-	return classCode, nil
+	return true, nil
 }
