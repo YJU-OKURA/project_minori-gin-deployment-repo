@@ -82,8 +82,8 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		//AllowOrigins:     []string{`http://localhost:3000`, `http://localhost:3000/`, "http://localhost:3000", "http://localhost:3000/", "http://127.0.0.1:3000", "http://127.0.0.1:3000/"}, // 許可するオリジン
-		AllowOrigins:     []string{"*"},                                                         // 許可するオリジン
+		AllowOrigins: []string{`http://localhost:3000`, `http://localhost:3000/`, "http://localhost:3000", "http://localhost:3000/", "http://127.0.0.1:3000", "http://127.0.0.1:3000/"}, // 許可するオリジン
+		//AllowOrigins:     []string{"*"},                                                         // 許可するオリジン
 		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE"},                     // リクエストメソッド
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"}, // リクエストヘッダに含めるヘッダ
 		ExposeHeaders:    []string{"Content-Length"},                                            // レスポンスヘッダに含めるヘッダ
