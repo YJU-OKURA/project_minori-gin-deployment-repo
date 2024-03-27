@@ -84,5 +84,6 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(constants.StatusOK, gin.H{"token": token, "refresh_token": refreshToken, "user": user})
+	finalRedirectURL := "http://localhost:3000/"
+	c.JSON(constants.StatusOK, gin.H{"token": token, "refresh_token": refreshToken, "user": user, "redirect_url": finalRedirectURL})
 }
