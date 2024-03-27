@@ -7,4 +7,5 @@ type UserClassInfoDTO struct {
 	Description string `json:"description"`
 	Image       string `json:"image"`
 	IsFavorite  bool   `json:"is_favorite"`
+	RoleID      uint   `json:"role_id"`
 }
