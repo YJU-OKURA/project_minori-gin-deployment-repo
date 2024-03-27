@@ -80,40 +80,6 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 	router.Use(CORS())
 
-	//router.Use(cors.New(cors.Config{
-	//	AllowOrigins:     []string{"http://localhost:3000"},                                     // 許可するオリジン
-	//	AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE"},                     // リクエストメソッド
-	//	AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"}, // リクエストヘッダに含めるヘッダ
-	//	ExposeHeaders:    []string{"Content-Length"},                                            // レスポンスヘッダに含めるヘッダ
-	//	AllowCredentials: true,                                                                  // クッキーを許可
-	//	MaxAge:           12 * time.Hour,                                                        // 12時間
-	//}))
-
-	//router.Use(func(c *gin.Context) {
-	//	origin := c.Request.Header.Get("Origin")
-	//	allowOrigins := []string{"http://localhost:3000", "http://localhost:3000/", "http://127.0.0.1:3000", "https://localhost:3000", "https://127.0.0.1:3000"}
-	//
-	//	for _, o := range allowOrigins {
-	//		if origin == o {
-	//			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-	//			break
-	//		}
-	//	}
-	//
-	//	// 다른 CORS 관련 헤더 설정
-	//	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE")
-	//	c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Length, Content-Type, Authorization")
-	//	c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
-	//	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-	//
-	//	// OPTIONS 메소드에 대한 Preflight 요청 처리
-	//	if c.Request.Method == "OPTIONS" {
-	//		c.AbortWithStatus(204)
-	//	} else {
-	//		c.Next()
-	//	}
-	//})
-
 	initializeSwagger(router)
 
 	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController := initializeControllers(db)
@@ -128,7 +94,7 @@ func CORS() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, GET, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, GET, PUT, DELETE, OPTIONS")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
