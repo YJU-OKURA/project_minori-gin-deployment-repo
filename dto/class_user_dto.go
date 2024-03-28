@@ -9,3 +9,10 @@ type UserClassInfoDTO struct {
 	IsFavorite  bool   `json:"is_favorite"`
 	RoleID      uint   `json:"role_id"`
 }
+
+type ClassMemberDTO struct {
+	Uid      uint   `json:"uid"`
+	Nickname string `json:"nickname"`
+	RoleId   uint   `json:"role_id"`
+	Image    string `json:"image"`
+}

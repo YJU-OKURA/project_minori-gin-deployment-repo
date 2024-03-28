@@ -126,3 +126,30 @@ func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
 
 	respondWithSuccess(ctx, constants.StatusOK, classes)
 }
+
+// GetClassMembers godoc
+// @Summary クラスメンバーの情報を取得します
+// @Description 指定されたcidのクラスに所属しているメンバーの情報を取得します。
+// @Tags classes
+// @Accept  json
+// @Produce  json
+// @Param cid path int true "クラスID"
+// @Success 200 {array} dto.ClassMemberDTO "成功時、クラスメンバーの情報を返します"
+// @Failure 400 {object} map[string]interface{} "無効なクラスIDが指定された場合のエラーメッセージ"
+// @Failure 500 {object} map[string]interface{} "サーバー内部エラー"
+// @Router /cm/{cid}/members [get]
+func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
+	cid, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	members, err := c.classUserService.GetClassMembers(uint(cid))
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, members)
+}

@@ -12,6 +12,7 @@ type ClassUserService interface {
 	GetRole(uid uint, cid uint) (int, error)
 	AssignRole(uid uint, cid uint, roleName string) error
 	UpdateUserName(uid uint, cid uint, newName string) error
+	GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error)
 }
 
 // classUserServiceImpl はClassCodeServiceの実装です。
@@ -29,6 +30,10 @@ func NewClassUserService(classUserRepo repositories.ClassUserRepository, roleRep
 
 func (s *classUserServiceImpl) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
 	return s.classUserRepo.GetUserClasses(uid)
+}
+
+func (s *classUserServiceImpl) GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error) {
+	return s.classUserRepo.GetClassMembers(cid)
 }
 
 func (s *classUserServiceImpl) GetRole(uid uint, cid uint) (int, error) {
