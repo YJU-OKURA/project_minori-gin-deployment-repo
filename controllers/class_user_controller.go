@@ -142,13 +142,13 @@ func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
 func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 	cid, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid class ID"})
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
 	members, err := c.classUserService.GetClassMembers(uint(cid))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
