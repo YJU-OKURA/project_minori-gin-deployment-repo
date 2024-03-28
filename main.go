@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
@@ -12,8 +15,6 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
-	"log"
-	"os"
 )
 
 func main() {
@@ -245,6 +246,7 @@ func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassCon
 	cs := router.Group("/api/gin/cs")
 	{
 		cs.POST("create", controller.CreateClass)
+
 	}
 }
 
@@ -265,6 +267,10 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 		//{
 		//	protected.PATCH("/:uid/:cid/:role", controller.ChangeUserRole)
 		//}
+	}
+	cm := router.Group("/api/gin/cm")
+	{
+		cm.GET(":cid/members", controller.GetClassMembers)
 	}
 }
 
