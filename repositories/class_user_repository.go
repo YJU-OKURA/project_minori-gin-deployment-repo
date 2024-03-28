@@ -13,6 +13,7 @@ type ClassUserRepository interface {
 	GetRole(uid uint, cid uint) (int, error)
 	UpdateUserRole(uid uint, cid uint, rid int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
+	GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error)
 }
 
 type classUserRepository struct {
@@ -33,6 +34,17 @@ func (r *classUserRepository) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, 
 		Scan(&userClassesInfo).Error
 
 	return userClassesInfo, err
+}
+
+// GetClassMembers はクラスのメンバー情報を取得します。
+func (r *classUserRepository) GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error) {
+	var members []dto.ClassMemberDTO
+	err := r.db.Table("class_users").
+		Select("class_users.uid, class_users.nickname, class_users.role_id, users.image").
+		Joins("join users on class_users.uid = users.id").
+		Where("class_users.cid = ?", cid).
+		Scan(&members).Error
+	return members, err
 }
 
 // GetRole はユーザーのロールを取得します。
