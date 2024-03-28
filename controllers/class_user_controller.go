@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"net/http"
 	"strconv"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
@@ -152,5 +151,5 @@ func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, members)
+	respondWithSuccess(ctx, constants.StatusOK, members)
 }
