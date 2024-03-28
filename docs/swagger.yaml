@@ -19,6 +19,19 @@ definitions:
     required:
     - id
     type: object
+  dto.ClassMemberDTO:
+    properties:
+      cid:
+        type: integer
+      image:
+        type: string
+      nickname:
+        type: string
+      role_id:
+        type: integer
+      uid:
+        type: integer
+    type: object
   dto.ClassScheduleDTO:
     properties:
       cid:
@@ -626,6 +639,39 @@ paths:
       summary: グループコードとシークレットを検証＆ユーザーに役割を割り当てる
       tags:
       - Class Code
+  /cm/{cid}/members:
+    get:
+      consumes:
+      - application/json
+      description: 指定されたcidのクラスに所属しているメンバーの情報を取得します。
+      parameters:
+      - description: クラスID
+        in: path
+        name: cid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功時、クラスメンバーの情報を返します
+          schema:
+            items:
+              $ref: '#/definitions/dto.ClassMemberDTO'
+            type: array
+        "400":
+          description: 無効なクラスIDが指定された場合のエラーメッセージ
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: サーバー内部エラー
+          schema:
+            additionalProperties: true
+            type: object
+      summary: クラスメンバーの情報を取得します
+      tags:
+      - classes
   /cs:
     get:
       consumes:
