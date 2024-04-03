@@ -191,3 +191,41 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 
 	respondWithSuccess(ctx, constants.StatusOK, favoriteClasses)
 }
+
+// GetUserSpecificClasses godoc
+// @Summary 特定のユーザーが参加しているクラスのリストを取得
+// @Description ユーザーIDに基づいて、特定のクラスの情報を取得します。
+// @Tags Class User
+// @Accept json
+// @Produce json
+// @Param uid path int true "ユーザーID"
+// @Success 200 {array} dto.UserClassInfoDTO "成功"
+// @Failure 400 {string} string "無効なリクエスト"
+// @Failure 404 {string} string "クラスが見つかりません"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
+// @Router /cu/{uid}/specific-classes [get]
+func (c *ClassUserController) GetUserSpecificClasses(ctx *gin.Context) {
+	uidStr := ctx.Param("uid")
+	uid, err := strconv.ParseUint(uidStr, 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	specificClasses, err := c.classUserService.GetUserSpecificClasses(uint(uid))
+	if err != nil {
+		if errors.Is(err, services.ErrNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+		} else {
+			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		}
+		return
+	}
+
+	if len(specificClasses) == 0 {
+		respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, specificClasses)
+}
