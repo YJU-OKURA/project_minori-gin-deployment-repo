@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -84,6 +86,21 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		return
 	}
 
-	finalRedirectURL := "http://localhost:3000/"
-	c.JSON(constants.StatusOK, gin.H{"token": token, "refresh_token": refreshToken, "user": user, "redirect_url": finalRedirectURL})
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+		Path:     "/",
+	})
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		Expires:  time.Now().Add(7 * 24 * time.Hour),
+		HttpOnly: true,
+		Path:     "/",
+	})
+
+	c.Redirect(constants.StatusFound, "http://localhost:3000/")
 }
