@@ -1298,6 +1298,29 @@ paths:
       summary: ユーザーが参加しているクラスのリストを取得
       tags:
       - Class User
+  /cu/{uid}/favorite-classes:
+    get:
+      consumes:
+      - application/json
+      description: ユーザーIDに基づいて、お気に入りに設定されたクラスの情報を取得します。
+      parameters:
+      - description: ユーザーID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/models.Class'
+            type: array
+      summary: お気に入りのクラス情報を取得
+      tags:
+      - Class User
   /u/{userID}/applying-classes:
     get:
       consumes:
