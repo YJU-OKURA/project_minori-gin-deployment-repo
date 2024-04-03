@@ -192,19 +192,17 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 	respondWithSuccess(ctx, constants.StatusOK, favoriteClasses)
 }
 
-// GetUserSpecificClasses godoc
-// @Summary 特定のユーザーが参加しているクラスのリストを取得
-// @Description ユーザーIDに基づいて、特定のクラスの情報を取得します。
+// GetUserClassesByRole godoc
+// @Summary ユーザーとロールに関連するクラス情報を取得
+// @Description ユーザーIDとロールIDに基づいて、ユーザーが所属しているクラスの情報を取得します。ロールIDが2の場合は自分が作ったクラスリスト、ロールIDが4の場合はユーザーから申し込んだクラスリスト、ロールIDが6の場合はクラスの管理者から招待されたクラスリストを取得します。
 // @Tags Class User
 // @Accept json
 // @Produce json
-// @Param uid path int true "ユーザーID"
-// @Success 200 {array} dto.UserClassInfoDTO "成功"
-// @Failure 400 {string} string "無効なリクエスト"
-// @Failure 404 {string} string "クラスが見つかりません"
-// @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /cu/{uid}/specific-classes [get]
-func (c *ClassUserController) GetUserSpecificClasses(ctx *gin.Context) {
+// @Param uid path int true "User ID"
+// @Param roleID path int true "Role ID"
+// @Success 200 {array} dto.UserClassInfoDTO "Success"
+// @Router /cu/{uid}/classes/{roleID} [get]
+func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
 	uid, err := strconv.ParseUint(uidStr, 10, 32)
 	if err != nil {
@@ -212,20 +210,23 @@ func (c *ClassUserController) GetUserSpecificClasses(ctx *gin.Context) {
 		return
 	}
 
-	specificClasses, err := c.classUserService.GetUserSpecificClasses(uint(uid))
+	roleIDStr := ctx.Param("roleID")
+	roleID, err := strconv.Atoi(roleIDStr)
 	if err != nil {
-		if errors.Is(err, services.ErrNotFound) {
-			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
-		} else {
-			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
-		}
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
-	if len(specificClasses) == 0 {
-		respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+	classes, err := c.classUserService.GetUserClassesByRole(uint(uid), roleID)
+	if err != nil {
+		// handle error
 		return
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, specificClasses)
+	if len(classes) == 0 {
+		// handle no classes found
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, classes)
 }
