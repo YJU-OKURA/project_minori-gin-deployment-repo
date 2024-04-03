@@ -287,6 +287,20 @@ const docTemplate = `{
                         "name": "cid",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of items per page",
+                        "name": "pageSize",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -302,6 +316,12 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -311,6 +331,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "クラス掲示板を作成します。",
                 "consumes": [
                     "multipart/form-data"
@@ -373,6 +398,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "string"
                         }
@@ -480,6 +511,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "指定されたIDのグループ掲示板を削除します。",
                 "consumes": [
                     "application/json"
@@ -521,6 +557,18 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "400": {
+                        "description": "無効なリクエストです",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "404": {
                         "description": "コードが見つかりません",
                         "schema": {
@@ -536,6 +584,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "指定されたIDのグループ掲示板の詳細を更新します。",
                 "consumes": [
                     "application/json"
@@ -588,6 +641,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "リクエストが不正です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "string"
                         }
@@ -714,6 +773,178 @@ const docTemplate = `{
                 }
             }
         },
+        "/chat/messages/{roomid}": {
+            "get": {
+                "description": "チャットメッセージを取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat Room"
+                ],
+                "summary": "チャットメッセージを取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Room ID",
+                        "name": "roomid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/room/{scheduleId}": {
+            "post": {
+                "description": "チャットルームにメッセージを投稿する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat Room"
+                ],
+                "summary": "チャットルームに投稿",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Message",
+                        "name": "message",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "チャットルームを削除する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat Room"
+                ],
+                "summary": "チャットルームを削除",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Schedule ID",
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/room/{scheduleId}/{userId}": {
+            "get": {
+                "description": "チャットルームをハンドルする。",
+                "consumes": [
+                    "text/html"
+                ],
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "Chat Room"
+                ],
+                "summary": "チャットルームをハンドル",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Schedule ID",
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "チャットルームが正常にハンドルされました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/stream/{scheduleId}": {
+            "get": {
+                "description": "チャットをストリームする。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat Room"
+                ],
+                "summary": "チャットをストリーム",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Schedule ID",
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/cm/{cid}/members": {
             "get": {
                 "description": "指定されたcidのクラスに所属しているメンバーの情報を取得します。",
@@ -806,6 +1037,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "新しいクラススケジュールを作成する。",
                 "consumes": [
                     "application/json"
@@ -818,13 +1054,6 @@ const docTemplate = `{
                 ],
                 "summary": "クラススケジュールを作成",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "cid",
-                        "in": "query",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "User ID",
@@ -851,6 +1080,149 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "リクエストが不正です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "認証に失敗しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/cs-special/date/{uid}/{cid}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class Schedule"
+                ],
+                "summary": "日付でクラススケジュールを取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Date",
+                        "name": "date",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "指定された日付のクラススケジュールが見つかりました",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.ClassSchedule"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "日付が必要です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "認証に失敗しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/cs-special/live/{uid}/{cid}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "指定されたクラスIDのライブ中のクラススケジュールを取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class Schedule"
+                ],
+                "summary": "ライブ中のクラススケジュールを取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ライブ中のクラススケジュールが見つかりました",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.ClassSchedule"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "認証に失敗しました",
                         "schema": {
                             "type": "string"
                         }
@@ -929,107 +1301,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs/date": {
-            "get": {
-                "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Class Schedule"
-                ],
-                "summary": "日付でクラススケジュールを取得",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "cid",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Date",
-                        "name": "date",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "指定された日付のクラススケジュールが見つかりました",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/models.ClassSchedule"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "日付が必要です",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/cs/live": {
-            "get": {
-                "description": "指定されたクラスIDのライブ中のクラススケジュールを取得する。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Class Schedule"
-                ],
-                "summary": "ライブ中のクラススケジュールを取得",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "cid",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ライブ中のクラススケジュールが見つかりました",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/models.ClassSchedule"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/cs/{id}": {
             "get": {
                 "description": "指定されたIDのクラススケジュールを取得する。",
@@ -1074,6 +1345,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "指定されたIDのクラススケジュールを更新する。",
                 "consumes": [
                     "application/json"
@@ -1130,6 +1406,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "401": {
+                        "description": "認証に失敗しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1139,6 +1421,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "指定されたIDのクラススケジュールを削除する。",
                 "consumes": [
                     "application/json"
@@ -1182,6 +1469,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "無効なID形式です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "認証に失敗しました",
                         "schema": {
                             "type": "string"
                         }
@@ -1427,9 +1720,6 @@ const docTemplate = `{
         "dto.ClassMemberDTO": {
             "type": "object",
             "properties": {
-                "cid": {
-                    "type": "integer"
-                },
                 "image": {
                     "type": "string"
                 },

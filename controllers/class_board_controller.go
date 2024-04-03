@@ -31,6 +31,8 @@ func NewClassBoardController(service services.ClassBoardService, uploader utils.
 // @Summary クラス掲示板を作成
 // @Description クラス掲示板を作成します。
 // @Tags Class Board
+// @Security ApiKeyAuth
+// @CrossOrigin
 // @Accept multipart/form-data
 // @Produce json
 // @Param title formData string true "Class board title"
@@ -41,6 +43,7 @@ func NewClassBoardController(service services.ClassBoardService, uploader utils.
 // @Param image formData file false "Upload image file"
 // @Success 200 {object} models.ClassBoard "Class board created successfully"
 // @Failure 400 {string} string "Invalid request"
+// @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Server error"
 // @Router /cb [post]
 func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
@@ -70,6 +73,7 @@ func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 // @Summary IDでグループ掲示板を取得
 // @Description 指定されたIDのグループ掲示板の詳細を取得します。
 // @Tags Class Board
+// @CrossOrigin
 // @Accept json
 // @Produce json
 // @Param id path int true "Class Board ID"
@@ -98,10 +102,14 @@ func (c *ClassBoardController) GetClassBoardByID(ctx *gin.Context) {
 // @Summary 全てのグループ掲示板を取得
 // @Description cidに基づいて、グループの全ての掲示板を取得します。
 // @Tags Class Board
+// @CrossOrigin
 // @Accept json
 // @Produce json
 // @Param cid query int true "Class ID"
+// @Param page query int false "Page number" default(1)
+// @Param pageSize query int false "Number of items per page" default(10)
 // @Success 200 {array} []models.ClassBoard "全てのグループ掲示板のリスト"
+// @Failure 400 {object} string "Invalid request"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb [get]
 func (c *ClassBoardController) GetAllClassBoards(ctx *gin.Context) {
@@ -110,7 +118,20 @@ func (c *ClassBoardController) GetAllClassBoards(ctx *gin.Context) {
 		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
-	result, err := c.classBoardService.GetAllClassBoards(uint(cid))
+
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid page number")
+		return
+	}
+
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("pageSize", "10"))
+	if err != nil || pageSize < 1 {
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid page size")
+		return
+	}
+
+	result, err := c.classBoardService.GetAllClassBoards(uint(cid), page, pageSize)
 	if err != nil {
 		handleServiceError(ctx, err)
 		return
@@ -122,6 +143,7 @@ func (c *ClassBoardController) GetAllClassBoards(ctx *gin.Context) {
 // @Summary 公告されたグループ掲示板を取得
 // @Description cidに基づいて、公告されたグループの掲示板を取得します。
 // @Tags Class Board
+// @CrossOrigin
 // @Accept json
 // @Produce json
 // @Param cid query int true "Class ID"
@@ -147,6 +169,8 @@ func (c *ClassBoardController) GetAnnouncedClassBoards(ctx *gin.Context) {
 // @Summary グループ掲示板を更新
 // @Description 指定されたIDのグループ掲示板の詳細を更新します。
 // @Tags Class Board
+// @CrossOrigin
+// @Security ApiKeyAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Class Board ID"
@@ -155,6 +179,7 @@ func (c *ClassBoardController) GetAnnouncedClassBoards(ctx *gin.Context) {
 // @Param class_board_update body dto.ClassBoardUpdateDTO true "クラス掲示板の更新"
 // @Success 200 {object} models.ClassBoard "グループ掲示板が正常に更新されました"
 // @Failure 400 {object} string "リクエストが不正です"
+// @Failure 401 {string} string "Unauthorized"
 // @Failure 404 {object} string "コードが見つかりません"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb/{id} [patch]
@@ -187,12 +212,16 @@ func (c *ClassBoardController) UpdateClassBoard(ctx *gin.Context) {
 // @Summary グループ掲示板を削除
 // @Description 指定されたIDのグループ掲示板を削除します。
 // @Tags Class Board
+// @CrossOrigin
+// @Security ApiKeyAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Class Board ID"
 // @Param cid query int true "Class ID"
 // @Param uid query int true "User ID"
 // @Success 200 {object} string "クラス掲示板が正常に削除されました"
+// @Failure 400 {string} string "無効なリクエストです"
+// @Failure 401 {string} string "Unauthorized"
 // @Failure 404 {object} string "コードが見つかりません"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb/{id} [delete]
