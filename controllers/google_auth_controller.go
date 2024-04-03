@@ -102,5 +102,5 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		Path:     "/",
 	})
 
-	c.Redirect(http.StatusFound, "http://localhost:3000/")
+	c.Redirect(constants.StatusFound, "http://localhost:3000/")
 }
