@@ -673,6 +673,63 @@ paths:
       summary: グループコードとシークレットを検証＆ユーザーに役割を割り当てる
       tags:
       - Class Code
+  /chat/dm/{senderId}/{receiverId}:
+    post:
+      consumes:
+      - application/json
+      description: Send a direct message to a specific user
+      parameters:
+      - description: Sender ID
+        in: path
+        name: senderId
+        required: true
+        type: string
+      - description: Receiver ID
+        in: path
+        name: receiverId
+        required: true
+        type: string
+      - description: Message
+        in: formData
+        name: message
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message sent successfully
+          schema:
+            type: string
+      summary: Send a direct message
+      tags:
+      - Direct Message
+  /chat/dm/{userId1}/{userId2}:
+    get:
+      consumes:
+      - application/json
+      description: Get direct messages history between two users
+      parameters:
+      - description: User ID 1
+        in: path
+        name: userId1
+        required: true
+        type: string
+      - description: User ID 2
+        in: path
+        name: userId2
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages fetched successfully
+          schema:
+            type: string
+      summary: Get direct messages
+      tags:
+      - Direct Message
   /chat/messages/{roomid}:
     get:
       consumes:
