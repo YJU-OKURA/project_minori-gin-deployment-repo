@@ -10,6 +10,7 @@ import (
 
 type ClassUserRepository interface {
 	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
+	GetUserSpecificClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
 	UpdateUserRole(uid uint, cid uint, rid int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
@@ -45,6 +46,17 @@ func (r *classUserRepository) GetClassMembers(cid uint) ([]dto.ClassMemberDTO, e
 		Where("class_users.cid = ?", cid).
 		Scan(&members).Error
 	return members, err
+}
+
+func (r *classUserRepository) GetUserSpecificClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
+	var userClassesInfo []dto.UserClassInfoDTO
+	err := r.db.Table("classes").
+		Select("classes.id, classes.name, classes.limitation, classes.description, classes.image, class_users.is_favorite, class_users.role_id").
+		Joins("INNER JOIN class_users ON classes.id = class_users.cid").
+		Where("class_users.uid = ? AND class_users.role_id = ?", uid, 2).
+		Scan(&userClassesInfo).Error
+
+	return userClassesInfo, err
 }
 
 // GetRole はユーザーのロールを取得します。
