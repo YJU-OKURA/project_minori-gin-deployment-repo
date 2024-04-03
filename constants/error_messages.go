@@ -33,6 +33,8 @@ const (
 	ErrUploadToS3JP          = "S3へのアップロードに失敗しました"            // 500 Internal Server Error
 	ErrCloudFrontURLNotSetJP = "AWS_CLOUDFRONT環境変数が設定されていません" // 500 Internal Server Error
 	AssignError              = "ロールの割り当てに失敗しました"              // 500 Internal Server Error
+	ErrLoadMessage           = "メッセージの取得に失敗しました"              // 500 Internal Server Error
+	ErrSendMessage           = "メッセージの送信に失敗しました"              // 500 Internal Server Error
 )
 
 // 成功時のメッセージ
@@ -44,4 +46,5 @@ const (
 	ClassMemberRegistration = "クラスコードの確認と役割の割り当て" // 200 OK
 	CreateOrUpdateSuccess   = "作成または更新に成功しました"    // 200 OK
 	DeleteSuccess           = "削除に成功しました"         // 200 OK
+	MessageSent             = "メッセージが送信されました"     // 200 OK
 )

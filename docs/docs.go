@@ -773,6 +773,91 @@ const docTemplate = `{
                 }
             }
         },
+        "/chat/dm/{senderId}/{receiverId}": {
+            "post": {
+                "description": "Send a direct message to a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Direct Message"
+                ],
+                "summary": "Send a direct message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sender ID",
+                        "name": "senderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Receiver ID",
+                        "name": "receiverId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Message",
+                        "name": "message",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message sent successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/dm/{userId1}/{userId2}": {
+            "get": {
+                "description": "Get direct messages history between two users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Direct Message"
+                ],
+                "summary": "Get direct messages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID 1",
+                        "name": "userId1",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID 2",
+                        "name": "userId2",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Messages fetched successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/chat/messages/{roomid}": {
             "get": {
                 "description": "チャットメッセージを取得する。",

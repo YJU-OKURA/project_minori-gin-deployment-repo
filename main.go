@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"github.com/go-redis/redis/v8"
 	"log"
 	"os"
 
@@ -17,11 +19,17 @@ import (
 	"gorm.io/gorm"
 )
 
+var redisClient *redis.Client
+
 func main() {
 	configureGinMode()
 	ensureEnvVariables()
 
 	db := initializeDatabase()
+	redisClient := initializeRedis()
+
+	services.NewRoomManager(redisClient)
+
 	migrateDatabaseIfNeeded(db)
 
 	router := setupRouter(db)
@@ -67,6 +75,28 @@ func initializeDatabase() *gorm.DB {
 	return db
 }
 
+// initializeRedis Redisを初期化する
+func initializeRedis() *redis.Client {
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	client := redis.NewClient(&redis.Options{
+		Addr: redisHost + ":" + redisPort,
+		//Password: redisPassword,
+		DB: 0,
+	})
+
+	_, err := client.Ping(context.Background()).Result()
+	if err != nil {
+		log.Fatalf("Redisの初期化に失敗しました： %v\nREDIS_HOST: %s\nREDIS_PORT: %s\nREDIS_PASSWORD: %s",
+			err, redisHost, redisPort, redisPassword)
+	}
+
+	redisClient = client
+	return client
+}
+
 // migrateDatabaseIfNeeded データベースを移行する
 func migrateDatabaseIfNeeded(db *gorm.DB) {
 	if getEnvOrDefault("RUN_MIGRATIONS", "false") == "true" {
@@ -83,9 +113,9 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 
 	initializeSwagger(router)
 
-	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController := initializeControllers(db)
+	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController := initializeControllers(db, redisClient)
 
-	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController)
+	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController)
 
 	return router
 }
@@ -119,7 +149,7 @@ func startServer(router *gin.Engine) {
 }
 
 // initializeControllers コントローラーを初期化する
-func initializeControllers(db *gorm.DB) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController) {
+func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController, *controllers.ChatController) {
 	userRepo := repositories.NewUserRepository(db)
 	createClassRepo := repositories.NewCreateClassRepository(db)
 	classBoardRepo := repositories.NewClassBoardRepository(db)
@@ -138,6 +168,7 @@ func initializeControllers(db *gorm.DB) (*controllers.UserController, *controlle
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
 	attendanceService := services.NewAttendanceService(attendanceRepo)
 	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
+	chatManager := services.NewRoomManager(redisClient)
 
 	uploader := utils.NewAwsUploader()
 	userController := controllers.NewCreateUserController(userService)
@@ -148,12 +179,13 @@ func initializeControllers(db *gorm.DB) (*controllers.UserController, *controlle
 	classUserController := controllers.NewClassUserController(classUserService)
 	attendanceController := controllers.NewAttendanceController(attendanceService)
 	googleAuthController := controllers.NewGoogleAuthController(googleAuthService)
+	chatController := controllers.NewChatController(chatManager, redisClient)
 
-	return userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController
+	return userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController
 }
 
 // setupRoutes ルートをセットアップする
-func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController) {
+func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController) {
 	setupUserRoutes(router, userController)
 	setupClassBoardRoutes(router, classBoardController, classUserService)
 	setupClassCodeRoutes(router, classCodeController)
@@ -162,6 +194,7 @@ func setupRoutes(router *gin.Engine, userController *controllers.UserController,
 	setupAttendanceRoutes(router, attendanceController, classUserService)
 	setupGoogleAuthRoutes(router, googleAuthController)
 	setupCreateClassRoutes(router, createClassController)
+	setupChatRoutes(router, chatController)
 }
 
 func setupUserRoutes(router *gin.Engine, controller *controllers.UserController) {
@@ -256,9 +289,7 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
 		cu.GET(":uid/classes", controller.GetUserClasses)
-
 		cu.PATCH(":uid/:cid/:role", controller.ChangeUserRole)
-
 		cu.PUT(":uid/:cid/:rename", controller.UpdateUserName)
 
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
@@ -293,5 +324,19 @@ func setupAttendanceRoutes(router *gin.Engine, controller *controllers.Attendanc
 		//	protected.GET("/attendance/:id", controller.GetAttendance)
 		//	protected.DELETE("/attendance/:id", controller.DeleteAttendance)
 		//}
+	}
+}
+
+// setupChatRoutes Chatのルートをセットアップする
+func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatController) {
+	chat := router.Group("/api/gin/chat")
+	{
+		chat.GET("room/:scheduleId/:userId", chatController.HandleChatRoom)
+		chat.POST("room/:scheduleId", chatController.PostToChatRoom)
+		chat.DELETE("room/:scheduleId", chatController.DeleteChatRoom)
+		chat.GET("stream/:scheduleId", chatController.StreamChat)
+		chat.GET("messages/:roomid", chatController.GetChatMessages)
+		chat.POST("dm/{senderId}/{receiverId}", chatController.SendDirectMessage)
+		chat.GET("dm/{userId1}/{userId2}", chatController.GetDirectMessages)
 	}
 }
