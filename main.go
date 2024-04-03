@@ -289,6 +289,7 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
 		cu.GET(":uid/classes", controller.GetUserClasses)
+		cu.GET(":uid/favorite-classes", controller.GetFavoriteClasses)
 		cu.PATCH(":uid/:cid/:role", controller.ChangeUserRole)
 		cu.PUT(":uid/:cid/:rename", controller.UpdateUserName)
 
