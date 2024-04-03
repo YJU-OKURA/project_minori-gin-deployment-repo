@@ -90,16 +90,20 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		Name:     "access_token",
 		Value:    token,
 		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
+		HttpOnly: false,
 		Path:     "/",
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
 		Expires:  time.Now().Add(7 * 24 * time.Hour),
-		HttpOnly: true,
+		HttpOnly: false,
 		Path:     "/",
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	c.Redirect(constants.StatusFound, "http://localhost:3000/")
