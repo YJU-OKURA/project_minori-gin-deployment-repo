@@ -43,6 +43,10 @@ func (s *classUserServiceImpl) GetFavoriteClasses(uid uint) ([]dto.UserClassInfo
 		return nil, err
 	}
 
+	if len(classes) == 0 {
+		return nil, ErrNotFound
+	}
+
 	var favoriteClasses []dto.UserClassInfoDTO
 	for _, class := range classes {
 		if class.IsFavorite {

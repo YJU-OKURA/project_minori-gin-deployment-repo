@@ -156,12 +156,15 @@ func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 
 // GetFavoriteClasses godoc
 // @Summary お気に入りのクラス情報を取得
-// @Description ユーザーIDに基づいて、お気に入りに設定されたクラスの情報を取得します。
+// @Description ユーザーIDに基づいて、お気에入りに設定されたクラスの情報を取得します。
 // @Tags Class User
 // @Accept json
 // @Produce json
 // @Param uid path int true "ユーザーID"
-// @Success 200 {array} models.Class "成功"
+// @Success 200 {array} dto.UserClassInfoDTO "成功"
+// @Failure 400 {string} string "無効なリクエスト"
+// @Failure 404 {string} string "クラスが見つかりません"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/favorite-classes [get]
 func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
@@ -173,7 +176,11 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 
 	favoriteClasses, err := c.classUserService.GetFavoriteClasses(uint(uid))
 	if err != nil {
-		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		if errors.Is(err, services.ErrNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+		} else {
+			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		}
 		return
 	}
 

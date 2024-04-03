@@ -1610,7 +1610,7 @@ const docTemplate = `{
         },
         "/cu/{uid}/favorite-classes": {
             "get": {
-                "description": "ユーザーIDに基づいて、お気に入りに設定されたクラスの情報を取得します。",
+                "description": "ユーザーIDに基づいて、お気에入りに設定されたクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -1636,8 +1636,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Class"
+                                "$ref": "#/definitions/dto.UserClassInfoDTO"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なリクエスト",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "クラスが見つかりません",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -1894,6 +1912,32 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.UserClassInfoDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "limitation": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
                 }
             }
         },
