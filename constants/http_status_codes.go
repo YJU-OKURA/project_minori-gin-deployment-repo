@@ -9,6 +9,11 @@ const (
 	StatusAccepted = 202 // Accepted
 
 	/*
+		リダイレクト ステータスコード
+	*/
+	StatusFound = 302 // Status Found
+
+	/*
 		クライアントエラー ステータスコード
 	*/
 	StatusBadRequest       = 400 // Bad Request
@@ -26,9 +31,4 @@ const (
 	StatusBadGateway          = 502 // Bad Gateway
 	StatusServiceUnavailable  = 503 // Service Unavailable
 	StatusGatewayTimeout      = 504 // Gateway Timeout
-
-	/*
-		リダイレクト ステータスコード
-	*/
-	StatusFound = 302 // Status Found
 )
