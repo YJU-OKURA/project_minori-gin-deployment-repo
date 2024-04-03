@@ -10,7 +10,7 @@ import (
 // ClassBoardService インタフェース
 type ClassBoardService interface {
 	CreateClassBoard(b dto.ClassBoardCreateDTO) (*models.ClassBoard, error)
-	GetAllClassBoards(cid uint) ([]models.ClassBoard, error)
+	GetAllClassBoards(cid uint, page int, pageSize int) ([]models.ClassBoard, error)
 	GetClassBoardByID(id uint) (*models.ClassBoard, error)
 	GetAnnouncedClassBoards(cid uint) ([]models.ClassBoard, error)
 	UpdateClassBoard(id uint, b dto.ClassBoardUpdateDTO, imageUrl string) (*models.ClassBoard, error) // Added imageUrl parameter
@@ -54,8 +54,9 @@ func (s *classBoardService) CreateClassBoard(b dto.ClassBoardCreateDTO) (*models
 }
 
 // GetAllClassBoards 全てのグループ掲示板を取得
-func (s *classBoardService) GetAllClassBoards(cid uint) ([]models.ClassBoard, error) {
-	return s.repo.FindAll(cid)
+func (s *classBoardService) GetAllClassBoards(cid uint, page int, pageSize int) ([]models.ClassBoard, error) {
+	offset := (page - 1) * pageSize
+	return s.repo.FindAllPaged(cid, pageSize, offset)
 }
 
 // GetClassBoardByID IDでグループ掲示板を取得

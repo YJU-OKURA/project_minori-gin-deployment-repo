@@ -9,7 +9,7 @@ import (
 type ClassBoardRepository interface {
 	InsertClassBoard(b *models.ClassBoard) (*models.ClassBoard, error)
 	FindByID(id uint) (*models.ClassBoard, error)
-	FindAll(cid uint) ([]models.ClassBoard, error)
+	FindAllPaged(cid uint, limit int, offset int) ([]models.ClassBoard, error)
 	FindAnnounced(isAnnounced bool, cid uint) ([]models.ClassBoard, error)
 	UpdateClassBoard(b *models.ClassBoard) error
 	DeleteClassBoard(id uint) error
@@ -38,10 +38,10 @@ func (repo *classBoardRepository) FindByID(id uint) (*models.ClassBoard, error) 
 	return &classBoard, err
 }
 
-// FindAll 全てのグループ掲示板を取得
-func (repo *classBoardRepository) FindAll(cid uint) ([]models.ClassBoard, error) {
+// FindAllPaged 全てのグループ掲示板を取得
+func (repo *classBoardRepository) FindAllPaged(cid uint, limit int, offset int) ([]models.ClassBoard, error) {
 	var classBoards []models.ClassBoard
-	err := repo.db.Where("cid = ?", cid).Find(&classBoards).Error
+	err := repo.db.Where("cid = ?", cid).Offset(offset).Limit(limit).Find(&classBoards).Error
 	return classBoards, err
 }
 
