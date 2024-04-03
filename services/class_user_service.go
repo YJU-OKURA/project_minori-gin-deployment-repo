@@ -10,6 +10,7 @@ import (
 type ClassUserService interface {
 	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
+	GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	AssignRole(uid uint, cid uint, roleName string) error
 	UpdateUserName(uid uint, cid uint, newName string) error
 	GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error)
@@ -34,6 +35,26 @@ func (s *classUserServiceImpl) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO,
 
 func (s *classUserServiceImpl) GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error) {
 	return s.classUserRepo.GetClassMembers(cid)
+}
+
+func (s *classUserServiceImpl) GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
+	classes, err := s.classUserRepo.GetUserClasses(uid)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(classes) == 0 {
+		return nil, ErrNotFound
+	}
+
+	var favoriteClasses []dto.UserClassInfoDTO
+	for _, class := range classes {
+		if class.IsFavorite {
+			favoriteClasses = append(favoriteClasses, class)
+		}
+	}
+
+	return favoriteClasses, nil
 }
 
 func (s *classUserServiceImpl) GetRole(uid uint, cid uint) (int, error) {

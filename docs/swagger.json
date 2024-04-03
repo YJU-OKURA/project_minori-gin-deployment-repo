@@ -1597,6 +1597,59 @@
                 }
             }
         },
+        "/cu/{uid}/favorite-classes": {
+            "get": {
+                "description": "ユーザーIDに基づいて、お気에入りに設定されたクラスの情報を取得します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "お気に入りのクラス情報を取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ユーザーID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.UserClassInfoDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なリクエスト",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "クラスが見つかりません",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/cu/{uid}/{cid}/rename": {
             "put": {
                 "description": "特定のユーザーIDとグループIDに対してユーザーの名前を更新します。",
@@ -1848,6 +1901,32 @@
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.UserClassInfoDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "limitation": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
                 }
             }
         },
