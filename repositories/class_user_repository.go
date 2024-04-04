@@ -18,6 +18,7 @@ type ClassUserRepository interface {
 	UpdateUserRole(uid uint, cid uint, rid int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
 	ToggleFavorite(uid uint, cid uint) error
+	DeleteClassUser(uid uint, cid uint) error
 }
 
 type classUserRepository struct {
@@ -147,4 +148,8 @@ func (r *classUserRepository) ToggleFavorite(uid uint, cid uint) error {
 	var classUser models.ClassUser
 	err := r.db.Model(&classUser).Where("uid = ? AND cid = ?", uid, cid).UpdateColumn("is_favorite", gorm.Expr("NOT is_favorite")).Error
 	return err
+}
+
+func (r *classUserRepository) DeleteClassUser(uid uint, cid uint) error {
+	return r.db.Where("uid = ? AND cid = ?", uid, cid).Delete(&models.ClassUser{}).Error
 }
