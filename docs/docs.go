@@ -1608,6 +1608,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/cu/{uid}/classes/{roleID}": {
+            "get": {
+                "description": "ユーザーIDとロールIDに基づいて、ユーザーが所属しているクラスの情報を取得します。ロールIDが2の場合は自分が作ったクラスリスト、ロールIDが4の場合はユーザーから申し込んだクラスリスト、ロールIDが6の場合はクラスの管理者から招待されたクラスリストを取得します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "ユーザーとロールに関連するクラス情報を取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ユーザーID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ロールID",
+                        "name": "roleID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.UserClassInfoDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/cu/{uid}/favorite-classes": {
             "get": {
                 "description": "ユーザーIDに基づいて、お気에入りに設定されたクラスの情報を取得します。",
@@ -1621,59 +1663,6 @@ const docTemplate = `{
                     "Class User"
                 ],
                 "summary": "お気に入りのクラス情報を取得",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ユーザーID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.UserClassInfoDTO"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "無効なリクエスト",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "クラスが見つかりません",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/cu/{uid}/specific-classes": {
-            "get": {
-                "description": "ユーザーIDに基づいて、特定のクラスの情報を取得します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Class User"
-                ],
-                "summary": "特定のユーザーが参加しているクラスのリストを取得",
                 "parameters": [
                     {
                         "type": "integer",

@@ -11,7 +11,7 @@ type ClassUserService interface {
 	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
 	GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error)
-	GetUserSpecificClasses(uid uint) ([]dto.UserClassInfoDTO, error)
+	GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error)
 	AssignRole(uid uint, cid uint, roleName string) error
 	UpdateUserName(uid uint, cid uint, newName string) error
 	GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error)
@@ -58,8 +58,8 @@ func (s *classUserServiceImpl) GetFavoriteClasses(uid uint) ([]dto.UserClassInfo
 	return favoriteClasses, nil
 }
 
-func (s *classUserServiceImpl) GetUserSpecificClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
-	return s.classUserRepo.GetUserSpecificClasses(uid)
+func (s *classUserServiceImpl) GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error) {
+	return s.classUserRepo.GetUserClassesByRole(uid, roleID)
 }
 
 func (s *classUserServiceImpl) GetRole(uid uint, cid uint) (int, error) {
