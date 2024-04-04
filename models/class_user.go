@@ -6,6 +6,6 @@ type ClassUser struct {
 	Nickname   string `gorm:"size:50;not null"`
 	IsFavorite bool   `gorm:"not null;default:false"`
 	RoleID     int    `gorm:"not null"`
-	Class      Class  `gorm:"foreignKey:CID"`
+	Class      Class  `gorm:"foreignKey:CID;constraint:OnDelete:CASCADE"`
 	User       User   `gorm:"foreignKey:UID"`
 }

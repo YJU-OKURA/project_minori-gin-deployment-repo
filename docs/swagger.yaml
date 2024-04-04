@@ -889,7 +889,44 @@ paths:
             type: object
       summary: クラスの情報を取得します
       tags:
-      - Classes
+      - Class
+  /cl/{uid}/{cid}:
+    delete:
+      consumes:
+      - application/json
+      description: 指定されたIDを持つクラスを削除します。
+      parameters:
+      - description: ユーザーID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      - description: クラスID
+        in: path
+        name: cid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: クラスが正常に削除されました'
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 'error: 認証エラー'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: サーバー内部エラー'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: クラスを削除します
+      tags:
+      - Class
   /cl/create:
     post:
       consumes:
@@ -933,7 +970,7 @@ paths:
             type: object
       summary: 新しいクラスを作成します
       tags:
-      - Classes
+      - Class
   /cs:
     get:
       consumes:

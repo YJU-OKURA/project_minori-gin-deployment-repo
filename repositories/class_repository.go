@@ -11,13 +11,14 @@ type ClassRepository interface {
 	Create(class *models.Class) error
 	Save(class *models.Class) (uint, error)
 	UpdateClassImage(classID uint, imageUrl string) error
+	Delete(classID uint) error
 }
 
 type classRepository struct {
 	db *gorm.DB
 }
 
-func NewCreateClassRepository(db *gorm.DB) ClassRepository {
+func NewClassRepository(db *gorm.DB) ClassRepository {
 	return &classRepository{db: db}
 }
 
@@ -46,4 +47,8 @@ func (r *classRepository) Save(class *models.Class) (uint, error) {
 
 func (r *classRepository) UpdateClassImage(classID uint, imageUrl string) error {
 	return r.db.Model(&models.Class{}).Where("id = ?", classID).Update("image", imageUrl).Error
+}
+
+func (r *classRepository) Delete(classID uint) error {
+	return r.db.Delete(&models.Class{}, classID).Error
 }

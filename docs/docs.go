@@ -1029,7 +1029,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Classes"
+                    "Class"
                 ],
                 "summary": "新しいクラスを作成します",
                 "parameters": [
@@ -1094,7 +1094,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Classes"
+                    "Class"
                 ],
                 "summary": "クラスの情報を取得します",
                 "parameters": [
@@ -1129,6 +1129,60 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "error: サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/cl/{uid}/{cid}": {
+            "delete": {
+                "description": "指定されたIDを持つクラスを削除します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class"
+                ],
+                "summary": "クラスを削除します",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ユーザーID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "クラスID",
+                        "name": "cid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message: クラスが正常に削除されました",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "error: 認証エラー",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error: サーバー内部エラー",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true

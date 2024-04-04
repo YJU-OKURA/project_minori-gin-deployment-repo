@@ -9,5 +9,5 @@ type ClassSchedule struct {
 	EndedAt   time.Time `gorm:"not null"`
 	CID       uint      `gorm:"column:cid;not null;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	IsLive    bool      `gorm:"not null;default:false"`
-	Class     Class     `gorm:"foreignKey:CID"`
+	Class     Class     `gorm:"foreignKey:CID;constraint:OnDelete:CASCADE"`
 }
