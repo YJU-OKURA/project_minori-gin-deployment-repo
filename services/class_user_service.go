@@ -8,6 +8,7 @@ import (
 
 // ClassUserService はグループコードのサービスです。
 type ClassUserService interface {
+	GetClassMembers(cid uint, roleID ...int) ([]dto.ClassMemberDTO, error)
 	GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error)
 	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
@@ -15,7 +16,6 @@ type ClassUserService interface {
 	GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error)
 	AssignRole(uid uint, cid uint, roleName string) error
 	UpdateUserName(uid uint, cid uint, newName string) error
-	GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error)
 }
 
 // classUserServiceImpl はClassCodeServiceの実装です。
@@ -39,8 +39,8 @@ func (s *classUserServiceImpl) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO,
 	return s.classUserRepo.GetUserClasses(uid)
 }
 
-func (s *classUserServiceImpl) GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error) {
-	return s.classUserRepo.GetClassMembers(cid)
+func (s *classUserServiceImpl) GetClassMembers(cid uint, roleID ...int) ([]dto.ClassMemberDTO, error) {
+	return s.classUserRepo.GetClassMembers(cid, roleID...)
 }
 
 func (s *classUserServiceImpl) GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
