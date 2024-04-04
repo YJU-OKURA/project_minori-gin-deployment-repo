@@ -3,8 +3,6 @@ package controllers
 import (
 	"encoding/json"
 
-	"log"
-
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
@@ -60,37 +58,32 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 
 	userInfo, err := controller.Service.GetGoogleUserInfo(authCode)
 	if err != nil {
-		log.Printf("Failed to get user info: %v", err)
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": "Failed to get user info"})
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	var userInput dto.UserInput
 	err = json.Unmarshal(userInfo, &userInput)
 	if err != nil {
-		log.Printf("Failed to unmarshal user info: %v", err)
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": "Failed to process user info"})
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	user, err := controller.Service.UpdateOrCreateUser(userInput)
 	if err != nil {
-		log.Printf("Failed to update or create user: %v", err)
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": "Failed to update or create user"})
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	token, err := controller.Service.GenerateToken(user.ID)
 	if err != nil {
-		log.Printf("Failed to generate token: %v", err)
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	refreshToken, err := controller.Service.GenerateRefreshToken(user.ID)
 	if err != nil {
-		log.Printf("Failed to generate refresh token: %v", err)
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": "Failed to generate refresh token"})
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
