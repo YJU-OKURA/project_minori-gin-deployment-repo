@@ -6,4 +6,5 @@ type Class struct {
 	Limitation  *int    `gorm:"not null;default:30"`
 	Description *string `gorm:"size:255"`
 	Image       *string `gorm:"size:255"`
+	UID         uint    `gorm:"not null"`
 }
