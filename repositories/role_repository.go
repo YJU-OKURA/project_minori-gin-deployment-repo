@@ -7,7 +7,7 @@ import (
 
 // RoleRepository はロールのリポジトリです。
 type RoleRepository interface {
-	FindByRoleName(roleName string, role *models.Role) error
+	FindByRoleName(roleID int, role *models.Role) error
 }
 
 // roleConnection　はRoleRepositoryの実装です。
@@ -21,6 +21,6 @@ func NewRoleRepository(db *gorm.DB) RoleRepository {
 }
 
 // FindByRoleName は指定されたロール名のロールを取得します。
-func (r *roleRepository) FindByRoleName(roleName string, role *models.Role) error {
-	return r.db.Where("role = ?", roleName).First(role).Error
+func (r *roleRepository) FindByRoleName(roleID int, role *models.Role) error {
+	return r.db.Where("id = ?", roleID).First(role).Error
 }

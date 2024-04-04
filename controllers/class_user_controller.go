@@ -241,23 +241,61 @@ func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 // @ID change-user-role
 // @Accept  json
 // @Produce  json
-// @Param uid path int true "User ID"
-// @Param cid path int true "Class ID"
-// @Param role path string true "Role Name"
+// @Param uid path string true "ユーザーID"
+// @Param cid path string true "クラスID"
+// @Param roleID path string true "ロールID"
 // @Success 200 {string} string "成功"
+// @Failure 400 {string} string "無効なリクエスト"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /cu/{uid}/{cid}/{role} [patch]
+// @Router /cu/{uid}/{cid}/{roleID} [patch]
 func (c *ClassUserController) ChangeUserRole(ctx *gin.Context) {
-	uid, _ := strconv.ParseUint(ctx.Param("uid"), 10, 32)
-	cid, _ := strconv.ParseUint(ctx.Param("cid"), 10, 32)
-	roleName := ctx.Param("role")
+	uidStr := ctx.Param("uid")
+	cidStr := ctx.Param("cid")
+	roleIDStr := ctx.Param("roleID")
 
-	err := c.classUserService.AssignRole(uint(uid), uint(cid), roleName)
+	uid, err := strconv.ParseUint(uidStr, 10, 32)
 	if err != nil {
-		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
+
+	cid, err := strconv.ParseUint(cidStr, 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	roleID, err := strconv.Atoi(roleIDStr)
+	if err != nil || !isValidRoleID(roleID) {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	err = c.classUserService.AssignRole(uint(uid), uint(cid), roleID)
+	if err != nil {
+		if errors.Is(err, services.ErrNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, "ユーザーまたはクラスが見つかりません")
+		} else {
+			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		}
+		return
+	}
+
 	respondWithSuccess(ctx, constants.StatusOK, constants.Success)
+}
+
+func isValidRoleID(roleID int) bool {
+	validRoleIDs := map[int]bool{
+		1: true, // USER
+		2: true, // ADMIN
+		3: true, // ASSISTANT
+		4: true, // APPLICANT
+		5: true, // BLACKLIST
+		6: true, // INVITE
+	}
+
+	_, isValid := validRoleIDs[roleID]
+	return isValid
 }
 
 // UpdateUserName godoc

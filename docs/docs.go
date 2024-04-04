@@ -1876,7 +1876,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/cu/{uid}/{cid}/{role}": {
+        "/cu/{uid}/{cid}/{roleID}": {
             "patch": {
                 "description": "ユーザーのロールを変更します。",
                 "consumes": [
@@ -1893,22 +1893,22 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "ユーザーID",
                         "name": "uid",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Class ID",
+                        "description": "クラスID",
                         "name": "cid",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Role Name",
-                        "name": "role",
+                        "type": "integer",
+                        "description": "ロールID",
+                        "name": "roleID",
                         "in": "path",
                         "required": true
                     }
@@ -1916,6 +1916,12 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "無効なリクエスト",
                         "schema": {
                             "type": "string"
                         }

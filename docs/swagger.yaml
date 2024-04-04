@@ -1179,14 +1179,14 @@ paths:
       summary: ライブ中のクラススケジュールを取得
       tags:
       - Class Schedule
-  /cu/{uid}/{cid}/{role}:
+  /cu/{uid}/{cid}/{roleID}:
     patch:
       consumes:
       - application/json
       description: ユーザーのロールを変更します。
       operationId: change-user-role
       parameters:
-      - description: User ID
+      - description: ユーザーID
         in: path
         name: uid
         required: true
@@ -1196,11 +1196,11 @@ paths:
         name: cid
         required: true
         type: integer
-      - description: Role Name
+      - description: ロールID
         in: path
-        name: role
+        name: roleID
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
@@ -1265,7 +1265,7 @@ paths:
         name: uid
         required: true
         type: integer
-      - description: Class ID
+      - description: クラスID
         in: path
         name: cid
         required: true
@@ -1281,6 +1281,10 @@ paths:
       responses:
         "200":
           description: 成功
+          schema:
+            type: string
+        "400":
+          description: 無効なリクエスト
           schema:
             type: string
         "500":

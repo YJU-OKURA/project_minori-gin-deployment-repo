@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
 	"gorm.io/gorm"
 )
@@ -16,7 +15,7 @@ type ClassUserService interface {
 	GetRole(uid uint, cid uint) (int, error)
 	GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error)
-	AssignRole(uid uint, cid uint, roleName string) error
+	AssignRole(uid uint, cid uint, roleID int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
 	ToggleFavorite(uid uint, cid uint) error
 }
@@ -79,14 +78,8 @@ func (s *classUserServiceImpl) GetRole(uid uint, cid uint) (int, error) {
 	return roleID, nil
 }
 
-func (s *classUserServiceImpl) AssignRole(uid uint, cid uint, roleName string) error {
-	var role models.Role
-	err := s.roleRepo.FindByRoleName(roleName, &role)
-	if err != nil {
-		return err
-	}
-
-	return s.classUserRepo.UpdateUserRole(uid, cid, role.ID)
+func (s *classUserServiceImpl) AssignRole(uid uint, cid uint, roleID int) error {
+	return s.classUserRepo.UpdateUserRole(uid, cid, roleID)
 }
 
 func (s *classUserServiceImpl) UpdateUserName(uid uint, cid uint, newName string) error {
