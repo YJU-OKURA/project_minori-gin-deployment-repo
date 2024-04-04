@@ -1255,6 +1255,44 @@ paths:
       summary: ユーザーのロールを変更します。
       tags:
       - Class User
+  /cu/{uid}/{cid}/info:
+    get:
+      consumes:
+      - application/json
+      description: 特定のユーザーIDに基づいて、クラスユーザー情報を取得します。
+      parameters:
+      - description: ユーザーID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      - description: クラスID
+        in: path
+        name: cid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/dto.ClassMemberDTO'
+        "400":
+          description: 無効なリクエスト
+          schema:
+            type: string
+        "404":
+          description: 情報が見つかりません
+          schema:
+            type: string
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: ユーザーに関連するクラスユーザー情報を取得
+      tags:
+      - Class User
   /cu/{uid}/{cid}/rename:
     put:
       consumes:

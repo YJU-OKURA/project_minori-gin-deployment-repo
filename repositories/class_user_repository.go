@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
@@ -9,6 +10,7 @@ import (
 )
 
 type ClassUserRepository interface {
+	GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error)
 	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
@@ -23,6 +25,19 @@ type classUserRepository struct {
 
 func NewClassUserRepository(db *gorm.DB) ClassUserRepository {
 	return &classUserRepository{db: db}
+}
+
+// GetClassUserInfo はユーザーのクラスユーザー情報を取得します。
+func (r *classUserRepository) GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error) {
+	var classUser models.ClassUser
+	err := r.db.Where("uid = ? AND cid = ?", uid, cid).First(&classUser).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.ClassMemberDTO{}, errors.New(constants.UserNotFound)
+		}
+		return dto.ClassMemberDTO{}, err
+	}
+	return toClassMemberDTO(classUser), nil
 }
 
 // GetUserClasses はユーザーが所属しているクラスの情報を取得します。
@@ -104,4 +119,13 @@ func (r *classUserRepository) UpdateUserName(uid uint, cid uint, newName string)
 	}
 
 	return r.db.Model(&classUser).Update("nickname", newName).Error
+}
+
+func toClassMemberDTO(classUser models.ClassUser) dto.ClassMemberDTO {
+	return dto.ClassMemberDTO{
+		Uid:      classUser.UID,
+		Nickname: classUser.Nickname,
+		RoleId:   uint(classUser.RoleID),
+		Image:    classUser.User.Image,
+	}
 }
