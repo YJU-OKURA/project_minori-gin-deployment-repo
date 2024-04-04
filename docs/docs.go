@@ -203,52 +203,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/google/callback": {
-            "get": {
-                "description": "Googleログイン後にコールバックで受け取ったコードを使用してユーザー情報を取得し、ユーザー情報を基にトークンを生成します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GoogleAuth"
-                ],
-                "summary": "Googleログイン認証のコールバック処理",
-                "operationId": "google-auth-callback",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Googleから返された認証コード",
-                        "name": "code",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "認証成功時、アクセストークン、リフレッシュトークン、ユーザー情報を返す",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "ユーザー情報の取得に失敗",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "内部サーバーエラー",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/google/login": {
             "get": {
                 "description": "ユーザーをGoogleのログインページへリダイレクトして認証を行います。",
@@ -263,6 +217,41 @@ const docTemplate = `{
                 "responses": {
                     "302": {
                         "description": "Googleのログインページへのリダイレクト"
+                    }
+                }
+            }
+        },
+        "/auth/google/process": {
+            "post": {
+                "description": "ユーザーがGoogleログイン後に受け取った認可コードを使って、ユーザー情報を照会し、トークンを生成します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GoogleAuth"
+                ],
+                "summary": "認可コードを処理します。",
+                "parameters": [
+                    {
+                        "description": "Googleから受け取った認可コード",
+                        "name": "authCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ユーザー情報及びトークン情報",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
                     }
                 }
             }
@@ -1191,11 +1180,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "新しいクラススケジュールを作成する。",
                 "consumes": [
                     "application/json"
@@ -1208,6 +1192,13 @@ const docTemplate = `{
                 ],
                 "summary": "クラススケジュールを作成",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "User ID",
@@ -1238,12 +1229,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1253,13 +1238,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs-special/date/{uid}/{cid}": {
+        "/cs/date": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1274,16 +1254,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Class ID",
                         "name": "cid",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -1313,12 +1286,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1328,13 +1295,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs-special/live/{uid}/{cid}": {
+        "/cs/live": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたクラスIDのライブ中のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1347,13 +1309,6 @@ const docTemplate = `{
                 ],
                 "summary": "ライブ中のクラススケジュールを取得",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "uid",
-                        "in": "query",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Class ID",
@@ -1373,12 +1328,6 @@ const docTemplate = `{
                                     "$ref": "#/definitions/models.ClassSchedule"
                                 }
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
                         }
                     },
                     "500": {
@@ -1434,11 +1383,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたIDのクラススケジュールを更新する。",
                 "consumes": [
                     "application/json"
@@ -1495,12 +1439,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1510,11 +1448,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたIDのクラススケジュールを削除する。",
                 "consumes": [
                     "application/json"
@@ -1558,12 +1491,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "無効なID形式です",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "認証に失敗しました",
                         "schema": {
                             "type": "string"
                         }
