@@ -24,15 +24,17 @@ func NewGoogleAuthRepository(db *gorm.DB) GoogleAuthRepository {
 func (repo *googleAuthRepository) UpdateOrCreateUser(userInput dto.UserInput) (models.User, error) {
 	var user models.User
 	result := repo.db.Where("p_id = ?", fmt.Sprint(userInput.ID)).First(&user)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			user = models.User{
-				PID:   fmt.Sprint(userInput.ID),
-				Name:  userInput.Name,
-				Image: userInput.Picture,
-			}
-			result = repo.db.Create(&user)
+	if result.Error != nil && result.Error == gorm.ErrRecordNotFound {
+
+		pidPrefix := userInput.ID[:4]
+		uniqueName := fmt.Sprintf("%s#%s", userInput.Name, pidPrefix)
+
+		user = models.User{
+			PID:   fmt.Sprint(userInput.ID),
+			Name:  uniqueName,
+			Image: userInput.Picture,
 		}
+		result = repo.db.Create(&user)
 	}
 	return user, result.Error
 }
