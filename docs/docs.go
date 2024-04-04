@@ -1639,12 +1639,30 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "成功",
                         "schema": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/dto.UserClassInfoDTO"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なリクエスト",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "クラスが見つかりません",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }

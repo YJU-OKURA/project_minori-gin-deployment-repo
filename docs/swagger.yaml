@@ -1335,11 +1335,23 @@ paths:
       - application/json
       responses:
         "200":
-          description: Success
+          description: 成功
           schema:
             items:
               $ref: '#/definitions/dto.UserClassInfoDTO'
             type: array
+        "400":
+          description: 無効なリクエスト
+          schema:
+            type: string
+        "404":
+          description: クラスが見つかりません
+          schema:
+            type: string
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
       summary: ユーザーとロールに関連するクラス情報を取得
       tags:
       - Class User
