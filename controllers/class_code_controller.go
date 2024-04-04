@@ -87,11 +87,11 @@ func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
 
 	uidUint, err := strconv.ParseUint(strconv.FormatUint(uid, 10), 10, 32)
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, "Invalid class code format")
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
-	err = c.classUserService.AssignRole(uint(uid), uint(uidUint), "APPLICANT")
+	err = c.classUserService.AssignRole(uint(uid), uint(uidUint), 4)
 	if err != nil {
 		respondWithError(ctx, constants.StatusInternalServerError, constants.AssignError)
 		return

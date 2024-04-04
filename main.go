@@ -296,7 +296,7 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 			userRoutes.GET("classes", controller.GetUserClasses)
 			userRoutes.GET("favorite-classes", controller.GetFavoriteClasses)
 			userRoutes.GET("classes/:roleID", controller.GetUserClassesByRole)
-			userRoutes.PATCH(":cid/:role", controller.ChangeUserRole)
+			userRoutes.PATCH(":cid/:roleID", controller.ChangeUserRole)
 			userRoutes.PATCH(":cid/toggle-favorite", controller.ToggleFavorite)
 			userRoutes.PUT(":cid/:rename", controller.UpdateUserName)
 		}
