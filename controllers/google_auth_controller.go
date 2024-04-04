@@ -86,6 +86,7 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		return
 	}
 
+	// Cookieにトークンをセット
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "access_token",
 		Value:    token,
@@ -96,6 +97,7 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		SameSite: http.SameSiteNoneMode,
 	})
 
+	// Cookieにリフレッシュトークンをセット
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
