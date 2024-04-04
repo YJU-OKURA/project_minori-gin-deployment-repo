@@ -1021,7 +1021,7 @@ const docTemplate = `{
         },
         "/cl/create": {
             "post": {
-                "description": "名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。",
+                "description": "名前、定員、説明、画像URL、作成者のUIDを持つ新しいクラスを作成します。画像はオプショナルです。",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -1051,6 +1051,13 @@ const docTemplate = `{
                         "description": "クラスの説明",
                         "name": "description",
                         "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "クラスを作成するユーザーのUID",
+                        "name": "uid",
+                        "in": "formData",
+                        "required": true
                     },
                     {
                         "type": "file",
@@ -1234,11 +1241,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "新しいクラススケジュールを作成する。",
                 "consumes": [
                     "application/json"
@@ -1251,6 +1253,13 @@ const docTemplate = `{
                 ],
                 "summary": "クラススケジュールを作成",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "User ID",
@@ -1281,12 +1290,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1296,13 +1299,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs-special/date/{uid}/{cid}": {
+        "/cs/date": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1317,16 +1315,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Class ID",
                         "name": "cid",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -1356,12 +1347,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1371,13 +1356,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs-special/live/{uid}/{cid}": {
+        "/cs/live": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたクラスIDのライブ中のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1390,13 +1370,6 @@ const docTemplate = `{
                 ],
                 "summary": "ライブ中のクラススケジュールを取得",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "uid",
-                        "in": "query",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Class ID",
@@ -1416,12 +1389,6 @@ const docTemplate = `{
                                     "$ref": "#/definitions/models.ClassSchedule"
                                 }
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
                         }
                     },
                     "500": {
@@ -1477,11 +1444,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたIDのクラススケジュールを更新する。",
                 "consumes": [
                     "application/json"
@@ -1538,12 +1500,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1553,11 +1509,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたIDのクラススケジュールを削除する。",
                 "consumes": [
                     "application/json"
@@ -1601,12 +1552,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "無効なID形式です",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "認証に失敗しました",
                         "schema": {
                             "type": "string"
                         }
@@ -2327,6 +2272,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "uid": {
+                    "type": "integer"
                 }
             }
         },
