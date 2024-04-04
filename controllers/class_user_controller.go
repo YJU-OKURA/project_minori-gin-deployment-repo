@@ -106,14 +106,15 @@ func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
 // GetClassMembers godoc
 // @Summary クラスメンバーの情報を取得します
 // @Description 指定されたcidのクラスに所属しているメンバーの情報を取得します。
-// @Tags classes
+// @Tags Class User
 // @Accept  json
 // @Produce  json
 // @Param cid path int true "クラスID"
+// @Param roleID query int false "ロールID"
 // @Success 200 {array} dto.ClassMemberDTO "成功時、クラスメンバーの情報を返します"
 // @Failure 400 {object} map[string]interface{} "無効なクラスIDが指定された場合のエラーメッセージ"
 // @Failure 500 {object} map[string]interface{} "サーバー内部エラー"
-// @Router /cm/{cid}/members [get]
+// @Router /cu/class/{cid}/{role}/members [get]
 func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 	cid, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
 	if err != nil {
@@ -121,9 +122,30 @@ func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 		return
 	}
 
-	members, err := c.classUserService.GetClassMembers(uint(cid))
+	roleIDStr := ctx.DefaultQuery("roleID", "")
+	var roleID int
+	if roleIDStr != "" {
+		roleID, err = strconv.Atoi(roleIDStr)
+		if err != nil {
+			respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+			return
+		}
+	}
+
+	var members []dto.ClassMemberDTO
+	if roleIDStr == "" {
+		members, err = c.classUserService.GetClassMembers(uint(cid))
+	} else {
+		members, err = c.classUserService.GetClassMembers(uint(cid), roleID)
+	}
+
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		return
+	}
+
+	if len(members) == 0 {
+		respondWithSuccess(ctx, constants.StatusOK, []dto.ClassMemberDTO{})
 		return
 	}
 
