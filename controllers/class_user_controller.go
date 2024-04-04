@@ -27,70 +27,45 @@ type UpdateUserNameRequest struct {
 	NewName string `json:"new_name"`
 }
 
-// ChangeUserRole godoc
-// @Summary ユーザーのロールを変更します。
-// @Description ユーザーのロールを変更します。
+// GetUserClassUserInfo godoc
+// @Summary ユーザーに関連するクラスユーザー情報を取得
+// @Description 特定のユーザーIDに基づいて、クラスユーザー情報を取得します。
 // @Tags Class User
-// @ID change-user-role
-// @Accept  json
-// @Produce  json
-// @Param uid path int true "User ID"
-// @Param cid path int true "Class ID"
-// @Param role path string true "Role Name"
-// @Success 200 {string} string "成功"
-// @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /cu/{uid}/{cid}/{role} [patch]
-func (c *ClassUserController) ChangeUserRole(ctx *gin.Context) {
-	uid, _ := strconv.ParseUint(ctx.Param("uid"), 10, 32)
-	cid, _ := strconv.ParseUint(ctx.Param("cid"), 10, 32)
-	roleName := ctx.Param("role")
-
-	err := c.classUserService.AssignRole(uint(uid), uint(cid), roleName)
-	if err != nil {
-		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
-		return
-	}
-	respondWithSuccess(ctx, constants.StatusOK, constants.Success)
-}
-
-// UpdateUserName godoc
-// @Summary ユーザーの名前を更新します。
-// @Description 特定のユーザーIDとグループIDに対してユーザーの名前を更新します。
-// @Tags Class User
-// @ID update-user-name
 // @Accept json
 // @Produce json
-// @Param uid path int true "User ID"
-// @Param cid path int true "Class ID"
-// @Param body body UpdateUserNameRequest true "新しいニックネーム"
-// @Success 200 {string} string "成功"
+// @Param uid path int true "ユーザーID"
+// @Param cid path int true "クラスID"
+// @Success 200 {object} dto.ClassMemberDTO "成功"
+// @Failure 400 {string} string "無効なリクエスト"
+// @Failure 404 {string} string "情報が見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /cu/{uid}/{cid}/rename [put]
-func (c *ClassUserController) UpdateUserName(ctx *gin.Context) {
-	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 32)
-	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
-		return
-	}
-	cid, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+// @Router /cu/{uid}/{cid}/info [get]
+func (c *ClassUserController) GetUserClassUserInfo(ctx *gin.Context) {
+	uidStr := ctx.Param("uid")
+	uid, err := strconv.ParseUint(uidStr, 10, 32)
 	if err != nil {
 		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
-	var requestBody UpdateUserNameRequest
-	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+	cidStr := ctx.Param("cid")
+	cid, err := strconv.ParseUint(cidStr, 10, 32)
+	if err != nil {
 		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
-	err = c.classUserService.UpdateUserName(uint(uid), uint(cid), requestBody.NewName)
+	classUserInfo, err := c.classUserService.GetClassUserInfo(uint(uid), uint(cid))
 	if err != nil {
-		handleServiceError(ctx, err)
+		if errors.Is(err, services.ErrNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, constants.UserNotFound)
+		} else {
+			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		}
 		return
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.Success})
+	respondWithSuccess(ctx, constants.StatusOK, classUserInfo)
 }
 
 // GetUserClasses godoc
@@ -235,4 +210,70 @@ func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, classes)
+}
+
+// ChangeUserRole godoc
+// @Summary ユーザーのロールを変更します。
+// @Description ユーザーのロールを変更します。
+// @Tags Class User
+// @ID change-user-role
+// @Accept  json
+// @Produce  json
+// @Param uid path int true "User ID"
+// @Param cid path int true "Class ID"
+// @Param role path string true "Role Name"
+// @Success 200 {string} string "成功"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
+// @Router /cu/{uid}/{cid}/{role} [patch]
+func (c *ClassUserController) ChangeUserRole(ctx *gin.Context) {
+	uid, _ := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	cid, _ := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+	roleName := ctx.Param("role")
+
+	err := c.classUserService.AssignRole(uint(uid), uint(cid), roleName)
+	if err != nil {
+		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		return
+	}
+	respondWithSuccess(ctx, constants.StatusOK, constants.Success)
+}
+
+// UpdateUserName godoc
+// @Summary ユーザーの名前を更新します。
+// @Description 特定のユーザーIDとグループIDに対してユーザーの名前を更新します。
+// @Tags Class User
+// @ID update-user-name
+// @Accept json
+// @Produce json
+// @Param uid path int true "User ID"
+// @Param cid path int true "Class ID"
+// @Param body body UpdateUserNameRequest true "新しいニックネーム"
+// @Success 200 {string} string "成功"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
+// @Router /cu/{uid}/{cid}/rename [put]
+func (c *ClassUserController) UpdateUserName(ctx *gin.Context) {
+	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+	cid, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	var requestBody UpdateUserNameRequest
+	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	err = c.classUserService.UpdateUserName(uint(uid), uint(cid), requestBody.NewName)
+	if err != nil {
+		handleServiceError(ctx, err)
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.Success})
 }

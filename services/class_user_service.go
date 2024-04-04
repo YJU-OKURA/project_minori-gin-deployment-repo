@@ -8,6 +8,7 @@ import (
 
 // ClassUserService はグループコードのサービスです。
 type ClassUserService interface {
+	GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error)
 	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
 	GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error)
@@ -28,6 +29,10 @@ func NewClassUserService(classUserRepo repositories.ClassUserRepository, roleRep
 		classUserRepo: classUserRepo,
 		roleRepo:      roleRepo,
 	}
+}
+
+func (s *classUserServiceImpl) GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error) {
+	return s.classUserRepo.GetClassUserInfo(uid, cid)
 }
 
 func (s *classUserServiceImpl) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
