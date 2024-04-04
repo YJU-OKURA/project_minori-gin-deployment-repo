@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"strconv"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
@@ -198,9 +199,12 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 // @Tags Class User
 // @Accept json
 // @Produce json
-// @Param uid path int true "User ID"
-// @Param roleID path int true "Role ID"
-// @Success 200 {array} dto.UserClassInfoDTO "Success"
+// @Param uid path int true "ユーザーID"
+// @Param roleID path int true "ロールID"
+// @Success 200 {array} dto.UserClassInfoDTO "成功"
+// @Failure 400 {string} string "無効なリクエスト"
+// @Failure 404 {string} string "クラスが見つかりません"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/classes/{roleID} [get]
 func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
@@ -219,13 +223,15 @@ func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 
 	classes, err := c.classUserService.GetUserClassesByRole(uint(uid), roleID)
 	if err != nil {
-		// handle error
-		return
+		if errors.Is(err, services.ErrNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+		} else {
+			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		}
 	}
 
 	if len(classes) == 0 {
-		// handle no classes found
-		return
+		respondWithSuccess(ctx, constants.StatusOK, []dto.UserClassInfoDTO{})
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, classes)
