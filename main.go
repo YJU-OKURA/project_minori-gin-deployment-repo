@@ -270,17 +270,16 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 	g := router.Group("/api/gin/auth/google")
 	{
 		g.GET("login", controller.GoogleLoginHandler)
-		g.POST("process", controller.ProcessAuthCode)
+		g.GET("process", controller.ProcessAuthCode)
 	}
 }
 
-//setupCreateClassRoutes CreateClassのルートをセットアップする
-
+// setupCreateClassRoutes CreateClassのルートをセットアップする
 func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController) {
-	cs := router.Group("/api/gin/cs")
+	cs := router.Group("/api/gin/cl")
 	{
+		cs.GET(":cid", controller.GetClass)
 		cs.POST("create", controller.CreateClass)
-
 	}
 }
 
@@ -308,10 +307,6 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 		//{
 		//	protected.PATCH("/:uid/:cid/:role", controller.ChangeUserRole)
 		//}
-	}
-	cm := router.Group("/api/gin/cm")
-	{
-		cm.GET(":cid/members", controller.GetClassMembers)
 	}
 }
 
