@@ -36,6 +36,7 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 		Name:        request.Name,
 		Limitation:  request.Limitation,
 		Description: request.Description,
+		UID:         request.UID,
 	}
 
 	classID, err := s.classRepo.Save(&class)

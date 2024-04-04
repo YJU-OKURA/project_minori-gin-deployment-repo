@@ -3,9 +3,10 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
+
+	"gorm.io/gorm"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -61,13 +62,14 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 
 // CreateClass godoc
 // @Summary 新しいクラスを作成します
-// @Description 名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。
+// @Description 名前、定員、説明、画像URL、作成者のUIDを持つ新しいクラスを作成します。画像はオプショナルです。
 // @Tags Class
 // @Accept multipart/form-data
 // @Produce json
 // @Param name formData string true "クラスの名前"
 // @Param limitation formData int false "クラスの定員数"
 // @Param description formData string false "クラスの説明"
+// @Param uid formData int true "クラスを作成するユーザーのUID"
 // @Param image formData file false "クラスの画像"
 // @Success 201 {object} map[string]interface{} "message: クラスが正常に作成されました"
 // @Failure 400 {object} map[string]interface{} "error: 不正なリクエストのエラーメッセージ"
