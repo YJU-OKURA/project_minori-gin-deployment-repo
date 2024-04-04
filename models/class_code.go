@@ -6,6 +6,6 @@ type ClassCode struct {
 	Secret *string `gorm:"size:20"`
 	CID    uint    `gorm:"column:cid;not null;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	UID    uint    `gorm:"column:uid;not null"` // User ID
-	Class  Class   `gorm:"foreignKey:CID"`
+	Class  Class   `gorm:"foreignKey:CID;constraint:OnDelete:CASCADE"`
 	User   User    `gorm:"foreignKey:UID"`
 }
