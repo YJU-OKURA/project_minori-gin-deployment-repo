@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"net/http"
-	"time"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -36,26 +34,29 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 	c.JSON(constants.StatusOK, gin.H{"url": url})
 }
 
-// GoogleAuthCallback godoc
-// @Summary Googleログイン認証のコールバック処理
-// @Description Googleログイン後にコールバックで受け取ったコードを使用してユーザー情報を取得し、ユーザー情報を基にトークンを生成します。
+// ProcessAuthCode godoc
+// @Summary 認可コードを処理します。
+// @Description ユーザーがGoogleログイン後に受け取った認可コードを使って、ユーザー情報を照会し、トークンを生成します。
 // @Tags GoogleAuth
-// @ID google-auth-callback
 // @Accept json
 // @Produce json
-// @Param code query string true "Googleから返された認証コード"
-// @Success 200 {object} map[string]interface{} "認証成功時、アクセストークン、リフレッシュトークン、ユーザー情報を返す"
-// @Failure 400 {string} string "ユーザー情報の取得に失敗"
-// @Failure 500 {string} string "内部サーバーエラー"
-// @Router /auth/google/callback [get]
-func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
-	code := c.Query("code")
-	if code == "" {
-		c.JSON(constants.StatusBadRequest, gin.H{"error": "code is required"})
+// @Param authCode body string true "Googleから受け取った認可コード"
+// @Success 200 {object} map[string]interface{} "ユーザー情報及びトークン情報"
+// @Router /auth/google/process [post]
+func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
+	var requestBody map[string]string
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.JSON(constants.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	userInfo, err := controller.Service.GetGoogleUserInfo(code)
+	authCode, ok := requestBody["authCode"]
+	if !ok {
+		c.JSON(constants.StatusBadRequest, gin.H{"error": "authCode is required"})
+		return
+	}
+
+	userInfo, err := controller.Service.GetGoogleUserInfo(authCode)
 	if err != nil {
 		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -86,25 +87,9 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		return
 	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "access_token",
-		Value:    token,
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: false,
-		Path:     "/",
-		Secure:   false,
-		SameSite: http.SameSiteNoneMode,
+	c.JSON(constants.StatusOK, gin.H{
+		"access_token":  token,
+		"refresh_token": refreshToken,
+		"user":          user,
 	})
-
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		Expires:  time.Now().Add(7 * 24 * time.Hour),
-		HttpOnly: false,
-		Path:     "/",
-		Secure:   false,
-		SameSite: http.SameSiteNoneMode,
-	})
-
-	c.Redirect(constants.StatusFound, "http://localhost:3000/")
 }

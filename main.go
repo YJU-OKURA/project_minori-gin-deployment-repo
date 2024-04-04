@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
 	"log"
 	"os"
+
+	"github.com/go-redis/redis/v8"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
@@ -269,7 +270,7 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 	g := router.Group("/api/gin/auth/google")
 	{
 		g.GET("login", controller.GoogleLoginHandler)
-		g.GET("callback", controller.GoogleAuthCallback)
+		g.GET("process", controller.ProcessAuthCode)
 	}
 }
 

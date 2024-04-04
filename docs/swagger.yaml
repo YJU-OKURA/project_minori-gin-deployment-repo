@@ -312,37 +312,6 @@ paths:
       summary: 出席情報を取得
       tags:
       - Attendance
-  /auth/google/callback:
-    get:
-      consumes:
-      - application/json
-      description: Googleログイン後にコールバックで受け取ったコードを使用してユーザー情報を取得し、ユーザー情報を基にトークンを生成します。
-      operationId: google-auth-callback
-      parameters:
-      - description: Googleから返された認証コード
-        in: query
-        name: code
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 認証成功時、アクセストークン、リフレッシュトークン、ユーザー情報を返す
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: ユーザー情報の取得に失敗
-          schema:
-            type: string
-        "500":
-          description: 内部サーバーエラー
-          schema:
-            type: string
-      summary: Googleログイン認証のコールバック処理
-      tags:
-      - GoogleAuth
   /auth/google/login:
     get:
       description: ユーザーをGoogleのログインページへリダイレクトして認証を行います。
@@ -353,6 +322,29 @@ paths:
         "302":
           description: Googleのログインページへのリダイレクト
       summary: Googleのログインページへリダイレクトします。
+      tags:
+      - GoogleAuth
+  /auth/google/process:
+    post:
+      consumes:
+      - application/json
+      description: ユーザーがGoogleログイン後に受け取った認可コードを使って、ユーザー情報を照会し、トークンを生成します。
+      parameters:
+      - description: Googleから受け取った認可コード
+        in: body
+        name: authCode
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ユーザー情報及びトークン情報
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 認可コードを処理します。
       tags:
       - GoogleAuth
   /cb:
@@ -975,6 +967,11 @@ paths:
       - application/json
       description: 新しいクラススケジュールを作成する。
       parameters:
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
       - description: User ID
         in: query
         name: uid
@@ -997,106 +994,11 @@ paths:
           description: リクエストが不正です
           schema:
             type: string
-        "401":
-          description: 認証に失敗しました
-          schema:
-            type: string
         "500":
           description: サーバーエラーが発生しました
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
       summary: クラススケジュールを作成
-      tags:
-      - Class Schedule
-  /cs-special/date/{uid}/{cid}:
-    get:
-      consumes:
-      - application/json
-      description: 指定されたクラスIDと日付のクラススケジュールを取得する。
-      parameters:
-      - description: User ID
-        in: path
-        name: uid
-        required: true
-        type: integer
-      - description: Class ID
-        in: path
-        name: cid
-        required: true
-        type: integer
-      - description: Date
-        in: query
-        name: date
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 指定された日付のクラススケジュールが見つかりました
-          schema:
-            items:
-              items:
-                $ref: '#/definitions/models.ClassSchedule'
-              type: array
-            type: array
-        "400":
-          description: 日付が必要です
-          schema:
-            type: string
-        "401":
-          description: 認証に失敗しました
-          schema:
-            type: string
-        "500":
-          description: サーバーエラーが発生しました
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: 日付でクラススケジュールを取得
-      tags:
-      - Class Schedule
-  /cs-special/live/{uid}/{cid}:
-    get:
-      consumes:
-      - application/json
-      description: 指定されたクラスIDのライブ中のクラススケジュールを取得する。
-      parameters:
-      - description: User ID
-        in: query
-        name: uid
-        required: true
-        type: integer
-      - description: Class ID
-        in: query
-        name: cid
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ライブ中のクラススケジュールが見つかりました
-          schema:
-            items:
-              items:
-                $ref: '#/definitions/models.ClassSchedule'
-              type: array
-            type: array
-        "401":
-          description: 認証に失敗しました
-          schema:
-            type: string
-        "500":
-          description: サーバーエラーが発生しました
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: ライブ中のクラススケジュールを取得
       tags:
       - Class Schedule
   /cs/{id}:
@@ -1131,16 +1033,10 @@ paths:
           description: 無効なID形式です
           schema:
             type: string
-        "401":
-          description: 認証に失敗しました
-          schema:
-            type: string
         "500":
           description: サーバーエラーが発生しました
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
       summary: クラススケジュールを削除
       tags:
       - Class Schedule
@@ -1209,17 +1105,78 @@ paths:
           description: リクエストが不正です
           schema:
             type: string
-        "401":
-          description: 認証に失敗しました
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: クラススケジュールを更新
+      tags:
+      - Class Schedule
+  /cs/date:
+    get:
+      consumes:
+      - application/json
+      description: 指定されたクラスIDと日付のクラススケジュールを取得する。
+      parameters:
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: Date
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 指定された日付のクラススケジュールが見つかりました
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.ClassSchedule'
+              type: array
+            type: array
+        "400":
+          description: 日付が必要です
           schema:
             type: string
         "500":
           description: サーバーエラーが発生しました
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
-      summary: クラススケジュールを更新
+      summary: 日付でクラススケジュールを取得
+      tags:
+      - Class Schedule
+  /cs/live:
+    get:
+      consumes:
+      - application/json
+      description: 指定されたクラスIDのライブ中のクラススケジュールを取得する。
+      parameters:
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ライブ中のクラススケジュールが見つかりました
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.ClassSchedule'
+              type: array
+            type: array
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: ライブ中のクラススケジュールを取得
       tags:
       - Class Schedule
   /cu/{uid}/{cid}/{role}:
