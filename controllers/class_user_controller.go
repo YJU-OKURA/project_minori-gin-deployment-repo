@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
+	"gorm.io/gorm"
 	"strconv"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
@@ -370,4 +371,45 @@ func (c *ClassUserController) ToggleFavorite(ctx *gin.Context) {
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, constants.Success)
+}
+
+// RemoveUserFromClass godoc
+// @Summary ユーザーをクラスから削除します。
+// @Description 指定したユーザーIDとクラスIDに基づいて、ユーザーをクラスから削除します。
+// @Tags Class User
+// @Accept json
+// @Produce json
+// @Param uid path int true "ユーザーID"
+// @Param cid path int true "クラスID"
+// @Success 200 {string} string "成功"
+// @Failure 400 {string} string "無効なリクエスト"
+// @Failure 404 {string} string "ユーザーまたはクラスが見つかりません"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
+// @Router /cu/{uid}/{cid}/remove [delete]
+func (c *ClassUserController) RemoveUserFromClass(ctx *gin.Context) {
+	uidStr := ctx.Param("uid")
+	uid, err := strconv.ParseUint(uidStr, 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	cidStr := ctx.Param("cid")
+	cid, err := strconv.ParseUint(cidStr, 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	err = c.classUserService.RemoveUserFromClass(uint(uid), uint(cid))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, constants.UserNotFound)
+		} else {
+			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		}
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, constants.DeleteSuccess)
 }

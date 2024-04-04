@@ -18,6 +18,7 @@ type ClassUserService interface {
 	AssignRole(uid uint, cid uint, roleID int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
 	ToggleFavorite(uid uint, cid uint) error
+	RemoveUserFromClass(uid uint, cid uint) error
 }
 
 // classUserServiceImpl はClassCodeServiceの実装です。
@@ -96,4 +97,8 @@ func (s *classUserServiceImpl) ToggleFavorite(uid uint, cid uint) error {
 		return err
 	}
 	return nil
+}
+
+func (s *classUserServiceImpl) RemoveUserFromClass(uid uint, cid uint) error {
+	return s.classUserRepo.DeleteClassUser(uid, cid)
 }
