@@ -862,11 +862,11 @@ paths:
       summary: チャットをストリーム
       tags:
       - Chat Room
-  /cm/{cid}/members:
+  /cl/{cid}:
     get:
       consumes:
       - application/json
-      description: 指定されたcidのクラスに所属しているメンバーの情報を取得します。
+      description: 指定されたIDを持つクラスの情報を取得します。
       parameters:
       - description: クラスID
         in: path
@@ -877,24 +877,71 @@ paths:
       - application/json
       responses:
         "200":
-          description: 成功時、クラスメンバーの情報を返します
+          description: 成功時、クラスの情報を返します
           schema:
-            items:
-              $ref: '#/definitions/dto.ClassMemberDTO'
-            type: array
+            $ref: '#/definitions/models.Class'
         "400":
-          description: 無効なクラスIDが指定された場合のエラーメッセージ
+          description: 'error: リクエストが不正です'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 'error: クラスが見つかりません'
           schema:
             additionalProperties: true
             type: object
         "500":
-          description: サーバー内部エラー
+          description: 'error: サーバーエラーが発生しました'
           schema:
             additionalProperties: true
             type: object
-      summary: クラスメンバーの情報を取得します
+      summary: クラスの情報を取得します
       tags:
-      - classes
+      - Classes
+  /cl/create:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。
+      parameters:
+      - description: クラスの名前
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: クラスの定員数
+        in: formData
+        name: limitation
+        type: integer
+      - description: クラスの説明
+        in: formData
+        name: description
+        type: string
+      - description: クラスの画像
+        in: formData
+        name: image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'message: クラスが正常に作成されました'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: 不正なリクエストのエラーメッセージ'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: サーバー内部エラー'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 新しいクラスを作成します
+      tags:
+      - Classes
   /cs:
     get:
       consumes:
@@ -1175,50 +1222,6 @@ paths:
       summary: クラススケジュールを更新
       tags:
       - Class Schedule
-  /cs/create:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。
-      parameters:
-      - description: クラスの名前
-        in: formData
-        name: name
-        required: true
-        type: string
-      - description: クラスの定員数
-        in: formData
-        name: limitation
-        type: integer
-      - description: クラスの説明
-        in: formData
-        name: description
-        type: string
-      - description: クラスの画像
-        in: formData
-        name: image
-        type: file
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: 'message: クラスが正常に作成されました'
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: 'error: 不正なリクエストのエラーメッセージ'
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: 'error: サーバー内部エラー'
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 新しいクラスを作成します
-      tags:
-      - Classes
   /cu/{uid}/{cid}/{role}:
     patch:
       consumes:
@@ -1426,6 +1429,43 @@ paths:
           schema:
             type: string
       summary: お気に入りのクラス情報を取得
+      tags:
+      - Class User
+  /cu/class/{cid}/{role}/members:
+    get:
+      consumes:
+      - application/json
+      description: 指定されたcidのクラスに所属しているメンバーの情報を取得します。
+      parameters:
+      - description: クラスID
+        in: path
+        name: cid
+        required: true
+        type: integer
+      - description: ロールID
+        in: query
+        name: roleID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功時、クラスメンバーの情報を返します
+          schema:
+            items:
+              $ref: '#/definitions/dto.ClassMemberDTO'
+            type: array
+        "400":
+          description: 無効なクラスIDが指定された場合のエラーメッセージ
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: サーバー内部エラー
+          schema:
+            additionalProperties: true
+            type: object
+      summary: クラスメンバーの情報を取得します
       tags:
       - Class User
   /u/{userID}/applying-classes:

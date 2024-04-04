@@ -1030,9 +1030,74 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/cm/{cid}/members": {
+        "/cl/create": {
+            "post": {
+                "description": "名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Classes"
+                ],
+                "summary": "新しいクラスを作成します",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "クラスの名前",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "クラスの定員数",
+                        "name": "limitation",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "クラスの説明",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "クラスの画像",
+                        "name": "image",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "message: クラスが正常に作成されました",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "error: 不正なリクエストのエラーメッセージ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error: サーバー内部エラー",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/cl/{cid}": {
             "get": {
-                "description": "指定されたcidのクラスに所属しているメンバーの情報を取得します。",
+                "description": "指定されたIDを持つクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -1040,9 +1105,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "classes"
+                    "Classes"
                 ],
-                "summary": "クラスメンバーの情報を取得します",
+                "summary": "クラスの情報を取得します",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1054,23 +1119,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功時、クラスメンバーの情報を返します",
+                        "description": "成功時、クラスの情報を返します",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.ClassMemberDTO"
-                            }
+                            "$ref": "#/definitions/models.Class"
                         }
                     },
                     "400": {
-                        "description": "無効なクラスIDが指定された場合のエラーメッセージ",
+                        "description": "error: リクエストが不正です",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "error: クラスが見つかりません",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "500": {
-                        "description": "サーバー内部エラー",
+                        "description": "error: サーバーエラーが発生しました",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1321,71 +1390,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs/create": {
-            "post": {
-                "description": "名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Classes"
-                ],
-                "summary": "新しいクラスを作成します",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "クラスの名前",
-                        "name": "name",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "クラスの定員数",
-                        "name": "limitation",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "クラスの説明",
-                        "name": "description",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "クラスの画像",
-                        "name": "image",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "message: クラスが正常に作成されました",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "error: 不正なリクエストのエラーメッセージ",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "error: サーバー内部エラー",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/cs/{id}": {
             "get": {
                 "description": "指定されたIDのクラススケジュールを取得する。",
@@ -1568,6 +1572,61 @@ const docTemplate = `{
                         "description": "サーバーエラーが発生しました",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/cu/class/{cid}/{role}/members": {
+            "get": {
+                "description": "指定されたcidのクラスに所属しているメンバーの情報を取得します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "クラスメンバーの情報を取得します",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "クラスID",
+                        "name": "cid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ロールID",
+                        "name": "roleID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功時、クラスメンバーの情報を返します",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.ClassMemberDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なクラスIDが指定された場合のエラーメッセージ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "サーバー内部エラー",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }

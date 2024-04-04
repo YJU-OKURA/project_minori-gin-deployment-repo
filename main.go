@@ -273,13 +273,12 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 	}
 }
 
-//setupCreateClassRoutes CreateClassのルートをセットアップする
-
+// setupCreateClassRoutes CreateClassのルートをセットアップする
 func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController) {
-	cs := router.Group("/api/gin/cs")
+	cs := router.Group("/api/gin/cl")
 	{
+		cs.GET(":cid", controller.GetClass)
 		cs.POST("create", controller.CreateClass)
-
 	}
 }
 
@@ -288,12 +287,17 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 	cu := router.Group("/api/gin/cu")
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
-		cu.GET(":uid/:cid/info", controller.GetUserClassUserInfo)
-		cu.GET(":uid/classes", controller.GetUserClasses)
-		cu.GET(":uid/favorite-classes", controller.GetFavoriteClasses)
-		cu.GET(":uid/classes/:roleID", controller.GetUserClassesByRole)
-		cu.PATCH(":uid/:cid/:role", controller.ChangeUserRole)
-		cu.PUT(":uid/:cid/:rename", controller.UpdateUserName)
+		cu.GET("class/:cid/:role/members", controller.GetClassMembers)
+
+		userRoutes := cu.Group(":uid")
+		{
+			userRoutes.GET(":cid/info", controller.GetUserClassUserInfo)
+			userRoutes.GET("classes", controller.GetUserClasses)
+			userRoutes.GET("favorite-classes", controller.GetFavoriteClasses)
+			userRoutes.GET("classes/:roleID", controller.GetUserClassesByRole)
+			userRoutes.PATCH(":cid/:role", controller.ChangeUserRole)
+			userRoutes.PUT(":cid/:rename", controller.UpdateUserName)
+		}
 
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
 		//protected := cu.Group("/:uid/:cid")
@@ -301,10 +305,6 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 		//{
 		//	protected.PATCH("/:uid/:cid/:role", controller.ChangeUserRole)
 		//}
-	}
-	cm := router.Group("/api/gin/cm")
-	{
-		cm.GET(":cid/members", controller.GetClassMembers)
 	}
 }
 
