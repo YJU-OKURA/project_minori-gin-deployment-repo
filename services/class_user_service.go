@@ -1,9 +1,11 @@
 package services
 
 import (
+	"errors"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
+	"gorm.io/gorm"
 )
 
 // ClassUserService はグループコードのサービスです。
@@ -16,6 +18,7 @@ type ClassUserService interface {
 	GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error)
 	AssignRole(uid uint, cid uint, roleName string) error
 	UpdateUserName(uid uint, cid uint, newName string) error
+	ToggleFavorite(uid uint, cid uint) error
 }
 
 // classUserServiceImpl はClassCodeServiceの実装です。
@@ -88,4 +91,16 @@ func (s *classUserServiceImpl) AssignRole(uid uint, cid uint, roleName string) e
 
 func (s *classUserServiceImpl) UpdateUserName(uid uint, cid uint, newName string) error {
 	return s.classUserRepo.UpdateUserName(uid, cid, newName)
+}
+
+func (s *classUserServiceImpl) ToggleFavorite(uid uint, cid uint) error {
+	err := s.classUserRepo.ToggleFavorite(uid, cid)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrNotFound
+		}
+
+		return err
+	}
+	return nil
 }
