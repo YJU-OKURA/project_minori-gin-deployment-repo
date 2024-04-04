@@ -299,3 +299,37 @@ func (c *ClassUserController) UpdateUserName(ctx *gin.Context) {
 
 	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.Success})
 }
+
+// ToggleFavorite godoc
+// @Summary お気に入りのクラスを切り替えます
+// @Description ユーザーIDとクラスIDに基づいて、お気に入りのクラスを切り替えます。
+// @Tags Class User
+// @Accept json
+// @Produce json
+// @Param uid path int true "ユーザーID"
+// @Param cid path int true "クラスID"
+// @Success 200 {string} string "成功"
+// @Failure 400 {string} string "無効なリクエスト"
+// @Failure 404 {string} string "ユーザーまたはクラスが見つかりません"
+// @Failure 500 {string} string "サーバーエラーが発生しました"
+// @Router /cu/{uid}/{cid}/toggle-favorite [patch]
+func (c *ClassUserController) ToggleFavorite(ctx *gin.Context) {
+	uid, uidErr := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	cid, cidErr := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+	if uidErr != nil || cidErr != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	err := c.classUserService.ToggleFavorite(uint(uid), uint(cid))
+	if err != nil {
+		if errors.Is(err, services.ErrNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, constants.UserNClassNotFound)
+		} else {
+			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		}
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, constants.Success)
+}

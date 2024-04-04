@@ -17,6 +17,7 @@ type ClassUserRepository interface {
 	GetRole(uid uint, cid uint) (int, error)
 	UpdateUserRole(uid uint, cid uint, rid int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
+	ToggleFavorite(uid uint, cid uint) error
 }
 
 type classUserRepository struct {
@@ -140,4 +141,10 @@ func toClassMemberDTO(classUser models.ClassUser) dto.ClassMemberDTO {
 		RoleId:   uint(classUser.RoleID),
 		Image:    classUser.User.Image,
 	}
+}
+
+func (r *classUserRepository) ToggleFavorite(uid uint, cid uint) error {
+	var classUser models.ClassUser
+	err := r.db.Model(&classUser).Where("uid = ? AND cid = ?", uid, cid).UpdateColumn("is_favorite", gorm.Expr("NOT is_favorite")).Error
+	return err
 }
