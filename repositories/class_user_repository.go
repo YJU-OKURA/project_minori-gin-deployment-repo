@@ -10,13 +10,13 @@ import (
 )
 
 type ClassUserRepository interface {
+	GetClassMembers(cid uint, roleID ...int) ([]dto.ClassMemberDTO, error)
 	GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error)
 	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
 	GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
 	UpdateUserRole(uid uint, cid uint, rid int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
-	GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error)
 }
 
 type classUserRepository struct {
@@ -53,14 +53,26 @@ func (r *classUserRepository) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, 
 }
 
 // GetClassMembers はクラスのメンバー情報を取得します。
-func (r *classUserRepository) GetClassMembers(cid uint) ([]dto.ClassMemberDTO, error) {
+func (r *classUserRepository) GetClassMembers(cid uint, roleID ...int) ([]dto.ClassMemberDTO, error) {
 	var members []dto.ClassMemberDTO
-	err := r.db.Table("class_users").
+
+	query := r.db.Table("class_users").
 		Select("class_users.uid, class_users.nickname, class_users.role_id, users.image").
 		Joins("join users on class_users.uid = users.id").
-		Where("class_users.cid = ?", cid).
-		Scan(&members).Error
-	return members, err
+		Where("class_users.cid = ?", cid)
+
+	if len(roleID) > 0 {
+		query = query.Where("class_users.role_id = ?", roleID[0])
+	}
+
+	if err := query.Scan(&members).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []dto.ClassMemberDTO{}, nil
+		}
+		return nil, err
+	}
+
+	return members, nil
 }
 
 func (r *classUserRepository) GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error) {

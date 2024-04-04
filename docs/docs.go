@@ -1030,55 +1030,6 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/cm/{cid}/members": {
-            "get": {
-                "description": "指定されたcidのクラスに所属しているメンバーの情報を取得します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "classes"
-                ],
-                "summary": "クラスメンバーの情報を取得します",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "クラスID",
-                        "name": "cid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功時、クラスメンバーの情報を返します",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.ClassMemberDTO"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "無効なクラスIDが指定された場合のエラーメッセージ",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "サーバー内部エラー",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/cs": {
             "get": {
                 "description": "指定されたクラスIDの全てのクラススケジュールを取得する。",
@@ -1568,6 +1519,61 @@ const docTemplate = `{
                         "description": "サーバーエラーが発生しました",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/cu/class/{cid}/{role}/members": {
+            "get": {
+                "description": "指定されたcidのクラスに所属しているメンバーの情報を取得します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "クラスメンバーの情報を取得します",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "クラスID",
+                        "name": "cid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ロールID",
+                        "name": "roleID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功時、クラスメンバーの情報を返します",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.ClassMemberDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なクラスIDが指定された場合のエラーメッセージ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "サーバー内部エラー",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
