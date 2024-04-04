@@ -14,12 +14,13 @@ const (
 
 // 認証関連のエラーメッセージ
 const (
-	Unauthorized          = "認証に失敗しました"       // 401 Unauthorized
-	SecretMismatch        = "シークレットが一致しません"   // 401 Unauthorized
-	CodeNotFound          = "コードが見つかりません"     // 404 Not Found
-	ClassNotFound         = "クラスが見つかりません"     // 404 Not Found
-	ApplyingClassNotFound = "申請中のクラスが見つかりません" // 404 Not Found
-	UserNotFound          = "ユーザーが見つかりません"    // 404 Not Found
+	Unauthorized          = "認証に失敗しました"          // 401 Unauthorized
+	SecretMismatch        = "シークレットが一致しません"      // 401 Unauthorized
+	CodeNotFound          = "コードが見つかりません"        // 404 Not Found
+	ClassNotFound         = "クラスが見つかりません"        // 404 Not Found
+	ApplyingClassNotFound = "申請中のクラスが見つかりません"    // 404 Not Found
+	UserNotFound          = "ユーザーが見つかりません"       // 404 Not Found
+	UserNClassNotFound    = "ユーザーまたはクラスが見つかりません" // 404 Not Found
 )
 
 // サーバーエラー&データベース関連のエラーメッセージ
