@@ -1624,14 +1624,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "ユーザーID",
                         "name": "uid",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Role ID",
+                        "description": "ロールID",
                         "name": "roleID",
                         "in": "path",
                         "required": true

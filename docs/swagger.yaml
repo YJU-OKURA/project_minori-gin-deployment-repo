@@ -1321,12 +1321,12 @@ paths:
       - application/json
       description: ユーザーIDとロールIDに基づいて、ユーザーが所属しているクラスの情報を取得します。ロールIDが2の場合は自分が作ったクラスリスト、ロールIDが4の場合はユーザーから申し込んだクラスリスト、ロールIDが6の場合はクラスの管理者から招待されたクラスリストを取得します。
       parameters:
-      - description: User ID
+      - description: ユーザーID
         in: path
         name: uid
         required: true
         type: integer
-      - description: Role ID
+      - description: ロールID
         in: path
         name: roleID
         required: true
