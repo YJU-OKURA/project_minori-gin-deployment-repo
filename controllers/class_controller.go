@@ -63,7 +63,7 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 // CreateClass godoc
 // @Summary 新しいクラスを作成します
 // @Description 名前、定員、説明、画像URL、作成者のUIDを持つ新しいクラスを作成します。画像はオプショナルです。
-// @Tags Classes
+// @Tags Class
 // @Accept multipart/form-data
 // @Produce json
 // @Param name formData string true "クラスの名前"
