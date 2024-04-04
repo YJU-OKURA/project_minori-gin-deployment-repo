@@ -270,7 +270,7 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 	g := router.Group("/api/gin/auth/google")
 	{
 		g.GET("login", controller.GoogleLoginHandler)
-		g.GET("process", controller.ProcessAuthCode)
+		g.POST("process", controller.ProcessAuthCode)
 	}
 }
 
