@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
@@ -29,7 +30,7 @@ func NewCreateClassController(classService services.ClassService, uploader utils
 // GetClass godoc
 // @Summary クラスの情報を取得します
 // @Description 指定されたIDを持つクラスの情報を取得します。
-// @Tags Classes
+// @Tags Class
 // @Accept  json
 // @Produce  json
 // @Param cid path int true "クラスID"
@@ -61,7 +62,7 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 // CreateClass godoc
 // @Summary 新しいクラスを作成します
 // @Description 名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。
-// @Tags Classes
+// @Tags Class
 // @Accept multipart/form-data
 // @Produce json
 // @Param name formData string true "クラスの名前"
@@ -122,4 +123,29 @@ func (c *ClassController) handleImageUpload(ctx *gin.Context) (string, error) {
 	}
 
 	return imageUrl, nil
+}
+
+// DeleteClass godoc
+// @Summary クラスを削除します
+// @Description 指定されたIDを持つクラスを削除します。
+// @Tags Class
+// @Accept json
+// @Produce json
+// @Param uid path int true "ユーザーID"
+// @Param cid path int true "クラスID"
+// @Success 200 {object} map[string]interface{} "message: クラスが正常に削除されました"
+// @Failure 401 {object} map[string]interface{} "error: 認証エラー"
+// @Failure 500 {object} map[string]interface{} "error: サーバー内部エラー"
+// @Router /cl/{uid}/{cid} [delete]
+func (cc *ClassController) DeleteClass(ctx *gin.Context) {
+	userID, _ := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	classID, _ := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+
+	err := cc.classService.DeleteClass(uint(classID), uint(userID))
+	if err != nil {
+		respondWithError(ctx, constants.StatusUnauthorized, fmt.Sprintf("Error: %v", err))
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"message": constants.DeleteSuccess})
 }

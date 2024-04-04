@@ -152,7 +152,7 @@ func startServer(router *gin.Engine) {
 // initializeControllers コントローラーを初期化する
 func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController, *controllers.ChatController) {
 	userRepo := repositories.NewUserRepository(db)
-	createClassRepo := repositories.NewCreateClassRepository(db)
+	classRepo := repositories.NewClassRepository(db)
 	classBoardRepo := repositories.NewClassBoardRepository(db)
 	classCodeRepo := repositories.NewClassCodeRepository(db)
 	classScheduleRepo := repositories.NewClassScheduleRepository(db)
@@ -162,7 +162,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	googleAuthRepo := repositories.NewGoogleAuthRepository(db)
 
 	userService := services.NewCreateUserService(userRepo)
-	createClassService := services.NewCreateClassService(createClassRepo)
+	createClassService := services.NewCreateClassService(classRepo, classUserRepo)
 	classBoardService := services.NewClassBoardService(classBoardRepo)
 	classCodeService := services.NewClassCodeService(classCodeRepo)
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
@@ -276,10 +276,11 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 
 // setupCreateClassRoutes CreateClassのルートをセットアップする
 func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController) {
-	cs := router.Group("/api/gin/cl")
+	cl := router.Group("/api/gin/cl")
 	{
-		cs.GET(":cid", controller.GetClass)
-		cs.POST("create", controller.CreateClass)
+		cl.GET(":cid", controller.GetClass)
+		cl.POST("create", controller.CreateClass)
+		cl.DELETE(":uid/:cid", controller.DeleteClass)
 	}
 }
 
