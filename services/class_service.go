@@ -7,6 +7,7 @@ import (
 )
 
 type ClassService interface {
+	GetClass(classID uint) (*models.Class, error)
 	CreateClass(request dto.CreateClassRequest) (uint, error)
 	UpdateClassImage(classID uint, imageUrl string) error
 }
@@ -19,6 +20,10 @@ func NewCreateClassService(classRepo repositories.ClassRepository) ClassService 
 	return &classServiceImpl{
 		classRepo: classRepo,
 	}
+}
+
+func (s *classServiceImpl) GetClass(classID uint) (*models.Class, error) {
+	return s.classRepo.GetByID(classID)
 }
 
 func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, error) {
