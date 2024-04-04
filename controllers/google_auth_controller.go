@@ -92,7 +92,7 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: false,
 		Path:     "/",
-		Secure:   true,
+		Secure:   false,
 		SameSite: http.SameSiteNoneMode,
 	})
 
@@ -102,7 +102,7 @@ func (controller *GoogleAuthController) GoogleAuthCallback(c *gin.Context) {
 		Expires:  time.Now().Add(7 * 24 * time.Hour),
 		HttpOnly: false,
 		Path:     "/",
-		Secure:   true,
+		Secure:   false,
 		SameSite: http.SameSiteNoneMode,
 	})
 
