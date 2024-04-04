@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"errors"
+	"gorm.io/gorm"
 	"net/http"
+	"strconv"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -24,6 +26,38 @@ func NewCreateClassController(classService services.ClassService, uploader utils
 	}
 }
 
+// GetClass godoc
+// @Summary クラスの情報を取得します
+// @Description 指定されたIDを持つクラスの情報を取得します。
+// @Tags Classes
+// @Accept  json
+// @Produce  json
+// @Param cid path int true "クラスID"
+// @Success 200 {object} models.Class "成功時、クラスの情報を返します"
+// @Failure 400 {object} map[string]interface{} "error: リクエストが不正です"
+// @Failure 404 {object} map[string]interface{} "error: クラスが見つかりません"
+// @Failure 500 {object} map[string]interface{} "error: サーバーエラーが発生しました"
+// @Router /cl/{cid} [get]
+func (cc *ClassController) GetClass(ctx *gin.Context) {
+	classID, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.BadRequestMessage)
+		return
+	}
+
+	class, err := cc.classService.GetClass(uint(classID))
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+		return
+	}
+	if err != nil {
+		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"class": class})
+}
+
 // CreateClass godoc
 // @Summary 新しいクラスを作成します
 // @Description 名前、定員、説明、画像URLを持つ新しいクラスを作成します。画像はオプショナルです。
@@ -37,7 +71,7 @@ func NewCreateClassController(classService services.ClassService, uploader utils
 // @Success 201 {object} map[string]interface{} "message: クラスが正常に作成されました"
 // @Failure 400 {object} map[string]interface{} "error: 不正なリクエストのエラーメッセージ"
 // @Failure 500 {object} map[string]interface{} "error: サーバー内部エラー"
-// @Router /cs/create [post]
+// @Router /cl/create [post]
 func (cc *ClassController) CreateClass(ctx *gin.Context) {
 	var createDTO dto.CreateClassRequest
 	if err := ctx.ShouldBindWith(&createDTO, binding.FormMultipart); err != nil {
