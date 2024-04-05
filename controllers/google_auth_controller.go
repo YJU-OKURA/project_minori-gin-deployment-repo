@@ -90,6 +90,10 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 	c.JSON(constants.StatusOK, gin.H{
 		"access_token":  token,
 		"refresh_token": refreshToken,
-		"user":          user,
+		"user": gin.H{
+			"name":  user.Name,
+			"image": user.Image,
+			"id":    user.ID,
+		},
 	})
 }
