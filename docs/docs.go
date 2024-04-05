@@ -1241,6 +1241,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "新しいクラススケジュールを作成する。",
                 "consumes": [
                     "application/json"
@@ -1253,13 +1258,6 @@ const docTemplate = `{
                 ],
                 "summary": "クラススケジュールを作成",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "cid",
-                        "in": "query",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "User ID",
@@ -1290,6 +1288,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "401": {
+                        "description": "認証に失敗しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1299,8 +1303,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs/date": {
+        "/cs-special/date/{uid}/{cid}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1315,9 +1324,16 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Class ID",
                         "name": "cid",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -1347,6 +1363,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "401": {
+                        "description": "認証に失敗しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1356,8 +1378,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs/live": {
+        "/cs-special/live/{uid}/{cid}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "指定されたクラスIDのライブ中のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1370,6 +1397,13 @@ const docTemplate = `{
                 ],
                 "summary": "ライブ中のクラススケジュールを取得",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Class ID",
@@ -1389,6 +1423,12 @@ const docTemplate = `{
                                     "$ref": "#/definitions/models.ClassSchedule"
                                 }
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "認証に失敗しました",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -1444,6 +1484,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "指定されたIDのクラススケジュールを更新する。",
                 "consumes": [
                     "application/json"
@@ -1500,6 +1545,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "401": {
+                        "description": "認証に失敗しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1509,6 +1560,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "指定されたIDのクラススケジュールを削除する。",
                 "consumes": [
                     "application/json"
@@ -1552,6 +1608,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "無効なID形式です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "認証に失敗しました",
                         "schema": {
                             "type": "string"
                         }
