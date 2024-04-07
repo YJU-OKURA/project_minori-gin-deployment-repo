@@ -929,6 +929,63 @@ paths:
       summary: クラスを削除します
       tags:
       - Class
+    patch:
+      consumes:
+      - multipart/form-data
+      description: 指定されたIDを持つクラスの情報を更新します。
+      parameters:
+      - description: ユーザーID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      - description: クラスID
+        in: path
+        name: cid
+        required: true
+        type: integer
+      - description: クラス名
+        in: formData
+        name: name
+        type: string
+      - description: 参加制限人数
+        in: formData
+        name: limitation
+        type: integer
+      - description: クラス説明
+        in: formData
+        name: description
+        type: string
+      - description: クラス画像
+        in: formData
+        name: image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: クラスが正常に更新されました'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: 不正なリクエストのエラーメッセージ'
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 'error: 認証エラー'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: サーバー内部エラー'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: クラス情報を更新します
+      tags:
+      - Class
   /cl/create:
     post:
       consumes:
