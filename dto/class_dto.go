@@ -7,3 +7,9 @@ type CreateClassRequest struct {
 	Description *string `form:"description"`            // クラス説明
 	UID         uint    `form:"uid" binding:"required"` // ユーザID
 }
+
+type UpdateClassRequest struct {
+	Name        string  `form:"name"`
+	Limitation  *int    `form:"limitation"`
+	Description *string `form:"description"`
+}
