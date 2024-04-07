@@ -127,6 +127,55 @@ func (c *ClassController) handleImageUpload(ctx *gin.Context) (string, error) {
 	return imageUrl, nil
 }
 
+// UpdateClass godoc
+// @Summary クラス情報を更新します
+// @Description 指定されたIDを持つクラスの情報を更新します。
+// @Tags Class
+// @Accept multipart/form-data
+// @Produce json
+// @Param uid path int true "ユーザーID"
+// @Param cid path int true "クラスID"
+// @Param name formData string false "クラス名"
+// @Param limitation formData int false "参加制限人数"
+// @Param description formData string false "クラス説明"
+// @Param image formData file false "クラス画像"
+// @Success 200 {object} map[string]interface{} "message: クラスが正常に更新されました"
+// @Failure 400 {object} map[string]interface{} "error: 不正なリクエストのエラーメッセージ"
+// @Failure 401 {object} map[string]interface{} "error: 認証エラー"
+// @Failure 500 {object} map[string]interface{} "error: サーバー内部エラー"
+// @Router /cl/{uid}/{cid} [patch]
+func (cc *ClassController) UpdateClass(ctx *gin.Context) {
+	userID, _ := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	classID, _ := strconv.ParseUint(ctx.Param("cid"), 10, 32)
+
+	var updateDTO dto.UpdateClassRequest
+	if err := ctx.ShouldBindWith(&updateDTO, binding.Form); err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.BadRequestMessage)
+		return
+	}
+
+	if fileHeader, _ := ctx.FormFile("image"); fileHeader != nil {
+		imageUrl, fileErr := cc.uploader.UploadImage(fileHeader, uint(classID), false)
+		if fileErr != nil {
+			respondWithError(ctx, http.StatusInternalServerError, "Image upload failed: "+fileErr.Error())
+			return
+		}
+
+		// Call a separate method to update the image URL
+		if err := cc.classService.UpdateClassImage(uint(classID), imageUrl); err != nil {
+			respondWithError(ctx, http.StatusInternalServerError, "Failed to update class image: "+err.Error())
+			return
+		}
+	}
+
+	if err := cc.classService.UpdateClass(uint(classID), uint(userID), updateDTO); err != nil {
+		respondWithError(ctx, http.StatusInternalServerError, "Class update failed: "+err.Error())
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, constants.Success)
+}
+
 // DeleteClass godoc
 // @Summary クラスを削除します
 // @Description 指定されたIDを持つクラスを削除します。

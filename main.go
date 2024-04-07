@@ -280,6 +280,7 @@ func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassCon
 	{
 		cl.GET(":cid", controller.GetClass)
 		cl.POST("create", controller.CreateClass)
+		cl.PATCH(":uid/:cid", controller.UpdateClass)
 		cl.DELETE(":uid/:cid", controller.DeleteClass)
 	}
 }
