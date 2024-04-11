@@ -28,6 +28,7 @@ type GoogleAuthService interface {
 	UpdateOrCreateUser(userInput dto.UserInput) (models.User, error)
 	GetUserByID(userID uint) (models.User, error)
 	ValidateToken(tokenString string) (*jwt.Token, error)
+	RefreshAccessToken(refreshToken string) (*oauth2.Token, error)
 }
 
 // GoogleAuthServiceImplはGoogle認証サービスの実装
@@ -46,10 +47,16 @@ func (s *GoogleAuthServiceImpl) ValidateToken(tokenString string) (*jwt.Token, e
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte("tkq!mwe!d#s"), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if err != nil {
+		// トークンが有効期限切れの場合
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors&jwt.ValidationErrorExpired != 0 {
+				return nil, fmt.Errorf("Token has expired")
+			}
+		}
 		return nil, err
 	}
 
@@ -70,7 +77,7 @@ func (s *GoogleAuthServiceImpl) GenerateToken(userID uint) (string, error) {
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["user_id"] = userID
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 3).Unix()
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
@@ -86,7 +93,7 @@ func (s *GoogleAuthServiceImpl) GenerateRefreshToken(userID uint) (string, error
 	claims := token.Claims.(jwt.MapClaims)
 	claims["user_id"] = userID
 	claims["type"] = "refresh"
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 24 * 7).Unix()
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
