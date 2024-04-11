@@ -162,8 +162,8 @@ func startServer(router *gin.Engine) {
 // initializeControllers コントローラーを初期化する
 // func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController, *controllers.ChatController, *controllers.LiveClassController) {
 func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController, *controllers.ChatController) {
-	roomMap := new(controllers.RoomMap)
-	roomMap.Init()
+	//roomMap := new(controllers.RoomMap)
+	//roomMap.Init()
 
 	userRepo := repositories.NewUserRepository(db)
 	classRepo := repositories.NewClassRepository(db)
