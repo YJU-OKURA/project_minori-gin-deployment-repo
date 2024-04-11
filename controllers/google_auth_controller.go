@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -98,26 +99,26 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 	})
 }
 
-func (controller *GoogleAuthController) RefreshAccessTokenHandler(c *gin.Context) {
+func (ac *GoogleAuthController) RefreshAccessTokenHandler(ctx *gin.Context) {
 	var requestBody map[string]string
-	if err := c.BindJSON(&requestBody); err != nil {
-		c.JSON(constants.StatusBadRequest, gin.H{"error": "Invalid request body"})
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		handleServiceError(ctx, fmt.Errorf(constants.InvalidRequest))
 		return
 	}
 
 	refreshToken, ok := requestBody["refresh_token"]
 	if !ok {
-		c.JSON(constants.StatusBadRequest, gin.H{"error": "refresh_token is required"})
+		handleServiceError(ctx, fmt.Errorf(constants.RefreshTokenRequired))
 		return
 	}
 
-	newToken, err := controller.Service.RefreshAccessToken(refreshToken)
+	newToken, err := ac.Service.RefreshAccessToken(refreshToken)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": "Failed to refresh access token"})
+		handleServiceError(ctx, err)
 		return
 	}
 
-	c.JSON(constants.StatusOK, gin.H{
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{
 		"access_token": newToken.AccessToken,
 		"expires_in":   newToken.Expiry.Unix(),
 	})
