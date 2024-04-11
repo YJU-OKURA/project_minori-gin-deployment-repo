@@ -75,7 +75,7 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 		return
 	}
 
-	token, err := controller.Service.GenerateToken(user.ID)
+	accesstoken, err := controller.Service.GenerateToken(user.ID)
 	if err != nil {
 		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -88,12 +88,37 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 	}
 
 	c.JSON(constants.StatusOK, gin.H{
-		"access_token":  token,
+		"access_token":  accesstoken,
 		"refresh_token": refreshToken,
 		"user": gin.H{
 			"name":  user.Name,
 			"image": user.Image,
 			"id":    user.ID,
 		},
+	})
+}
+
+func (controller *GoogleAuthController) RefreshAccessTokenHandler(c *gin.Context) {
+	var requestBody map[string]string
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.JSON(constants.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	refreshToken, ok := requestBody["refresh_token"]
+	if !ok {
+		c.JSON(constants.StatusBadRequest, gin.H{"error": "refresh_token is required"})
+		return
+	}
+
+	newToken, err := controller.Service.RefreshAccessToken(refreshToken)
+	if err != nil {
+		c.JSON(constants.StatusInternalServerError, gin.H{"error": "Failed to refresh access token"})
+		return
+	}
+
+	c.JSON(constants.StatusOK, gin.H{
+		"access_token": newToken.AccessToken,
+		"expires_in":   newToken.Expiry.Unix(),
 	})
 }
