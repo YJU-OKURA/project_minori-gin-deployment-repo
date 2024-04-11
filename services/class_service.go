@@ -45,6 +45,16 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 		return 0, err
 	}
 
+	classUser := models.ClassUser{
+		CID:    classID,
+		UID:    request.UID,
+		RoleID: 2,
+	}
+	err = s.classUserRepo.Save(&classUser)
+	if err != nil {
+		return 0, err
+	}
+
 	return classID, nil
 }
 
