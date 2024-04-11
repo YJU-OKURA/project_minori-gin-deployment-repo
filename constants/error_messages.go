@@ -11,6 +11,7 @@ const (
 	ErrInvalidInput      = "無効な入力です"             // 400 Bad Request
 	ErrNoUserID          = "ユーザーIDが提供されていません"    // 400 Bad Request
 	RefreshTokenRequired = "refresh_tokenが必要です"  // 400 Bad Request
+	AuthCodeRequired     = "authCodeが必要です"       // 400 Bad Request
 )
 
 // 認証関連のエラーメッセージ
