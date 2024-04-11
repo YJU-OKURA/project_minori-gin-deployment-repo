@@ -19,6 +19,7 @@ type ClassUserRepository interface {
 	UpdateUserName(uid uint, cid uint, newName string) error
 	ToggleFavorite(uid uint, cid uint) error
 	DeleteClassUser(uid uint, cid uint) error
+	Save(classUser *models.ClassUser) error
 }
 
 type classUserRepository struct {
@@ -152,4 +153,8 @@ func (r *classUserRepository) ToggleFavorite(uid uint, cid uint) error {
 
 func (r *classUserRepository) DeleteClassUser(uid uint, cid uint) error {
 	return r.db.Where("uid = ? AND cid = ?", uid, cid).Delete(&models.ClassUser{}).Error
+}
+
+func (r *classUserRepository) Save(classUser *models.ClassUser) error {
+	return r.db.Create(classUser).Error
 }
