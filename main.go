@@ -278,6 +278,7 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 	{
 		g.GET("login", controller.GoogleLoginHandler)
 		g.POST("process", controller.ProcessAuthCode)
+		g.POST("refresh-token", controller.RefreshAccessTokenHandler)
 	}
 }
 

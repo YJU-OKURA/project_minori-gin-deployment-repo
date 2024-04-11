@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -31,7 +32,7 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 	oauthStateString := controller.Service.GenerateStateOauthCookie(c.Writer)
 
 	url := controller.Service.OauthConfig().AuthCodeURL(oauthStateString)
-	c.JSON(constants.StatusOK, gin.H{"url": url})
+	respondWithSuccess(c, constants.StatusOK, gin.H{"url": url})
 }
 
 // ProcessAuthCode godoc
@@ -46,54 +47,79 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 	var requestBody map[string]string
 	if err := c.BindJSON(&requestBody); err != nil {
-		c.JSON(constants.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		handleServiceError(c, fmt.Errorf(constants.InvalidRequest))
 		return
 	}
 
 	authCode, ok := requestBody["authCode"]
 	if !ok {
-		c.JSON(constants.StatusBadRequest, gin.H{"error": "authCode is required"})
+		handleServiceError(c, fmt.Errorf(constants.AuthCodeRequired))
 		return
 	}
 
 	userInfo, err := controller.Service.GetGoogleUserInfo(authCode)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
 
 	var userInput dto.UserInput
 	err = json.Unmarshal(userInfo, &userInput)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
 
 	user, err := controller.Service.UpdateOrCreateUser(userInput)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
 
-	token, err := controller.Service.GenerateToken(user.ID)
+	accessToken, err := controller.Service.GenerateToken(user.ID)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
 
 	refreshToken, err := controller.Service.GenerateRefreshToken(user.ID)
 	if err != nil {
-		c.JSON(constants.StatusInternalServerError, gin.H{"error": err.Error()})
+		handleServiceError(c, err)
 		return
 	}
 
-	c.JSON(constants.StatusOK, gin.H{
-		"access_token":  token,
+	respondWithSuccess(c, constants.StatusOK, gin.H{
+		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 		"user": gin.H{
 			"name":  user.Name,
 			"image": user.Image,
 			"id":    user.ID,
 		},
+	})
+}
+
+func (ac *GoogleAuthController) RefreshAccessTokenHandler(ctx *gin.Context) {
+	var requestBody map[string]string
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		handleServiceError(ctx, fmt.Errorf(constants.InvalidRequest))
+		return
+	}
+
+	refreshToken, ok := requestBody["refresh_token"]
+	if !ok {
+		handleServiceError(ctx, fmt.Errorf(constants.RefreshTokenRequired))
+		return
+	}
+
+	newToken, err := ac.Service.RefreshAccessToken(refreshToken)
+	if err != nil {
+		handleServiceError(ctx, err)
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{
+		"access_token": newToken.AccessToken,
+		"expires_in":   newToken.Expiry.Unix(),
 	})
 }
