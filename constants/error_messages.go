@@ -2,14 +2,15 @@ package constants
 
 // クライアントエラー関連のエラーメッセージ
 const (
-	InvalidRequest    = "無効なリクエストです"          // 400 Bad Request
-	BadRequestMessage = "リクエストが不正です"          // 400 Bad Request
-	ErrNoFileHeaderJP = "ファイルヘッダが提供されていません"   // 400 Bad Request
-	ErrFileSizeJP     = "ファイルサイズが10MBを超えています" // 400 Bad Request
-	ErrMimeTypeJP     = "ファイルタイプが画像ではありません"   // 400 Bad Request
-	ErrNoDateJP       = "日付が提供されていません"        // 400 Bad Request
-	ErrInvalidInput   = "無効な入力です"             // 400 Bad Request
-	ErrNoUserID       = "ユーザーIDが提供されていません"    // 400 Bad Request
+	InvalidRequest       = "無効なリクエストです"          // 400 Bad Request
+	BadRequestMessage    = "リクエストが不正です"          // 400 Bad Request
+	ErrNoFileHeaderJP    = "ファイルヘッダが提供されていません"   // 400 Bad Request
+	ErrFileSizeJP        = "ファイルサイズが10MBを超えています" // 400 Bad Request
+	ErrMimeTypeJP        = "ファイルタイプが画像ではありません"   // 400 Bad Request
+	ErrNoDateJP          = "日付が提供されていません"        // 400 Bad Request
+	ErrInvalidInput      = "無効な入力です"             // 400 Bad Request
+	ErrNoUserID          = "ユーザーIDが提供されていません"    // 400 Bad Request
+	RefreshTokenRequired = "refresh_tokenが必要です"  // 400 Bad Request
 )
 
 // 認証関連のエラーメッセージ
