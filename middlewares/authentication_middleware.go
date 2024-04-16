@@ -4,6 +4,7 @@ import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 )
 
@@ -56,4 +57,16 @@ func AdminMiddleware(roleService services.ClassUserService) gin.HandlerFunc {
 // AssistantMiddleware はアシスタント権限を持っているかどうかを確認するミドルウェアです。
 func AssistantMiddleware(roleService services.ClassUserService) gin.HandlerFunc {
 	return ClassUserRoleMiddleware(roleService, AssistantRoleID)
+}
+
+func AuthMiddleware(authenticate func(token string) bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.GetHeader("Authorization")
+		if token == "" || !authenticate(token) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
 }
