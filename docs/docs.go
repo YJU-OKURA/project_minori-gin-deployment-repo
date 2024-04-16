@@ -2198,6 +2198,119 @@ const docTemplate = `{
                 }
             }
         },
+        "/live/create-room": {
+            "post": {
+                "description": "ルームを生成します。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live Class"
+                ],
+                "summary": "ルームを生成します。",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.RoomResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/live/start-screen-share/{roomID}": {
+            "get": {
+                "description": "画面共有を開始します。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live Class"
+                ],
+                "summary": "画面共有を開始します。",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ルームID",
+                        "name": "roomID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ScreenShareResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/live/stop-screen-share/{roomID}": {
+            "get": {
+                "description": "画面共有を停止します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live Class"
+                ],
+                "summary": "画面共有を停止します。",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ルームID",
+                        "name": "roomID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.StandardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/u/{userID}/applying-classes": {
             "get": {
                 "description": "ユーザーが申し込んだクラスを取得します。",
@@ -2253,6 +2366,41 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.RoomResponse": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ScreenShareResponse": {
+            "type": "object",
+            "properties": {
+                "sdp": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.UpdateUserNameRequest": {
             "type": "object",
             "properties": {
