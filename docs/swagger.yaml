@@ -1,4 +1,26 @@
 definitions:
+  controllers.ErrorResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  controllers.RoomResponse:
+    properties:
+      roomID:
+        type: string
+    type: object
+  controllers.ScreenShareResponse:
+    properties:
+      sdp:
+        type: string
+    type: object
+  controllers.StandardResponse:
+    properties:
+      message:
+        type: string
+    type: object
   controllers.UpdateUserNameRequest:
     properties:
       new_name:
@@ -1641,6 +1663,81 @@ paths:
       summary: クラスメンバーの情報を取得します
       tags:
       - Class User
+  /live/create-room:
+    post:
+      description: ルームを生成します。
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.RoomResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: ルームを生成します。
+      tags:
+      - Live Class
+  /live/start-screen-share/{roomID}:
+    get:
+      description: 画面共有を開始します。
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ルームID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ScreenShareResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: 画面共有を開始します。
+      tags:
+      - Live Class
+  /live/stop-screen-share/{roomID}:
+    get:
+      consumes:
+      - application/json
+      description: 画面共有を停止します。
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: ルームID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: 画面共有を停止します。
+      tags:
+      - Live Class
   /u/{userID}/applying-classes:
     get:
       consumes:

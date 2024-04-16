@@ -2,8 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 
@@ -29,19 +34,12 @@ func main() {
 	db := initializeDatabase()
 	redisClient := initializeRedis()
 
-	//controllers.AllRooms.Init()
+	liveClassService := services.NewLiveClassService(services.NewRoomMap())
+
 	services.NewRoomManager(redisClient)
-
-	//rtmpServer := services.NewRTMPServer()
-	//go func() {
-	//	if err := rtmpServer.Start(":1935"); err != nil {
-	//		log.Fatalf("Failed to start RTMP server: %v", err)
-	//	}
-	//}()
-
 	migrateDatabaseIfNeeded(db)
 
-	router := setupRouter(db)
+	router := setupRouter(db, liveClassService)
 	startServer(router)
 }
 
@@ -115,20 +113,28 @@ func migrateDatabaseIfNeeded(db *gorm.DB) {
 }
 
 // setupRouter ルーターをセットアップする
-func setupRouter(db *gorm.DB) *gin.Engine {
+func setupRouter(db *gorm.DB, liveClassService services.LiveClassService) *gin.Engine {
 	router := gin.Default()
-
+	router.Use(globalErrorHandler)
 	router.Use(CORS())
-
 	initializeSwagger(router)
+	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController := initializeControllers(db, redisClient, liveClassService)
 
-	//userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController := initializeControllers(db, redisClient)
-	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController := initializeControllers(db, redisClient)
-
-	//setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController)
-	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController)
-
+	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController)
 	return router
+}
+
+func globalErrorHandler(c *gin.Context) {
+	c.Next()
+
+	if len(c.Errors) > 0 {
+		// You can log the errors here or send them to an external system
+		// Optionally process different types of errors differently
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Internal server error",
+			"details": c.Errors.String(),
+		})
+	}
 }
 
 func CORS() gin.HandlerFunc {
@@ -155,16 +161,34 @@ func initializeSwagger(router *gin.Engine) {
 
 // startServer サーバーを起動する
 func startServer(router *gin.Engine) {
-	port := getEnvOrDefault("PORT", "8080")
-	log.Fatal(router.Run(":" + port))
+	srv := &http.Server{
+		Addr:    ":" + getEnvOrDefault("PORT", "8080"),
+		Handler: router,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
+
+	log.Println("Server exiting")
 }
 
 // initializeControllers コントローラーを初期化する
-// func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController, *controllers.ChatController, *controllers.LiveClassController) {
-func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController, *controllers.ChatController) {
-	//roomMap := new(controllers.RoomMap)
-	//roomMap.Init()
-
+func initializeControllers(db *gorm.DB, redisClient *redis.Client, liveClassService services.LiveClassService) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, services.ClassUserService, *controllers.GoogleAuthController, *controllers.ClassController, *controllers.ChatController, *controllers.LiveClassController) {
 	userRepo := repositories.NewUserRepository(db)
 	classRepo := repositories.NewClassRepository(db)
 	classBoardRepo := repositories.NewClassBoardRepository(db)
@@ -184,7 +208,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	attendanceService := services.NewAttendanceService(attendanceRepo)
 	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
 	chatManager := services.NewRoomManager(redisClient)
-	//liveClassService := services.NewLiveClassService(roomMap)
+	liveClassService = services.NewLiveClassService(services.NewRoomMap())
 
 	uploader := utils.NewAwsUploader()
 	userController := controllers.NewCreateUserController(userService)
@@ -196,15 +220,13 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	attendanceController := controllers.NewAttendanceController(attendanceService)
 	googleAuthController := controllers.NewGoogleAuthController(googleAuthService)
 	chatController := controllers.NewChatController(chatManager, redisClient)
-	//liveClassController := controllers.NewLiveClassController(liveClassService)
+	liveClassController := controllers.NewLiveClassController(liveClassService)
 
-	//return userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController
-	return userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController
+	return userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController
 }
 
 // setupRoutes ルートをセットアップする
-// func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController, liveClassController *controllers.LiveClassController) {
-func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController) {
+func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController, liveClassController *controllers.LiveClassController) {
 	setupUserRoutes(router, userController)
 	setupClassBoardRoutes(router, classBoardController, classUserService)
 	setupClassCodeRoutes(router, classCodeController)
@@ -214,7 +236,7 @@ func setupRoutes(router *gin.Engine, userController *controllers.UserController,
 	setupGoogleAuthRoutes(router, googleAuthController)
 	setupCreateClassRoutes(router, createClassController)
 	setupChatRoutes(router, chatController)
-	//setupLiveClassRoutes(router, liveClassController)
+	setupLiveClassRoutes(router, liveClassController)
 }
 
 func setupUserRoutes(router *gin.Engine, controller *controllers.UserController) {
@@ -369,11 +391,11 @@ func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatControl
 	}
 }
 
-//func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.LiveClassController) {
-//	live := router.Group("/api/gin/live")
-//	{
-//		live.POST("/create", liveClassController.CreateRoomRequestHandler())
-//		live.GET("/join", liveClassController.JoinRoomRequestHandler())
-//		live.GET("/websocket", liveClassController.WebsocketHandler())
-//	}
-//}
+func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.LiveClassController) {
+	live := router.Group("/api/gin/live")
+	{
+		live.POST("/create-room", liveClassController.CreateRoomHandler())
+		live.GET("/start-screen-share/:roomID", liveClassController.StartScreenShareHandler())
+		live.GET("/stop-screen-share/:roomID", liveClassController.StopScreenShareHandler())
+	}
+}
