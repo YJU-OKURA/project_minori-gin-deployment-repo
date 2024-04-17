@@ -1090,6 +1090,11 @@ paths:
       - application/json
       description: 新しいクラススケジュールを作成する。
       parameters:
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
       - description: User ID
         in: query
         name: uid
@@ -1112,106 +1117,11 @@ paths:
           description: リクエストが不正です
           schema:
             type: string
-        "401":
-          description: 認証に失敗しました
-          schema:
-            type: string
         "500":
           description: サーバーエラーが発生しました
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
       summary: クラススケジュールを作成
-      tags:
-      - Class Schedule
-  /cs-special/date/{uid}/{cid}:
-    get:
-      consumes:
-      - application/json
-      description: 指定されたクラスIDと日付のクラススケジュールを取得する。
-      parameters:
-      - description: User ID
-        in: path
-        name: uid
-        required: true
-        type: integer
-      - description: Class ID
-        in: path
-        name: cid
-        required: true
-        type: integer
-      - description: Date
-        in: query
-        name: date
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 指定された日付のクラススケジュールが見つかりました
-          schema:
-            items:
-              items:
-                $ref: '#/definitions/models.ClassSchedule'
-              type: array
-            type: array
-        "400":
-          description: 日付が必要です
-          schema:
-            type: string
-        "401":
-          description: 認証に失敗しました
-          schema:
-            type: string
-        "500":
-          description: サーバーエラーが発生しました
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: 日付でクラススケジュールを取得
-      tags:
-      - Class Schedule
-  /cs-special/live/{uid}/{cid}:
-    get:
-      consumes:
-      - application/json
-      description: 指定されたクラスIDのライブ中のクラススケジュールを取得する。
-      parameters:
-      - description: User ID
-        in: query
-        name: uid
-        required: true
-        type: integer
-      - description: Class ID
-        in: query
-        name: cid
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ライブ中のクラススケジュールが見つかりました
-          schema:
-            items:
-              items:
-                $ref: '#/definitions/models.ClassSchedule'
-              type: array
-            type: array
-        "401":
-          description: 認証に失敗しました
-          schema:
-            type: string
-        "500":
-          description: サーバーエラーが発生しました
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: ライブ中のクラススケジュールを取得
       tags:
       - Class Schedule
   /cs/{id}:
@@ -1246,16 +1156,10 @@ paths:
           description: 無効なID形式です
           schema:
             type: string
-        "401":
-          description: 認証に失敗しました
-          schema:
-            type: string
         "500":
           description: サーバーエラーが発生しました
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
       summary: クラススケジュールを削除
       tags:
       - Class Schedule
@@ -1324,17 +1228,78 @@ paths:
           description: リクエストが不正です
           schema:
             type: string
-        "401":
-          description: 認証に失敗しました
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: クラススケジュールを更新
+      tags:
+      - Class Schedule
+  /cs/date:
+    get:
+      consumes:
+      - application/json
+      description: 指定されたクラスIDと日付のクラススケジュールを取得する。
+      parameters:
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: Date
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 指定された日付のクラススケジュールが見つかりました
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.ClassSchedule'
+              type: array
+            type: array
+        "400":
+          description: 日付が必要です
           schema:
             type: string
         "500":
           description: サーバーエラーが発生しました
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
-      summary: クラススケジュールを更新
+      summary: 日付でクラススケジュールを取得
+      tags:
+      - Class Schedule
+  /cs/live:
+    get:
+      consumes:
+      - application/json
+      description: 指定されたクラスIDのライブ中のクラススケジュールを取得する。
+      parameters:
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ライブ中のクラススケジュールが見つかりました
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.ClassSchedule'
+              type: array
+            type: array
+        "500":
+          description: サーバーエラーが発生しました
+          schema:
+            type: string
+      summary: ライブ中のクラススケジュールを取得
       tags:
       - Class Schedule
   /cu/{uid}/{cid}/{roleID}:
@@ -1746,6 +1711,32 @@ paths:
           schema:
             $ref: '#/definitions/controllers.ErrorResponse'
       summary: 画面共有を停止します。
+      tags:
+      - Live Class
+  /live/view-screen-share/{roomID}:
+    get:
+      description: 画面共有情報を取得します。
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: SDP information
+          schema:
+            $ref: '#/definitions/controllers.ScreenShareResponse'
+        "400":
+          description: Error message and details
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized if the user is not authenticated or not part of
+            the room
+      summary: 画面共有情報を取得します。
       tags:
       - Live Class
   /u/{userID}/applying-classes:
