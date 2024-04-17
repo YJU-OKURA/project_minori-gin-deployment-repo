@@ -34,7 +34,8 @@ func main() {
 	db := initializeDatabase()
 	redisClient := initializeRedis()
 
-	liveClassService := services.NewLiveClassService(services.NewRoomMap())
+	classUserRepo := repositories.NewClassUserRepository(db)
+	liveClassService := services.NewLiveClassService(services.NewRoomMap(), classUserRepo)
 
 	services.NewRoomManager(redisClient)
 	migrateDatabaseIfNeeded(db)
@@ -208,7 +209,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client, liveClassServ
 	attendanceService := services.NewAttendanceService(attendanceRepo)
 	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
 	chatManager := services.NewRoomManager(redisClient)
-	liveClassService = services.NewLiveClassService(services.NewRoomMap())
+	liveClassService = services.NewLiveClassService(services.NewRoomMap(), classUserRepo)
 
 	uploader := utils.NewAwsUploader()
 	userController := controllers.NewCreateUserController(userService)
@@ -395,7 +396,7 @@ func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.L
 	live := router.Group("/api/gin/live")
 	{
 		live.POST("/create-room", liveClassController.CreateRoomHandler())
-		live.GET("/start-screen-share/:roomID", liveClassController.StartScreenShareHandler())
-		live.GET("/stop-screen-share/:roomID", liveClassController.StopScreenShareHandler())
+		live.GET("/start-screen-share/:roomID/:userID", liveClassController.StartScreenShareHandler())
+		live.GET("/stop-screen-share/:roomID/:userID", liveClassController.StopScreenShareHandler())
 	}
 }
