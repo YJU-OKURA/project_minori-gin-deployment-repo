@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -90,8 +91,7 @@ func (c *LiveClassController) StartScreenShareHandler() gin.HandlerFunc {
 			return
 		}
 
-		roomID := ctx.Param("roomID")
-		userID := ctx.Param("userID")
+		roomID, userID := ctx.Param("roomID"), ctx.Param("userID")
 		pc, err := c.liveClassService.StartScreenShare(roomID, userID)
 		if err != nil {
 			respondWithError(ctx, constants.StatusInternalServerError, "Screen sharing could not be started: "+err.Error())
@@ -137,6 +137,40 @@ func (c *LiveClassController) StopScreenShareHandler() gin.HandlerFunc {
 			return
 		}
 		respondWithSuccess(ctx, constants.StatusOK, StandardResponse{Message: "Screen share stopped successfully"})
+	}
+}
+
+// ViewScreenShareHandler godoc
+// @Summary 画面共有情報を取得します。
+// @Description 画面共有情報を取得します。
+// @Tags Live Class
+// @Produce json
+// @Param Authorization header string true "Bearer Token"
+// @Success 200 {object} ScreenShareResponse "SDP information"
+// @Failure 400 {object} ErrorResponse "Error message and details"
+// @Failure 401 "Unauthorized if the user is not authenticated or not part of the room"
+// @Router /live/view-screen-share/{roomID} [get]
+func (c *LiveClassController) ViewScreenShareHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		roomID := ctx.Param("roomID")
+		userID, exists := ctx.Get("userID")
+		if !exists {
+			respondWithError(ctx, http.StatusUnauthorized, "User ID not provided")
+			return
+		}
+
+		if !c.liveClassService.IsUserInRoom(userID.(string), roomID) {
+			respondWithError(ctx, http.StatusUnauthorized, "Access denied")
+			return
+		}
+
+		sdp, err := c.liveClassService.GetScreenShareInfo(roomID)
+		if err != nil {
+			respondWithError(ctx, http.StatusInternalServerError, "Failed to retrieve screen share info: "+err.Error())
+			return
+		}
+
+		respondWithSuccess(ctx, http.StatusOK, ScreenShareResponse{SDP: sdp})
 	}
 }
 
