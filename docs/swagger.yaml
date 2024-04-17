@@ -1694,6 +1694,11 @@ paths:
         name: roomID
         required: true
         type: string
+      - description: ユーザーID
+        in: path
+        name: userID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1722,6 +1727,11 @@ paths:
       - description: ルームID
         in: path
         name: roomID
+        required: true
+        type: string
+      - description: ユーザーID
+        in: path
+        name: userID
         required: true
         type: string
       produces:

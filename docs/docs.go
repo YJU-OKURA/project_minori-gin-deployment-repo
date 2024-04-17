@@ -2248,6 +2248,13 @@ const docTemplate = `{
                         "name": "roomID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ユーザーID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2291,6 +2298,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "ルームID",
                         "name": "roomID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ユーザーID",
+                        "name": "userID",
                         "in": "path",
                         "required": true
                     }
