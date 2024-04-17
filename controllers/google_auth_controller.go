@@ -4,9 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"os"
+	"strings"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
+
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -112,9 +117,22 @@ func (ac *GoogleAuthController) RefreshAccessTokenHandler(ctx *gin.Context) {
 		return
 	}
 
-	newToken, err := ac.Service.RefreshAccessToken(refreshToken)
+	refreshToken = strings.TrimSpace(strings.TrimPrefix(refreshToken, "Bearer "))
+
+	_, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
 	if err != nil {
 		handleServiceError(ctx, err)
+		return
+	}
+
+	newToken, err := ac.Service.RefreshAccessToken(refreshToken)
+	if err != nil {
+		handleServiceError(ctx, fmt.Errorf("invalid refresh token: %v", err))
 		return
 	}
 
@@ -123,3 +141,46 @@ func (ac *GoogleAuthController) RefreshAccessTokenHandler(ctx *gin.Context) {
 		"expires_in":   newToken.Expiry.Unix(),
 	})
 }
+
+// func (ac *GoogleAuthController) RefreshAccessTokenHandler(ctx *gin.Context) {
+// 	var requestBody map[string]string
+// 	if err := ctx.BindJSON(&requestBody); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format or structure."})
+// 		ctx.Error(err)
+// 		return
+// 	}
+
+// 	refreshToken, ok := requestBody["refresh_token"]
+// 	if !ok {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Refresh token is required."})
+// 		ctx.Error(fmt.Errorf("refresh token missing in request body"))
+// 		return
+// 	}
+
+// 	refreshToken = strings.TrimSpace(strings.TrimPrefix(refreshToken, "Bearer "))
+
+// 	_, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+// 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+// 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+// 		}
+// 		return []byte(os.Getenv("JWT_SECRET")), nil
+// 	})
+// 	if err != nil {
+// 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token.", "details": err.Error()})
+// 		ctx.Error(err)
+// 		return
+// 	}
+
+// 	newToken, err := ac.Service.RefreshAccessToken(refreshToken)
+// 	if err != nil {
+// 		detailedError := fmt.Sprintf("Failed to refresh access token: %v. Ensure your refresh token is valid and not expired.", err)
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to refresh access token.", "details": detailedError})
+// 		ctx.Error(err)
+// 		return
+// 	}
+
+// 	ctx.JSON(http.StatusOK, gin.H{
+// 		"access_token": newToken.AccessToken,
+// 		"expires_in":   newToken.Expiry.Unix(),
+// 	})
+// }
