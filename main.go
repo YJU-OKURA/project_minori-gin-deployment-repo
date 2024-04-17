@@ -396,7 +396,8 @@ func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.L
 	live := router.Group("/api/gin/live")
 	{
 		live.POST("/create-room", liveClassController.CreateRoomHandler())
-		live.GET("/start-screen-share/:roomID/:userID", liveClassController.StartScreenShareHandler())
-		live.GET("/stop-screen-share/:roomID/:userID", liveClassController.StopScreenShareHandler())
+		live.GET("/start-screen-share/{roomID}/{userID}", liveClassController.StartScreenShareHandler())
+		live.GET("/stop-screen-share/{roomID}/{userID}", liveClassController.StopScreenShareHandler())
+		live.GET("/view-screen-share/{roomID}", liveClassController.ViewScreenShareHandler())
 	}
 }

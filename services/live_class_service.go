@@ -19,7 +19,7 @@ var webrtcConfig = webrtc.Configuration{
 
 type Room struct {
 	ID             string
-	Members        map[*websocket.Conn]bool
+	Members        map[string]*websocket.Conn
 	PeerConnection *webrtc.PeerConnection
 	IsSharing      bool
 	AdminID        string
@@ -38,12 +38,12 @@ func NewRoomMap() *RoomMap {
 
 type LiveClassService interface {
 	CreateRoom() (string, error)
-	InsertIntoRoom(roomID string, conn *websocket.Conn) error
+	InsertIntoRoom(roomID string, userID string, conn *websocket.Conn) error
 	StartScreenShare(roomID string, userID string) (*webrtc.PeerConnection, error)
 	StopScreenShare(roomID string, userID string) error
+	GetScreenShareInfo(roomID string) (string, error)
+	IsUserInRoom(userID, roomID string) bool
 }
-
-// liveClassService implements the LiveClassService interface to manage live classroom sessions.
 
 type liveClassService struct {
 	roomMap       *RoomMap
@@ -64,13 +64,13 @@ func (s *liveClassService) CreateRoom() (string, error) {
 	roomID := uuid.New().String()
 	s.roomMap.rooms[roomID] = &Room{
 		ID:      roomID,
-		Members: make(map[*websocket.Conn]bool),
+		Members: make(map[string]*websocket.Conn),
 	}
 	log.Printf("Created new room with ID: %s", roomID)
 	return roomID, nil
 }
 
-func (s *liveClassService) InsertIntoRoom(roomID string, conn *websocket.Conn) error {
+func (s *liveClassService) InsertIntoRoom(roomID string, userID string, conn *websocket.Conn) error {
 	s.roomMap.mu.Lock()
 	defer s.roomMap.mu.Unlock()
 
@@ -79,8 +79,21 @@ func (s *liveClassService) InsertIntoRoom(roomID string, conn *websocket.Conn) e
 		return fmt.Errorf("no room found with ID %s", roomID)
 	}
 
-	room.Members[conn] = true
+	room.Members[userID] = conn
 	return nil
+}
+
+func (s *liveClassService) IsUserInRoom(userID, roomID string) bool {
+	s.roomMap.mu.RLock()
+	defer s.roomMap.mu.RUnlock()
+
+	room, exists := s.roomMap.rooms[roomID]
+	if !exists {
+		return false
+	}
+
+	_, ok := room.Members[userID]
+	return ok
 }
 
 func (s *liveClassService) StartScreenShare(roomID string, userID string) (*webrtc.PeerConnection, error) {
@@ -117,6 +130,16 @@ func (s *liveClassService) StartScreenShare(roomID string, userID string) (*webr
 	room.PeerConnection = pc
 	room.IsSharing = true
 	log.Printf("Screen sharing started in room %s by user %s", roomID, userID)
+
+	description := pc.LocalDescription()
+	for id, conn := range room.Members {
+		if id != userID {
+			if err := conn.WriteMessage(websocket.TextMessage, []byte(description.SDP)); err != nil {
+				log.Printf("Failed to send SDP to user %s: %v", id, err)
+			}
+		}
+	}
+
 	return pc, nil
 }
 
@@ -140,6 +163,18 @@ func (s *liveClassService) StopScreenShare(roomID string, userID string) error {
 
 	room.IsSharing = false
 	return nil
+}
+
+func (s *liveClassService) GetScreenShareInfo(roomID string) (string, error) {
+	s.roomMap.mu.RLock()
+	defer s.roomMap.mu.RUnlock()
+
+	room, exists := s.roomMap.rooms[roomID]
+	if !exists || !room.IsSharing {
+		return "", fmt.Errorf("no active screen sharing in room %s", roomID)
+	}
+
+	return room.PeerConnection.LocalDescription().SDP, nil
 }
 
 func (s *liveClassService) isRoomAdmin(userID string, roomID string) bool {
