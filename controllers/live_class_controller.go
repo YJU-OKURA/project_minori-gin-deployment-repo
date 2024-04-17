@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 )
@@ -155,22 +154,22 @@ func (c *LiveClassController) ViewScreenShareHandler() gin.HandlerFunc {
 		roomID := ctx.Param("roomID")
 		userID, exists := ctx.Get("userID")
 		if !exists {
-			respondWithError(ctx, http.StatusUnauthorized, "User ID not provided")
+			respondWithError(ctx, constants.StatusUnauthorized, "User ID not provided")
 			return
 		}
 
 		if !c.liveClassService.IsUserInRoom(userID.(string), roomID) {
-			respondWithError(ctx, http.StatusUnauthorized, "Access denied")
+			respondWithError(ctx, constants.StatusUnauthorized, "Access denied")
 			return
 		}
 
 		sdp, err := c.liveClassService.GetScreenShareInfo(roomID)
 		if err != nil {
-			respondWithError(ctx, http.StatusInternalServerError, "Failed to retrieve screen share info: "+err.Error())
+			respondWithError(ctx, constants.StatusInternalServerError, "Failed to retrieve screen share info: "+err.Error())
 			return
 		}
 
-		respondWithSuccess(ctx, http.StatusOK, ScreenShareResponse{SDP: sdp})
+		respondWithSuccess(ctx, constants.StatusOK, ScreenShareResponse{SDP: sdp})
 	}
 }
 
