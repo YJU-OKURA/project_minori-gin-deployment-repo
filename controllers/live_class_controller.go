@@ -2,22 +2,46 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 )
 
-// LiveClassController implements the interface
+// LiveClassController handles all web socket operations for live classroom interactions
+// including creating a room, starting and stopping screen sharing
 type LiveClassController struct {
 	liveClassService services.LiveClassService
 	upgrader         websocket.Upgrader
 }
 
+// RoomResponse encapsulates the response structure for room creation.
+type RoomResponse struct {
+	RoomID string `json:"roomID"`
+}
+
+// ScreenShareResponse contains the SDP information necessary for establishing
+// a WebRTC connection for screen sharing.
+type ScreenShareResponse struct {
+	SDP string `json:"sdp"`
+}
+
+// StandardResponse provides a generic response structure for simple messages.
+type StandardResponse struct {
+	Message string `json:"message"`
+}
+
+// ErrorResponse provides a structured error message for API responses.
+type ErrorResponse struct {
+	Error   string `json:"error"`
+	Details string `json:"details,omitempty"`
+}
+
+// NewLiveClassController creates a new controller instance with the necessary dependencies.
 func NewLiveClassController(service services.LiveClassService) *LiveClassController {
 	return &LiveClassController{
 		liveClassService: service,
@@ -40,10 +64,10 @@ func (c *LiveClassController) CreateRoomHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		roomID, err := c.liveClassService.CreateRoom()
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create room"})
+			respondWithError(ctx, constants.StatusInternalServerError, "Failed to create room"+err.Error())
 			return
 		}
-		ctx.JSON(http.StatusOK, gin.H{"roomID": roomID})
+		respondWithSuccess(ctx, constants.StatusOK, RoomResponse{RoomID: roomID})
 	}
 }
 
@@ -54,40 +78,40 @@ func (c *LiveClassController) CreateRoomHandler() gin.HandlerFunc {
 // @Produce json
 // @Param Authorization header string true "Bearer Token"
 // @Param roomID path string true "ルームID"
+// @Param userID path string true "ユーザーID"
 // @Success 200 {object} ScreenShareResponse
 // @Failure 400 {object} ErrorResponse
 // @Router /live/start-screen-share/{roomID} [get]
 func (c *LiveClassController) StartScreenShareHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// Retrieve the JWT from the Authorization header
 		authHeader := ctx.GetHeader("Authorization")
-
 		if !authenticateUser(authHeader) {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+			respondWithError(ctx, constants.StatusUnauthorized, "Unauthorized access")
 			return
 		}
 
 		roomID := ctx.Param("roomID")
-		pc, err := c.liveClassService.StartScreenShare(roomID)
+		userID := ctx.Param("userID")
+		pc, err := c.liveClassService.StartScreenShare(roomID, userID)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			respondWithError(ctx, constants.StatusInternalServerError, "Screen sharing could not be started: "+err.Error())
 			return
 		}
 
 		offer, err := pc.CreateOffer(nil)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			pc.Close()
+			respondWithError(ctx, constants.StatusInternalServerError, "Failed to create offer: "+err.Error())
 			return
 		}
 
-		err = pc.SetLocalDescription(offer)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err := pc.SetLocalDescription(offer); err != nil {
+			respondWithError(ctx, constants.StatusInternalServerError, "Failed to set local description: "+err.Error())
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"sdp": pc.LocalDescription().SDP})
-		log.Printf("User %s started screen share in room %s", ctx.MustGet("userID"), roomID)
+		respondWithSuccess(ctx, constants.StatusOK, ScreenShareResponse{SDP: pc.LocalDescription().SDP})
+		log.Printf("Screen sharing started by user %s in room %s", userID, roomID)
 	}
 }
 
@@ -99,23 +123,25 @@ func (c *LiveClassController) StartScreenShareHandler() gin.HandlerFunc {
 // @Produce json
 // @Param Authorization header string true "Bearer Token"
 // @Param roomID path string true "ルームID"
+// @Param userID path string true "ユーザーID"
 // @Success 200 {object} StandardResponse
 // @Failure 400 {object} ErrorResponse
 // @Router /live/stop-screen-share/{roomID} [get]
 func (c *LiveClassController) StopScreenShareHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		roomID := ctx.Param("roomID")
-		err := c.liveClassService.StopScreenShare(roomID)
+		userID := ctx.Param("userID")
+		err := c.liveClassService.StopScreenShare(roomID, userID)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			respondWithError(ctx, constants.StatusInternalServerError, "Screen sharing could not be stopped: "+err.Error())
 			return
 		}
-		ctx.JSON(http.StatusOK, gin.H{"message": "Screen share stopped successfully"})
+		respondWithSuccess(ctx, constants.StatusOK, StandardResponse{Message: "Screen share stopped successfully"})
 	}
 }
 
+// authenticateUser checks if the provided JWT token is valid and authorized to access the system.
 func authenticateUser(tokenString string) bool {
-	// Assuming the token is in the Authorization header as a Bearer token
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -131,21 +157,4 @@ func authenticateUser(tokenString string) bool {
 	}
 
 	return token.Valid
-}
-
-type RoomResponse struct {
-	RoomID string `json:"roomID"`
-}
-
-type ScreenShareResponse struct {
-	SDP string `json:"sdp"`
-}
-
-type StandardResponse struct {
-	Message string `json:"message"`
-}
-
-type ErrorResponse struct {
-	Error   string `json:"error"`
-	Details string `json:"details,omitempty"`
 }
