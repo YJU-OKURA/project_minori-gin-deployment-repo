@@ -1324,11 +1324,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "新しいクラススケジュールを作成する。",
                 "consumes": [
                     "application/json"
@@ -1341,6 +1336,13 @@ const docTemplate = `{
                 ],
                 "summary": "クラススケジュールを作成",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "User ID",
@@ -1371,12 +1373,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1386,13 +1382,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs-special/date/{uid}/{cid}": {
+        "/cs/date": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1407,16 +1398,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
                         "description": "Class ID",
                         "name": "cid",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -1446,12 +1430,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1461,13 +1439,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/cs-special/live/{uid}/{cid}": {
+        "/cs/live": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたクラスIDのライブ中のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1480,13 +1453,6 @@ const docTemplate = `{
                 ],
                 "summary": "ライブ中のクラススケジュールを取得",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "uid",
-                        "in": "query",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Class ID",
@@ -1506,12 +1472,6 @@ const docTemplate = `{
                                     "$ref": "#/definitions/models.ClassSchedule"
                                 }
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
                         }
                     },
                     "500": {
@@ -1567,11 +1527,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたIDのクラススケジュールを更新する。",
                 "consumes": [
                     "application/json"
@@ -1628,12 +1583,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "認証に失敗しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -1643,11 +1592,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたIDのクラススケジュールを削除する。",
                 "consumes": [
                     "application/json"
@@ -1691,12 +1635,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "無効なID形式です",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "認証に失敗しました",
                         "schema": {
                             "type": "string"
                         }
@@ -2248,6 +2186,13 @@ const docTemplate = `{
                         "name": "roomID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ユーザーID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2293,6 +2238,13 @@ const docTemplate = `{
                         "name": "roomID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ユーザーID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2307,6 +2259,44 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controllers.ErrorResponse"
                         }
+                    }
+                }
+            }
+        },
+        "/live/view-screen-share/{roomID}": {
+            "get": {
+                "description": "画面共有情報を取得します。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live Class"
+                ],
+                "summary": "画面共有情報を取得します。",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SDP information",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ScreenShareResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error message and details",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized if the user is not authenticated or not part of the room"
                     }
                 }
             }
