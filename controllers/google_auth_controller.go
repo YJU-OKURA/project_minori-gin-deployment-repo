@@ -3,25 +3,23 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-
-	"os"
 	"strings"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
-
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 type GoogleAuthController struct {
-	Service services.GoogleAuthService
+	Service    services.GoogleAuthService
+	JWTService services.JWTService
 }
 
-func NewGoogleAuthController(service services.GoogleAuthService) *GoogleAuthController {
+func NewGoogleAuthController(service services.GoogleAuthService, jwtService services.JWTService) *GoogleAuthController {
 	return &GoogleAuthController{
-		Service: service,
+		Service:    service,
+		JWTService: jwtService,
 	}
 }
 
@@ -52,13 +50,13 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 	var requestBody map[string]string
 	if err := c.BindJSON(&requestBody); err != nil {
-		handleServiceError(c, fmt.Errorf(constants.InvalidRequest))
+		handleServiceError(c, fmt.Errorf("Invalid request"))
 		return
 	}
 
 	authCode, ok := requestBody["authCode"]
 	if !ok {
-		handleServiceError(c, fmt.Errorf(constants.AuthCodeRequired))
+		handleServiceError(c, fmt.Errorf("Auth code is required"))
 		return
 	}
 
@@ -69,8 +67,7 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 	}
 
 	var userInput dto.UserInput
-	err = json.Unmarshal(userInfo, &userInput)
-	if err != nil {
+	if err := json.Unmarshal(userInfo, &userInput); err != nil {
 		handleServiceError(c, err)
 		return
 	}
@@ -81,13 +78,13 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := controller.Service.GenerateToken(user.ID)
+	accessToken, err := controller.JWTService.GenerateToken(user.ID)
 	if err != nil {
 		handleServiceError(c, err)
 		return
 	}
 
-	refreshToken, err := controller.Service.GenerateRefreshToken(user.ID)
+	refreshToken, err := controller.JWTService.GenerateRefreshToken(user.ID)
 	if err != nil {
 		handleServiceError(c, err)
 		return
@@ -96,7 +93,7 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 	respondWithSuccess(c, constants.StatusOK, gin.H{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
-		"user": gin.H{
+		"user": map[string]interface{}{
 			"name":  user.Name,
 			"image": user.Image,
 			"id":    user.ID,
@@ -116,83 +113,29 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 // @Failure 401 {object} map[string]interface{} "リフレッシュトークンが無効または期限切れの場合の認証エラー"
 // @Failure 500 {object} map[string]interface{} "未処理のエラーによる内部サーバーエラー"
 // @Router /auth/google/refresh-token [post]
-func (ac *GoogleAuthController) RefreshAccessTokenHandler(ctx *gin.Context) {
+func (controller *GoogleAuthController) RefreshAccessTokenHandler(c *gin.Context) {
 	var requestBody map[string]string
-	if err := ctx.BindJSON(&requestBody); err != nil {
-		handleServiceError(ctx, fmt.Errorf(constants.InvalidRequest))
+	if err := c.BindJSON(&requestBody); err != nil {
+		handleServiceError(c, fmt.Errorf("Invalid JSON format or structure: %v", err))
 		return
 	}
 
 	refreshToken, ok := requestBody["refresh_token"]
 	if !ok {
-		handleServiceError(ctx, fmt.Errorf(constants.RefreshTokenRequired))
+		handleServiceError(c, fmt.Errorf("Refresh token is required"))
 		return
 	}
 
 	refreshToken = strings.TrimSpace(strings.TrimPrefix(refreshToken, "Bearer "))
 
-	_, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
+	tokenDetails, err := controller.JWTService.RefreshAccessToken(refreshToken)
 	if err != nil {
-		handleServiceError(ctx, err)
+		handleServiceError(c, fmt.Errorf("Failed to refresh access token: %v", err))
 		return
 	}
 
-	newToken, err := ac.Service.RefreshAccessToken(refreshToken)
-	if err != nil {
-		handleServiceError(ctx, fmt.Errorf("invalid refresh token: %v", err))
-		return
-	}
-
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{
-		"access_token": newToken.AccessToken,
-		"expires_in":   newToken.Expiry.Unix(),
+	respondWithSuccess(c, constants.StatusOK, gin.H{
+		"access_token": tokenDetails.Raw,
+		"expires_in":   tokenDetails.Claims,
 	})
 }
-
-// func (ac *GoogleAuthController) RefreshAccessTokenHandler(ctx *gin.Context) {
-// 	var requestBody map[string]string
-// 	if err := ctx.BindJSON(&requestBody); err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format or structure."})
-// 		ctx.Error(err)
-// 		return
-// 	}
-
-// 	refreshToken, ok := requestBody["refresh_token"]
-// 	if !ok {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Refresh token is required."})
-// 		ctx.Error(fmt.Errorf("refresh token missing in request body"))
-// 		return
-// 	}
-
-// 	refreshToken = strings.TrimSpace(strings.TrimPrefix(refreshToken, "Bearer "))
-
-// 	_, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
-// 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-// 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-// 		}
-// 		return []byte(os.Getenv("JWT_SECRET")), nil
-// 	})
-// 	if err != nil {
-// 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token.", "details": err.Error()})
-// 		ctx.Error(err)
-// 		return
-// 	}
-
-// 	newToken, err := ac.Service.RefreshAccessToken(refreshToken)
-// 	if err != nil {
-// 		detailedError := fmt.Sprintf("Failed to refresh access token: %v. Ensure your refresh token is valid and not expired.", err)
-// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to refresh access token.", "details": detailedError})
-// 		ctx.Error(err)
-// 		return
-// 	}
-
-// 	ctx.JSON(http.StatusOK, gin.H{
-// 		"access_token": newToken.AccessToken,
-// 		"expires_in":   newToken.Expiry.Unix(),
-// 	})
-// }
