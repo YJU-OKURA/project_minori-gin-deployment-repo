@@ -807,7 +807,7 @@ paths:
       - Chat Room
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: チャットルームにメッセージを投稿する。
       parameters:
       - description: Schedule ID
@@ -819,7 +819,7 @@ paths:
         in: formData
         name: user
         required: true
-        type: integer
+        type: string
       - description: Message
         in: formData
         name: message
