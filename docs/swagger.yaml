@@ -371,6 +371,44 @@ paths:
       summary: 認可コードを処理します。
       tags:
       - GoogleAuth
+  /auth/google/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: 提供されたリフレッシュトークンを使用してアクセストークンを更新します
+      parameters:
+      - description: リフレッシュトークン
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: アクセストークンと有効期限が返されます
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: JSON形式が不正、またはリフレッシュトークンが提供されていない場合のエラー
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: リフレッシュトークンが無効または期限切れの場合の認証エラー
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 未処理のエラーによる内部サーバーエラー
+          schema:
+            additionalProperties: true
+            type: object
+      summary: アクセストークンの更新
+      tags:
+      - GoogleAuth
   /cb:
     get:
       consumes:

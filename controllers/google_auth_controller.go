@@ -104,6 +104,18 @@ func (controller *GoogleAuthController) ProcessAuthCode(c *gin.Context) {
 	})
 }
 
+// RefreshAccessTokenHandler godoc
+// @Summary アクセストークンの更新
+// @Description 提供されたリフレッシュトークンを使用してアクセストークンを更新します
+// @Tags GoogleAuth
+// @Accept  json
+// @Produce  json
+// @Param   refresh_token     body    string  true  "リフレッシュトークン"
+// @Success 200 {object} map[string]interface{} "アクセストークンと有効期限が返されます"
+// @Failure 400 {object} map[string]interface{} "JSON形式が不正、またはリフレッシュトークンが提供されていない場合のエラー"
+// @Failure 401 {object} map[string]interface{} "リフレッシュトークンが無効または期限切れの場合の認証エラー"
+// @Failure 500 {object} map[string]interface{} "未処理のエラーによる内部サーバーエラー"
+// @Router /auth/google/refresh-token [post]
 func (ac *GoogleAuthController) RefreshAccessTokenHandler(ctx *gin.Context) {
 	var requestBody map[string]string
 	if err := ctx.BindJSON(&requestBody); err != nil {
