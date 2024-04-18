@@ -53,7 +53,13 @@ func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 		return
 	}
 
-	imageUrl, err := c.handleImageUpload(ctx)
+	cid, err := strconv.ParseUint(ctx.PostForm("cid"), 10, 64)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid class ID")
+		return
+	}
+
+	imageUrl, err := c.handleImageUpload(ctx, uint(cid))
 	if err != nil {
 		handleServiceError(ctx, err)
 		return
@@ -170,41 +176,52 @@ func (c *ClassBoardController) GetAnnouncedClassBoards(ctx *gin.Context) {
 // @Description 指定されたIDのグループ掲示板の詳細を更新します。
 // @Tags Class Board
 // @CrossOrigin
-// @Security ApiKeyAuth
 // @Accept json
 // @Produce json
 // @Param id path int true "Class Board ID"
-// @Param cid query int true "Class ID"
-// @Param uid query int true "User ID"
+// @Param cid path int true "Class ID"
+// @Param uid path int true "User ID"
 // @Param class_board_update body dto.ClassBoardUpdateDTO true "クラス掲示板の更新"
 // @Success 200 {object} models.ClassBoard "グループ掲示板が正常に更新されました"
 // @Failure 400 {object} string "リクエストが不正です"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 404 {object} string "コードが見つかりません"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
-// @Router /cb/{id} [patch]
+// @Router /cb/{id}/{cid}/{uid} [patch]
 func (c *ClassBoardController) UpdateClassBoard(ctx *gin.Context) {
+	log.Println("Received ID:", ctx.Param("id"))
 	ID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		log.Println("Error parsing ID:", err)
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid class board ID")
 		return
 	}
+
 	var updateDTO dto.ClassBoardUpdateDTO
 	if err := ctx.ShouldBindJSON(&updateDTO); err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		log.Println("Error binding JSON:", err)
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid JSON data")
 		return
 	}
-	imageUrl, err := c.handleImageUpload(ctx)
-	if err != nil {
-		handleServiceError(ctx, err)
-		return
+
+	imageUrl := updateDTO.Image
+	if ctx.GetHeader("Content-Type") == "multipart/form-data" {
+		var uploadErr error
+		imageUrl, uploadErr = c.handleImageUpload(ctx, uint(ID))
+		if uploadErr != nil {
+			log.Println("Error handling image upload: ", uploadErr)
+			handleServiceError(ctx, uploadErr)
+			return
+		}
 	}
 
 	result, err := c.classBoardService.UpdateClassBoard(uint(ID), updateDTO, imageUrl)
 	if err != nil {
+		log.Println("Error updating class board:", err)
 		handleServiceError(ctx, err)
 		return
 	}
+
 	respondWithSuccess(ctx, constants.StatusOK, result)
 }
 
@@ -240,22 +257,17 @@ func (c *ClassBoardController) DeleteClassBoard(ctx *gin.Context) {
 }
 
 // respondWithError エラーレスポンスを返す
-func (c *ClassBoardController) handleImageUpload(ctx *gin.Context) (string, error) {
-	cid, err := strconv.ParseUint(ctx.PostForm("cid"), 10, 64)
-	if err != nil {
-		log.Printf("Error parsing class ID: %v", err)
-		return "", err
-	}
-
+func (c *ClassBoardController) handleImageUpload(ctx *gin.Context, cid uint) (string, error) {
+	// Check if there's any file part
 	fileHeader, err := ctx.FormFile("image")
 	if err != nil {
 		if errors.Is(err, http.ErrMissingFile) {
-			return "", nil // No file was uploaded
+			return "", nil // No file was uploaded, proceed without error
 		}
-		return "", err
+		return "", err // Other errors are still considered as errors
 	}
 
-	imageUrl, err := c.uploader.UploadImage(fileHeader, uint(cid), false)
+	imageUrl, err := c.uploader.UploadImage(fileHeader, cid, false)
 	if err != nil {
 		return "", err
 	}
