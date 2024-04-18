@@ -883,7 +883,7 @@ const docTemplate = `{
             "post": {
                 "description": "チャットルームにメッセージを投稿する。",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -901,7 +901,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
                         "name": "user",
                         "in": "formData",
