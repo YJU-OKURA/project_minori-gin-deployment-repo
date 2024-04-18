@@ -257,7 +257,7 @@ func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoar
 
 		// TODO: フロントエンド側の実装が完了したら、削除
 		cb.POST("", controller.CreateClassBoard)
-		cb.PATCH(":id", controller.UpdateClassBoard)
+		cb.PATCH(":id/:cid/:uid", controller.UpdateClassBoard)
 		cb.DELETE(":id", controller.DeleteClassBoard)
 
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
