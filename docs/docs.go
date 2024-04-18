@@ -256,6 +256,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/google/refresh-token": {
+            "post": {
+                "description": "提供されたリフレッシュトークンを使用してアクセストークンを更新します",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GoogleAuth"
+                ],
+                "summary": "アクセストークンの更新",
+                "parameters": [
+                    {
+                        "description": "リフレッシュトークン",
+                        "name": "refresh_token",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "アクセストークンと有効期限が返されます",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "JSON形式が不正、またはリフレッシュトークンが提供されていない場合のエラー",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "リフレッシュトークンが無効または期限切れの場合の認証エラー",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "未処理のエラーによる内部サーバーエラー",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/cb": {
             "get": {
                 "description": "cidに基づいて、グループの全ての掲示板を取得します。",
