@@ -590,6 +590,7 @@ paths:
       summary: IDでグループ掲示板を取得
       tags:
       - Class Board
+  /cb/{id}/{cid}/{uid}:
     patch:
       consumes:
       - application/json
@@ -601,12 +602,12 @@ paths:
         required: true
         type: integer
       - description: Class ID
-        in: query
+        in: path
         name: cid
         required: true
         type: integer
       - description: User ID
-        in: query
+        in: path
         name: uid
         required: true
         type: integer
@@ -639,8 +640,6 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
       summary: グループ掲示板を更新
       tags:
       - Class Board

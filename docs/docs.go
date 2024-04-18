@@ -627,13 +627,10 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/cb/{id}/{cid}/{uid}": {
             "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "指定されたIDのグループ掲示板の詳細を更新します。",
                 "consumes": [
                     "application/json"
@@ -657,14 +654,14 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Class ID",
                         "name": "cid",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
                         "description": "User ID",
                         "name": "uid",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     },
                     {
