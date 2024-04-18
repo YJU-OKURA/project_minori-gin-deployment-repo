@@ -53,27 +53,28 @@ func (controller *ChatController) HandleChatRoom(ctx *gin.Context) {
 // @Summary チャットルームに投稿
 // @Description チャットルームにメッセージを投稿する。
 // @Tags Chat Room
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Param scheduleId path int true "Schedule ID"
-// @Param user formData int true "User ID"
+// @Param user formData string true "User ID"
 // @Param message formData string true "Message"
 // @Success 200 {object} string "success"
 // @Router /chat/room/{scheduleId} [post]
 func (controller *ChatController) PostToChatRoom(ctx *gin.Context) {
-	var chatMsg ChatMessage
-	if err := ctx.BindJSON(&chatMsg); err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+	user := ctx.PostForm("user")
+	message := ctx.PostForm("message")
+	scheduleId := ctx.Param("scheduleId")
+
+	if user == "" || message == "" {
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid request: user and message must be provided")
 		return
 	}
 
-	scheduleId := ctx.Param("scheduleId")
-
-	controller.chatManager.Submit(chatMsg.User, scheduleId, chatMsg.Message)
+	controller.chatManager.Submit(user, scheduleId, message)
 
 	respondWithSuccess(ctx, constants.StatusOK, gin.H{
-		"status":  constants.MessageSent,
-		"message": chatMsg.Message,
+		"status":  "Message sent",
+		"message": message,
 	})
 }
 
