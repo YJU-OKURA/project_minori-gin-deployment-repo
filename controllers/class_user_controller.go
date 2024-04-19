@@ -76,25 +76,36 @@ func (c *ClassUserController) GetUserClassUserInfo(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param uid path int true "ユーザーID"
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Page size" default(10)
 // @Success 200 {array} models.Class "成功"
 // @Router /cu/{uid}/classes [get]
 func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
+	pageStr := ctx.DefaultQuery("page", "1")
+	limitStr := ctx.DefaultQuery("limit", "10")
+
 	uid, err := strconv.ParseUint(uidStr, 10, 32)
 	if err != nil {
 		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
+	page, _ := strconv.Atoi(pageStr)
+	limit, _ := strconv.Atoi(limitStr)
 
-	classes, err := c.classUserService.GetUserClasses(uint(uid))
+	classes, err := c.classUserService.GetUserClasses(uint(uid), page, limit)
 	if err != nil {
-		if errors.Is(err, services.ErrNotFound) {
-			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
-		} else {
-			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
-		}
+		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
 		return
 	}
+	//if err != nil {
+	//	if errors.Is(err, services.ErrNotFound) {
+	//		respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+	//	} else {
+	//		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+	//	}
+	//	return
+	//}
 
 	if len(classes) == 0 {
 		respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
@@ -160,6 +171,8 @@ func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param uid path int true "ユーザーID"
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Page size" default(10)
 // @Success 200 {array} dto.UserClassInfoDTO "成功"
 // @Failure 400 {string} string "無効なリクエスト"
 // @Failure 404 {string} string "クラスが見つかりません"
@@ -173,7 +186,12 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 		return
 	}
 
-	favoriteClasses, err := c.classUserService.GetFavoriteClasses(uint(uid))
+	pageStr := ctx.DefaultQuery("page", "1")
+	limitStr := ctx.DefaultQuery("limit", "10")
+	page, _ := strconv.Atoi(pageStr)
+	limit, _ := strconv.Atoi(limitStr)
+
+	favoriteClasses, err := c.classUserService.GetFavoriteClasses(uint(uid), page, limit)
 	if err != nil {
 		if errors.Is(err, services.ErrNotFound) {
 			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
@@ -199,6 +217,8 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 // @Produce json
 // @Param uid path int true "ユーザーID"
 // @Param roleID path int true "ロールID"
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Page size" default(10)
 // @Success 200 {array} dto.UserClassInfoDTO "成功"
 // @Failure 400 {string} string "無効なリクエスト"
 // @Failure 404 {string} string "クラスが見つかりません"
@@ -219,7 +239,12 @@ func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 		return
 	}
 
-	classes, err := c.classUserService.GetUserClassesByRole(uint(uid), roleID)
+	pageStr := ctx.DefaultQuery("page", "1")
+	limitStr := ctx.DefaultQuery("limit", "10")
+	page, _ := strconv.Atoi(pageStr)
+	limit, _ := strconv.Atoi(limitStr)
+
+	classes, err := c.classUserService.GetUserClassesByRole(uint(uid), roleID, page, limit)
 	if err != nil {
 		if errors.Is(err, services.ErrNotFound) {
 			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)

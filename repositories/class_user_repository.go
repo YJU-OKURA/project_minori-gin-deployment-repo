@@ -12,8 +12,8 @@ import (
 type ClassUserRepository interface {
 	GetClassMembers(cid uint, roleID ...int) ([]dto.ClassMemberDTO, error)
 	GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error)
-	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
-	GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error)
+	GetUserClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error)
+	GetUserClassesByRole(uid uint, roleID int, page int, limit int) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
 	UpdateUserRole(uid uint, cid uint, rid int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
@@ -44,15 +44,23 @@ func (r *classUserRepository) GetClassUserInfo(uid uint, cid uint) (dto.ClassMem
 }
 
 // GetUserClasses はユーザーが所属しているクラスの情報を取得します。
-func (r *classUserRepository) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
+func (r *classUserRepository) GetUserClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error) {
 	var userClassesInfo []dto.UserClassInfoDTO
+	offset := (page - 1) * limit
+
 	err := r.db.Table("classes").
 		Select("classes.id, classes.name, classes.limitation, classes.description, classes.image, class_users.is_favorite, class_users.role_id").
 		Joins("INNER JOIN class_users ON classes.id = class_users.cid").
 		Where("class_users.uid = ?", uid).
+		Offset(offset).
+		Limit(limit).
 		Scan(&userClassesInfo).Error
 
-	return userClassesInfo, err
+	if err != nil {
+		return nil, err
+	}
+
+	return userClassesInfo, nil
 }
 
 // GetClassMembers はクラスのメンバー情報を取得します。
@@ -78,15 +86,22 @@ func (r *classUserRepository) GetClassMembers(cid uint, roleID ...int) ([]dto.Cl
 	return members, nil
 }
 
-func (r *classUserRepository) GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error) {
+func (r *classUserRepository) GetUserClassesByRole(uid uint, roleID int, page int, limit int) ([]dto.UserClassInfoDTO, error) {
 	var userClassesInfo []dto.UserClassInfoDTO
+	offset := (page - 1) * limit
 	err := r.db.Table("classes").
 		Select("classes.id, classes.name, classes.limitation, classes.description, classes.image, class_users.is_favorite, class_users.role_id").
 		Joins("INNER JOIN class_users ON classes.id = class_users.cid").
 		Where("class_users.uid = ? AND class_users.role_id = ?", uid, roleID).
+		Offset(offset).
+		Limit(limit).
 		Scan(&userClassesInfo).Error
 
-	return userClassesInfo, err
+	if err != nil {
+		return nil, err
+	}
+
+	return userClassesInfo, nil
 }
 
 // GetRole はユーザーのロールを取得します。
