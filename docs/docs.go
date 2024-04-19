@@ -815,6 +815,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/chat/create-room/{scheduleId}": {
+            "post": {
+                "description": "チャットルームを作成する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat Room"
+                ],
+                "summary": "チャットルームを作成",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Schedule ID",
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chat room created successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed to create chat room",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/chat/dm/{senderId}/{receiverId}": {
             "post": {
                 "description": "Send a direct message to a specific user",
