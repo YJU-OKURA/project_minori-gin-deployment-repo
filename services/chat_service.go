@@ -117,11 +117,6 @@ func (m *Manager) CloseListener(roomid string, channel chan interface{}) {
 	}
 }
 
-// DeleteBroadcast ブロードキャストを削除
-func (m *Manager) DeleteBroadcast(roomid string) {
-	m.delete <- roomid
-}
-
 // Submit メッセージを送信
 func (m *Manager) Submit(userid, roomid, text string) {
 	msg := &Message{
@@ -186,4 +181,27 @@ func (m *Manager) GetDirectMessages(senderId, receiverId string) ([]Message, err
 		messages = append(messages, msg)
 	}
 	return messages, nil
+}
+
+func (m *Manager) CreateRoom(roomID string) {
+	if _, exists := m.roomChannels[roomID]; !exists {
+		m.roomChannels[roomID] = broadcast.NewBroadcaster(10)
+		fmt.Println("Chat room created: ", roomID)
+	} else {
+		log.Printf("Attempted to create an already existing room: %s", roomID)
+	}
+}
+
+func (m *Manager) DeleteBroadcast(roomID string) {
+	if broadcaster, exists := m.roomChannels[roomID]; exists {
+		err := broadcaster.Close()
+		if err != nil {
+			log.Printf("Error closing broadcaster for room %s: %v", roomID, err)
+		} else {
+			delete(m.roomChannels, roomID)
+			fmt.Printf("Chat room deleted: %s", roomID)
+		}
+	} else {
+		log.Printf("Attempted to delete a non-existing room: %s", roomID)
+	}
 }

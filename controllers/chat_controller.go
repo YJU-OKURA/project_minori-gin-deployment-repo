@@ -49,6 +49,26 @@ func (controller *ChatController) HandleChatRoom(ctx *gin.Context) {
 	})
 }
 
+// CreateChatRoom godoc
+// @Summary チャットルームを作成
+// @Description チャットルームを作成する。
+// @Tags Chat Room
+// @Accept json
+// @Produce json
+// @Param scheduleId path string true "Schedule ID"
+// @Success 200 {object} string "Chat room created successfully"
+// @Failure 400 {object} string "Failed to create chat room"
+// @Router /chat/create-room/{scheduleId} [post]
+func (controller *ChatController) CreateChatRoom(ctx *gin.Context) {
+	scheduleId := ctx.Param("scheduleId")
+
+	controller.chatManager.CreateRoom(scheduleId)
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{
+		"status": "Chat room created successfully",
+	})
+}
+
 // PostToChatRoom godoc
 // @Summary チャットルームに投稿
 // @Description チャットルームにメッセージを投稿する。
