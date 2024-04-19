@@ -1566,6 +1566,16 @@ paths:
         name: uid
         required: true
         type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1593,6 +1603,16 @@ paths:
         in: path
         name: roleID
         required: true
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: limit
         type: integer
       produces:
       - application/json
@@ -1628,6 +1648,16 @@ paths:
         in: path
         name: uid
         required: true
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: limit
         type: integer
       produces:
       - application/json
