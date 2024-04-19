@@ -743,6 +743,31 @@ paths:
       summary: グループコードとシークレットを検証＆ユーザーに役割を割り当てる
       tags:
       - Class Code
+  /chat/create-room/{scheduleId}:
+    post:
+      consumes:
+      - application/json
+      description: チャットルームを作成する。
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: scheduleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Chat room created successfully
+          schema:
+            type: string
+        "400":
+          description: Failed to create chat room
+          schema:
+            type: string
+      summary: チャットルームを作成
+      tags:
+      - Chat Room
   /chat/dm/{senderId}/{receiverId}:
     post:
       consumes:

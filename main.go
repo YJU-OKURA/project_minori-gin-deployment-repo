@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"log"
 	"net/http"
 	"os"
@@ -210,6 +212,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client, liveClassServ
 	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
 	jwtService := services.NewJWTService()
 	chatManager := services.NewRoomManager(redisClient)
+	go manageChatRooms(db, chatManager)
 	liveClassService = services.NewLiveClassService(services.NewRoomMap(), classUserRepo)
 
 	uploader := utils.NewAwsUploader()
@@ -383,6 +386,7 @@ func setupAttendanceRoutes(router *gin.Engine, controller *controllers.Attendanc
 func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatController) {
 	chat := router.Group("/api/gin/chat")
 	{
+		chat.POST("create-room/:scheduleId", chatController.CreateChatRoom)
 		chat.GET("room/:scheduleId/:userId", chatController.HandleChatRoom)
 		chat.POST("room/:scheduleId", chatController.PostToChatRoom)
 		chat.DELETE("room/:scheduleId", chatController.DeleteChatRoom)
@@ -393,6 +397,30 @@ func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatControl
 	}
 }
 
+func manageChatRooms(db *gorm.DB, chatManager *services.Manager) {
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
+
+	for {
+		<-ticker.C
+		now := time.Now()
+		var schedules []models.ClassSchedule
+
+		// 수업 시작 5분 전과 수업 종료 10분 후에 채팅방 상태를 확인
+		db.Where("started_at <= ? AND started_at >= ?", now.Add(5*time.Minute), now).
+			Or("ended_at <= ? AND ended_at >= ?", now, now.Add(-10*time.Minute)).Find(&schedules)
+
+		for _, schedule := range schedules {
+			roomID := fmt.Sprintf("class_%d", schedule.ID)
+			// 종료 10분 후 검사를 위해 ended_at에 10분을 더해 현재 시간과 비교
+			if now.After(schedule.EndedAt.Add(10 * time.Minute)) {
+				chatManager.DeleteBroadcast(roomID)
+			}
+		}
+	}
+}
+
+// setupLiveClassRoutes LiveClassのルートをセットアップする
 func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.LiveClassController) {
 	live := router.Group("/api/gin/live")
 	{
