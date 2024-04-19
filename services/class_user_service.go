@@ -11,10 +11,10 @@ import (
 type ClassUserService interface {
 	GetClassMembers(cid uint, roleID ...int) ([]dto.ClassMemberDTO, error)
 	GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error)
-	GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error)
+	GetUserClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error)
 	GetRole(uid uint, cid uint) (int, error)
-	GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error)
-	GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error)
+	GetFavoriteClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error)
+	GetUserClassesByRole(uid uint, roleID int, page int, limit int) ([]dto.UserClassInfoDTO, error)
 	AssignRole(uid uint, cid uint, roleID int) error
 	UpdateUserName(uid uint, cid uint, newName string) error
 	ToggleFavorite(uid uint, cid uint) error
@@ -38,36 +38,40 @@ func (s *classUserServiceImpl) GetClassUserInfo(uid uint, cid uint) (dto.ClassMe
 	return s.classUserRepo.GetClassUserInfo(uid, cid)
 }
 
-func (s *classUserServiceImpl) GetUserClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
-	return s.classUserRepo.GetUserClasses(uid)
+func (s *classUserServiceImpl) GetUserClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error) {
+	return s.classUserRepo.GetUserClasses(uid, page, limit)
 }
 
 func (s *classUserServiceImpl) GetClassMembers(cid uint, roleID ...int) ([]dto.ClassMemberDTO, error) {
 	return s.classUserRepo.GetClassMembers(cid, roleID...)
 }
 
-func (s *classUserServiceImpl) GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
-	classes, err := s.classUserRepo.GetUserClasses(uid)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(classes) == 0 {
-		return nil, ErrNotFound
-	}
-
-	var favoriteClasses []dto.UserClassInfoDTO
-	for _, class := range classes {
-		if class.IsFavorite {
-			favoriteClasses = append(favoriteClasses, class)
-		}
-	}
-
-	return favoriteClasses, nil
+func (s *classUserServiceImpl) GetFavoriteClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error) {
+	return s.classUserRepo.GetUserClasses(uid, page, limit) // Filter for favorites should be handled inside
 }
 
-func (s *classUserServiceImpl) GetUserClassesByRole(uid uint, roleID int) ([]dto.UserClassInfoDTO, error) {
-	return s.classUserRepo.GetUserClassesByRole(uid, roleID)
+//func (s *classUserServiceImpl) GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
+//	classes, err := s.classUserRepo.GetUserClasses(uid, 1, -1)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	if len(classes) == 0 {
+//		return nil, ErrNotFound
+//	}
+//
+//	var favoriteClasses []dto.UserClassInfoDTO
+//	for _, class := range classes {
+//		if class.IsFavorite {
+//			favoriteClasses = append(favoriteClasses, class)
+//		}
+//	}
+//
+//	return favoriteClasses, nil
+//}
+
+func (s *classUserServiceImpl) GetUserClassesByRole(uid uint, roleID int, page int, limit int) ([]dto.UserClassInfoDTO, error) {
+	return s.classUserRepo.GetUserClassesByRole(uid, roleID, page, limit)
 }
 
 func (s *classUserServiceImpl) GetRole(uid uint, cid uint) (int, error) {
