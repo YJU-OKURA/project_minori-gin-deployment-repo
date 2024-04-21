@@ -118,7 +118,7 @@ func (controller *ClassScheduleController) GetAllClassSchedules(c *gin.Context) 
 // @Success 200 {object} models.ClassSchedule "クラススケジュールが正常に更新されました"
 // @Failure 400 {object} string "リクエストが不正です"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
-// @Router /cs/{id} [put]
+// @Router /cs/{id} [patch]
 func (controller *ClassScheduleController) UpdateClassSchedule(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

@@ -1253,7 +1253,7 @@ paths:
       summary: IDでクラススケジュールを取得
       tags:
       - Class Schedule
-    put:
+    patch:
       consumes:
       - application/json
       description: 指定されたIDのクラススケジュールを更新する。
