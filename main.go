@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/middlewares"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 
 	"github.com/go-redis/redis/v8"
 
@@ -38,11 +40,12 @@ func main() {
 
 	classUserRepo := repositories.NewClassUserRepository(db)
 	liveClassService := services.NewLiveClassService(services.NewRoomMap(), classUserRepo)
+	jwtService := services.NewJWTService()
 
 	services.NewRoomManager(redisClient)
 	migrateDatabaseIfNeeded(db)
 
-	router := setupRouter(db, liveClassService)
+	router := setupRouter(db, liveClassService, jwtService)
 	startServer(router)
 }
 
@@ -116,14 +119,14 @@ func migrateDatabaseIfNeeded(db *gorm.DB) {
 }
 
 // setupRouter ルーターをセットアップする
-func setupRouter(db *gorm.DB, liveClassService services.LiveClassService) *gin.Engine {
+func setupRouter(db *gorm.DB, liveClassService services.LiveClassService, jwtService services.JWTService) *gin.Engine {
 	router := gin.Default()
 	router.Use(globalErrorHandler)
 	router.Use(CORS())
 	initializeSwagger(router)
 	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController := initializeControllers(db, redisClient, liveClassService)
 
-	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController)
+	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController, jwtService)
 	return router
 }
 
@@ -231,7 +234,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client, liveClassServ
 }
 
 // setupRoutes ルートをセットアップする
-func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController, liveClassController *controllers.LiveClassController) {
+func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController, liveClassController *controllers.LiveClassController, jwtService services.JWTService) {
 	setupUserRoutes(router, userController)
 	setupClassBoardRoutes(router, classBoardController, classUserService)
 	setupClassCodeRoutes(router, classCodeController)
@@ -241,7 +244,7 @@ func setupRoutes(router *gin.Engine, userController *controllers.UserController,
 	setupGoogleAuthRoutes(router, googleAuthController)
 	setupCreateClassRoutes(router, createClassController)
 	setupChatRoutes(router, chatController)
-	setupLiveClassRoutes(router, liveClassController)
+	setupLiveClassRoutes(router, liveClassController, jwtService) // jwtService를 전달
 }
 
 func setupUserRoutes(router *gin.Engine, controller *controllers.UserController) {
@@ -421,8 +424,9 @@ func manageChatRooms(db *gorm.DB, chatManager *services.Manager) {
 }
 
 // setupLiveClassRoutes LiveClassのルートをセットアップする
-func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.LiveClassController) {
+func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.LiveClassController, jwtService services.JWTService) {
 	live := router.Group("/api/gin/live")
+	live.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		live.POST("create-room", liveClassController.CreateRoomHandler())
 		live.GET("start-screen-share/:roomID/:userID", liveClassController.StartScreenShareHandler())
