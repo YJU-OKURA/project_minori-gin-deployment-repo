@@ -2295,7 +2295,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/live/start-screen-share/{roomID}": {
+        "/live/start-screen-share/{roomID}/{userID}": {
             "get": {
                 "description": "画面共有を開始します。",
                 "produces": [
