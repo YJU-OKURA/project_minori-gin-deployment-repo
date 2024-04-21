@@ -1,11 +1,13 @@
 package middlewares
 
 import (
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -67,6 +69,30 @@ func AuthMiddleware(authenticate func(token string) bool) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		c.Next()
+	}
+}
+
+func TokenAuthMiddleware(jwtService services.JWTService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		const BearerSchema = "Bearer "
+		header := c.GetHeader("Authorization")
+		if header == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "API token required"})
+			return
+		}
+
+		tokenString := header[len(BearerSchema):]
+		token, err := jwtService.ValidateToken(tokenString)
+		if err != nil || !token.Valid {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid API token"})
+			return
+		}
+
+		claims := token.Claims.(jwt.MapClaims)
+		userID := uint(claims["user_id"].(float64))
+		c.Set("userID", userID)
+
 		c.Next()
 	}
 }
