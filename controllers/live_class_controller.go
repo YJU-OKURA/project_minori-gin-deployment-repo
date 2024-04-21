@@ -81,7 +81,7 @@ func (c *LiveClassController) CreateRoomHandler() gin.HandlerFunc {
 // @Param userID path string true "ユーザーID"
 // @Success 200 {object} ScreenShareResponse
 // @Failure 400 {object} ErrorResponse
-// @Router /live/start-screen-share/{roomID} [get]
+// @Router /live/start-screen-share/{roomID}/{userID} [get]
 func (c *LiveClassController) StartScreenShareHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")

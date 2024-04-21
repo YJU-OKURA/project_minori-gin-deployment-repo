@@ -392,8 +392,8 @@ func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatControl
 		chat.DELETE("room/:scheduleId", chatController.DeleteChatRoom)
 		chat.GET("stream/:scheduleId", chatController.StreamChat)
 		chat.GET("messages/:roomid", chatController.GetChatMessages)
-		chat.POST("dm/{senderId}/{receiverId}", chatController.SendDirectMessage)
-		chat.GET("dm/{userId1}/{userId2}", chatController.GetDirectMessages)
+		chat.POST("dm/:senderId/:receiverId", chatController.SendDirectMessage)
+		chat.GET("dm/:userId1/:userId2", chatController.GetDirectMessages)
 	}
 }
 
@@ -424,9 +424,9 @@ func manageChatRooms(db *gorm.DB, chatManager *services.Manager) {
 func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.LiveClassController) {
 	live := router.Group("/api/gin/live")
 	{
-		live.POST("/create-room", liveClassController.CreateRoomHandler())
-		live.GET("/start-screen-share/{roomID}/{userID}", liveClassController.StartScreenShareHandler())
-		live.GET("/stop-screen-share/{roomID}/{userID}", liveClassController.StopScreenShareHandler())
-		live.GET("/view-screen-share/{roomID}", liveClassController.ViewScreenShareHandler())
+		live.POST("create-room", liveClassController.CreateRoomHandler())
+		live.GET("start-screen-share/:roomID/:userID", liveClassController.StartScreenShareHandler())
+		live.GET("stop-screen-share/:roomID/:userID", liveClassController.StopScreenShareHandler())
+		live.GET("view-screen-share/:roomID", liveClassController.ViewScreenShareHandler())
 	}
 }
