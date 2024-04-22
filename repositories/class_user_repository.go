@@ -20,6 +20,7 @@ type ClassUserRepository interface {
 	ToggleFavorite(uid uint, cid uint) error
 	DeleteClassUser(uid uint, cid uint) error
 	Save(classUser *models.ClassUser) error
+	GetFavoriteClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error)
 }
 
 type classUserRepository struct {
@@ -172,4 +173,22 @@ func (r *classUserRepository) DeleteClassUser(uid uint, cid uint) error {
 
 func (r *classUserRepository) Save(classUser *models.ClassUser) error {
 	return r.db.Create(classUser).Error
+}
+
+func (r *classUserRepository) GetFavoriteClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error) {
+	var favoriteClasses []dto.UserClassInfoDTO
+	offset := (page - 1) * limit
+
+	query := r.db.Table("classes").
+		Select("classes.id, classes.name, classes.description, classes.image, class_users.is_favorite, class_users.role_id").
+		Joins("join class_users on classes.id = class_users.cid").
+		Where("class_users.uid = ? AND class_users.is_favorite = ?", uid, true).
+		Offset(offset).
+		Limit(limit).
+		Scan(&favoriteClasses)
+
+	if query.Error != nil {
+		return nil, query.Error
+	}
+	return favoriteClasses, nil
 }

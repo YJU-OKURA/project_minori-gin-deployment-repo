@@ -47,28 +47,8 @@ func (s *classUserServiceImpl) GetClassMembers(cid uint, roleID ...int) ([]dto.C
 }
 
 func (s *classUserServiceImpl) GetFavoriteClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error) {
-	return s.classUserRepo.GetUserClasses(uid, page, limit) // Filter for favorites should be handled inside
+	return s.classUserRepo.GetFavoriteClasses(uid, page, limit)
 }
-
-//func (s *classUserServiceImpl) GetFavoriteClasses(uid uint) ([]dto.UserClassInfoDTO, error) {
-//	classes, err := s.classUserRepo.GetUserClasses(uid, 1, -1)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	if len(classes) == 0 {
-//		return nil, ErrNotFound
-//	}
-//
-//	var favoriteClasses []dto.UserClassInfoDTO
-//	for _, class := range classes {
-//		if class.IsFavorite {
-//			favoriteClasses = append(favoriteClasses, class)
-//		}
-//	}
-//
-//	return favoriteClasses, nil
-//}
 
 func (s *classUserServiceImpl) GetUserClassesByRole(uid uint, roleID int, page int, limit int) ([]dto.UserClassInfoDTO, error) {
 	return s.classUserRepo.GetUserClassesByRole(uid, roleID, page, limit)
