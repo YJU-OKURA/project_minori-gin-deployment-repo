@@ -37,7 +37,7 @@ func NewClassUserRepository(db *gorm.DB) ClassUserRepository {
 // GetClassUserInfo はユーザーのクラスユーザー情報を取得します。
 func (r *classUserRepository) GetClassUserInfo(uid uint, cid uint) (dto.ClassMemberDTO, error) {
 	var classUser models.ClassUser
-	err := r.db.Where("uid = ? AND cid = ?", uid, cid).First(&classUser).Error
+	err := r.db.Joins("User").Where("class_users.uid = ? AND class_users.cid = ?", uid, cid).First(&classUser).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return dto.ClassMemberDTO{}, errors.New(constants.UserNotFound)
