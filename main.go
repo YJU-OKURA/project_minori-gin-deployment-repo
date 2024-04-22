@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/middlewares"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +12,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/middlewares"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 
 	"github.com/go-redis/redis/v8"
@@ -434,11 +434,11 @@ func manageChatRooms(db *gorm.DB, chatManager *services.Manager) {
 // setupLiveClassRoutes LiveClassのルートをセットアップする
 func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.LiveClassController, jwtService services.JWTService) {
 	live := router.Group("/api/gin/live")
-	live.Use(middlewares.TokenAuthMiddleware(jwtService))
+	//live.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
-		live.POST("create-room", liveClassController.CreateRoomHandler())
-		live.GET("start-screen-share/:roomID/:userID", liveClassController.StartScreenShareHandler())
-		live.GET("stop-screen-share/:roomID/:userID", liveClassController.StopScreenShareHandler())
-		live.GET("view-screen-share/:roomID", liveClassController.ViewScreenShareHandler())
+		live.POST("create-room/:classID/:userID", liveClassController.CreateRoom)
+		live.POST("start-screen-share/:roomID/:userID", liveClassController.StartScreenShare)
+		live.POST("stop-screen-share/:roomID/:userID", liveClassController.StopScreenShare)
+		live.GET("join-screen-share/:roomID/:userID", liveClassController.JoinScreenShare)
 	}
 }

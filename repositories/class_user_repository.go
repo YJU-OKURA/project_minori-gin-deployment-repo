@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
+	"log"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
@@ -21,6 +22,8 @@ type ClassUserRepository interface {
 	DeleteClassUser(uid uint, cid uint) error
 	Save(classUser *models.ClassUser) error
 	GetFavoriteClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error)
+	IsAdmin(uid uint, cid uint) (bool, error)
+	IsMember(uid uint, cid uint) (bool, error)
 }
 
 type classUserRepository struct {
@@ -191,4 +194,21 @@ func (r *classUserRepository) GetFavoriteClasses(uid uint, page int, limit int) 
 		return nil, query.Error
 	}
 	return favoriteClasses, nil
+}
+
+func (r *classUserRepository) IsAdmin(uid uint, cid uint) (bool, error) {
+	roleID, err := r.GetRole(uid, cid)
+	if err != nil {
+		log.Printf("Error fetching role for uid: %d, cid: %d, error: %v", uid, cid, err)
+		return false, err
+	}
+	isAdmin := roleID == 2
+	log.Printf("Checked admin status for uid: %d, cid: %d, isAdmin: %t", uid, cid, isAdmin)
+	return isAdmin, nil
+}
+
+func (r *classUserRepository) IsMember(uid uint, cid uint) (bool, error) {
+	var count int64
+	r.db.Model(&models.ClassUser{}).Where("uid = ? AND cid = ?", uid, cid).Count(&count)
+	return count > 0, nil
 }
