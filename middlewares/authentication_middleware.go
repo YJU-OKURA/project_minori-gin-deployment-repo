@@ -90,7 +90,7 @@ func TokenAuthMiddleware(jwtService services.JWTService) gin.HandlerFunc {
 		}
 
 		claims := token.Claims.(jwt.MapClaims)
-		userID := uint(claims["user_id"].(float64))
+		userID := uint(claims["id"].(float64))
 		c.Set("userID", userID)
 
 		c.Next()
