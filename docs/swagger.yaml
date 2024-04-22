@@ -1,26 +1,4 @@
 definitions:
-  controllers.ErrorResponse:
-    properties:
-      details:
-        type: string
-      error:
-        type: string
-    type: object
-  controllers.RoomResponse:
-    properties:
-      roomID:
-        type: string
-    type: object
-  controllers.ScreenShareResponse:
-    properties:
-      sdp:
-        type: string
-    type: object
-  controllers.StandardResponse:
-    properties:
-      message:
-        type: string
-    type: object
   controllers.UpdateUserNameRequest:
     properties:
       new_name:
@@ -1720,115 +1698,172 @@ paths:
       summary: クラスメンバーの情報を取得します
       tags:
       - Class User
-  /live/create-room:
+  /live/create-room/{classID}/{userID}:
     post:
-      description: ルームを生成します。
+      consumes:
+      - application/json
+      description: 新しいルームを作成します。
+      parameters:
+      - description: Class ID
+        in: path
+        name: classID
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: roomID returned on successful creation
           schema:
-            $ref: '#/definitions/controllers.RoomResponse'
+            additionalProperties: true
+            type: object
         "400":
-          description: Bad Request
+          description: Invalid class ID
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
-      summary: ルームを生成します。
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized to create room
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 新しいルームを作成します。
       tags:
       - Live Class
-  /live/start-screen-share/{roomID}/{userID}:
+  /live/join-screen-share/{roomID}/{userID}:
     get:
-      description: 画面共有を開始します。
+      consumes:
+      - application/json
+      description: 画面共有に参加します。
       parameters:
-      - description: Bearer Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: ルームID
+      - description: Room ID
         in: path
         name: roomID
         required: true
         type: string
-      - description: ユーザーID
+      - description: User ID
         in: path
         name: userID
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: SDP data for the screen share
           schema:
-            $ref: '#/definitions/controllers.ScreenShareResponse'
+            additionalProperties: true
+            type: object
         "400":
-          description: Bad Request
+          description: Invalid room ID or User ID
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized to join screen sharing
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 画面共有に参加します。
+      tags:
+      - Live Class
+  /live/start-screen-share/{roomID}/{userID}:
+    post:
+      consumes:
+      - application/json
+      description: 画面共有を開始します。
+      parameters:
+      - description: Room ID
+        in: path
+        name: roomID
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: SDP data for the screen share
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid room ID
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized to start screen sharing
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
       summary: 画面共有を開始します。
       tags:
       - Live Class
-  /live/stop-screen-share/{roomID}:
-    get:
+  /live/stop-screen-share/{roomID}/{userID}:
+    post:
       consumes:
       - application/json
       description: 画面共有を停止します。
       parameters:
-      - description: Bearer Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: ルームID
+      - description: Room ID
         in: path
         name: roomID
         required: true
         type: string
-      - description: ユーザーID
+      - description: User ID
         in: path
         name: userID
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Screen sharing stopped successfully
           schema:
-            $ref: '#/definitions/controllers.StandardResponse'
+            additionalProperties: true
+            type: object
         "400":
-          description: Bad Request
+          description: Invalid room ID
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
-      summary: 画面共有を停止します。
-      tags:
-      - Live Class
-  /live/view-screen-share/{roomID}:
-    get:
-      description: 画面共有情報を取得します。
-      parameters:
-      - description: Bearer Token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: SDP information
-          schema:
-            $ref: '#/definitions/controllers.ScreenShareResponse'
-        "400":
-          description: Error message and details
-          schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            additionalProperties: true
+            type: object
         "401":
-          description: Unauthorized if the user is not authenticated or not part of
-            the room
-      summary: 画面共有情報を取得します。
+          description: Unauthorized to stop screen sharing
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 画面共有を停止します。
       tags:
       - Live Class
   /u/{userID}/applying-classes:
