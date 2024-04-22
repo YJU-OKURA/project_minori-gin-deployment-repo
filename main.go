@@ -235,28 +235,30 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client, liveClassServ
 
 // setupRoutes ルートをセットアップする
 func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, classUserService services.ClassUserService, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController, liveClassController *controllers.LiveClassController, jwtService services.JWTService) {
-	setupUserRoutes(router, userController)
-	setupClassBoardRoutes(router, classBoardController, classUserService)
-	setupClassCodeRoutes(router, classCodeController)
-	setupClassScheduleRoutes(router, classScheduleController, classUserService)
-	setupClassUserRoutes(router, classUserController, classUserService)
-	setupAttendanceRoutes(router, attendanceController, classUserService)
+	setupUserRoutes(router, userController, jwtService)
+	setupClassBoardRoutes(router, classBoardController, classUserService, jwtService)
+	setupClassCodeRoutes(router, classCodeController, jwtService)
+	setupClassScheduleRoutes(router, classScheduleController, classUserService, jwtService)
+	setupClassUserRoutes(router, classUserController, classUserService, jwtService)
+	setupAttendanceRoutes(router, attendanceController, classUserService, jwtService)
 	setupGoogleAuthRoutes(router, googleAuthController)
-	setupCreateClassRoutes(router, createClassController)
-	setupChatRoutes(router, chatController)
-	setupLiveClassRoutes(router, liveClassController, jwtService) // jwtService를 전달
+	setupCreateClassRoutes(router, createClassController, jwtService)
+	setupChatRoutes(router, chatController, jwtService)
+	setupLiveClassRoutes(router, liveClassController, jwtService)
 }
 
-func setupUserRoutes(router *gin.Engine, controller *controllers.UserController) {
+func setupUserRoutes(router *gin.Engine, controller *controllers.UserController, jwtService services.JWTService) {
 	u := router.Group("/api/gin/u")
+	u.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		u.GET(":userID/applying-classes", controller.GetApplyingClasses)
 	}
 }
 
 // setupClassBoardRoutes ClassBoardのルートをセットアップする
-func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoardController, classUserService services.ClassUserService) {
+func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoardController, classUserService services.ClassUserService, jwtService services.JWTService) {
 	cb := router.Group("/api/gin/cb")
+	cb.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		cb.GET("", controller.GetAllClassBoards)
 		cb.GET(":id", controller.GetClassBoardByID)
@@ -279,8 +281,9 @@ func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoar
 }
 
 // setupClassCodeRoutes ClassCodeのルートをセットアップする
-func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeController) {
+func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeController, jwtService services.JWTService) {
 	cc := router.Group("/api/gin/cc")
+	cc.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		cc.GET("checkSecretExists", controller.CheckSecretExists)
 		cc.GET("verifyClassCode", controller.VerifyClassCode)
@@ -288,8 +291,9 @@ func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeC
 }
 
 // setupClassScheduleRoutes ClassScheduleのルートをセットアップする
-func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassScheduleController, classUserService services.ClassUserService) {
+func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassScheduleController, classUserService services.ClassUserService, jwtService services.JWTService) {
 	cs := router.Group("/api/gin/cs")
+	cs.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		cs.GET("", controller.GetAllClassSchedules)
 		cs.GET(":id", controller.GetClassScheduleByID)
@@ -325,8 +329,9 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 }
 
 // setupCreateClassRoutes CreateClassのルートをセットアップする
-func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController) {
+func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController, jwtService services.JWTService) {
 	cl := router.Group("/api/gin/cl")
+	cl.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		cl.GET(":cid", controller.GetClass)
 		cl.POST("create", controller.CreateClass)
@@ -336,8 +341,9 @@ func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassCon
 }
 
 // setupClassUserRoutes ClassUserのルートをセットアップする
-func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserController, classUserService services.ClassUserService) {
+func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserController, classUserService services.ClassUserService, jwtService services.JWTService) {
 	cu := router.Group("/api/gin/cu")
+	cu.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
 		cu.GET("class/:cid/:role/members", controller.GetClassMembers)
@@ -364,8 +370,9 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 }
 
 // setupAttendanceRoutes Attendanceのルートをセットアップする
-func setupAttendanceRoutes(router *gin.Engine, controller *controllers.AttendanceController, classUserService services.ClassUserService) {
+func setupAttendanceRoutes(router *gin.Engine, controller *controllers.AttendanceController, classUserService services.ClassUserService, jwtService services.JWTService) {
 	at := router.Group("/api/gin/at")
+	at.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
 		at.POST(":cid/:uid/:csid", controller.CreateOrUpdateAttendance)
@@ -386,8 +393,9 @@ func setupAttendanceRoutes(router *gin.Engine, controller *controllers.Attendanc
 }
 
 // setupChatRoutes Chatのルートをセットアップする
-func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatController) {
+func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatController, jwtService services.JWTService) {
 	chat := router.Group("/api/gin/chat")
+	chat.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		chat.POST("create-room/:scheduleId", chatController.CreateChatRoom)
 		chat.GET("room/:scheduleId/:userId", chatController.HandleChatRoom)
