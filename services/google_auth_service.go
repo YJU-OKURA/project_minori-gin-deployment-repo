@@ -41,17 +41,17 @@ func NewJWTService() *JWTServiceImpl {
 
 func (s *JWTServiceImpl) GenerateToken(userID uint) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": userID,
-		"exp":     time.Now().Add(3 * time.Hour).Unix(),
+		"id":  userID,
+		"exp": time.Now().Add(3 * time.Hour).Unix(),
 	})
 	return token.SignedString(s.secretKey)
 }
 
 func (s *JWTServiceImpl) GenerateRefreshToken(userID uint) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": userID,
-		"exp":     time.Now().Add(24 * time.Hour * 7).Unix(),
-		"type":    "refresh",
+		"id":   userID,
+		"exp":  time.Now().Add(24 * time.Hour * 7).Unix(),
+		"type": "refresh",
 	})
 	return token.SignedString(s.secretKey)
 }
