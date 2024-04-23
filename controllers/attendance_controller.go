@@ -33,6 +33,7 @@ func NewAttendanceController(service services.AttendanceService) *AttendanceCont
 // @Success 200 {string} string "作成または更新に成功しました"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /at/{cid}/{uid}/{csid} [post]
+// @Security Bearer
 func (ac *AttendanceController) CreateOrUpdateAttendance(ctx *gin.Context) {
 	classID, classIDErr := strconv.ParseUint(ctx.Param("cid"), 10, 32)
 	userID, userIDErr := strconv.ParseUint(ctx.Param("uid"), 10, 32)
@@ -62,6 +63,7 @@ func (ac *AttendanceController) CreateOrUpdateAttendance(ctx *gin.Context) {
 // @Success 200 {array} models.Attendance "Attendance"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /at/{classID} [get]
+// @Security Bearer
 func (ac *AttendanceController) GetAllAttendances(ctx *gin.Context) {
 	classID, err := strconv.ParseUint(ctx.Param("classID"), 10, 32)
 	if err != nil {
@@ -87,6 +89,7 @@ func (ac *AttendanceController) GetAllAttendances(ctx *gin.Context) {
 // @Success 200 {object} models.Attendance "Attendance"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /at/attendance/{id} [get]
+// @Security Bearer
 func (ac *AttendanceController) GetAttendance(ctx *gin.Context) {
 	attendanceID := ctx.Param("id")
 	attendance, err := ac.attendanceService.GetAttendanceByID(attendanceID)
@@ -109,6 +112,7 @@ func (ac *AttendanceController) GetAttendance(ctx *gin.Context) {
 // @Success 200 {string} string "削除に成功しました"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /at/attendance/{id} [delete]
+// @Security Bearer
 func (ac *AttendanceController) DeleteAttendance(ctx *gin.Context) {
 	attendanceID := ctx.Param("id")
 	if err := ac.attendanceService.DeleteAttendance(attendanceID); err != nil {

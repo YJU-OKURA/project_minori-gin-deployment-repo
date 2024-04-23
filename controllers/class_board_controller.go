@@ -46,6 +46,7 @@ func NewClassBoardController(service services.ClassBoardService, uploader utils.
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 500 {string} string "Server error"
 // @Router /cb [post]
+// @Security Bearer
 func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 	var createDTO dto.ClassBoardCreateDTO
 	if err := ctx.ShouldBindWith(&createDTO, binding.FormMultipart); err != nil {
@@ -88,6 +89,7 @@ func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 // @Failure 404 {object} string "コードが見つかりません"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb/{id} [get]
+// @Security Bearer
 func (c *ClassBoardController) GetClassBoardByID(ctx *gin.Context) {
 	ID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {
@@ -118,6 +120,7 @@ func (c *ClassBoardController) GetClassBoardByID(ctx *gin.Context) {
 // @Failure 400 {object} string "Invalid request"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb [get]
+// @Security Bearer
 func (c *ClassBoardController) GetAllClassBoards(ctx *gin.Context) {
 	cid, err := strconv.ParseUint(ctx.Query("cid"), 10, 64)
 	if err != nil {
@@ -156,6 +159,7 @@ func (c *ClassBoardController) GetAllClassBoards(ctx *gin.Context) {
 // @Success 200 {array} []models.ClassBoard "公告されたグループ掲示板のリスト"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb/announced [get]
+// @Security Bearer
 func (c *ClassBoardController) GetAnnouncedClassBoards(ctx *gin.Context) {
 	cid, err := strconv.ParseUint(ctx.Query("cid"), 10, 64)
 	if err != nil {
@@ -188,6 +192,7 @@ func (c *ClassBoardController) GetAnnouncedClassBoards(ctx *gin.Context) {
 // @Failure 404 {object} string "コードが見つかりません"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb/{id}/{cid}/{uid} [patch]
+// @Security Bearer
 func (c *ClassBoardController) UpdateClassBoard(ctx *gin.Context) {
 	log.Println("Received ID:", ctx.Param("id"))
 	ID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
@@ -242,6 +247,7 @@ func (c *ClassBoardController) UpdateClassBoard(ctx *gin.Context) {
 // @Failure 404 {object} string "コードが見つかりません"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cb/{id} [delete]
+// @Security Bearer
 func (c *ClassBoardController) DeleteClassBoard(ctx *gin.Context) {
 	ID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err != nil {

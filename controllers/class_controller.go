@@ -40,6 +40,7 @@ func NewCreateClassController(classService services.ClassService, uploader utils
 // @Failure 404 {object} map[string]interface{} "error: クラスが見つかりません"
 // @Failure 500 {object} map[string]interface{} "error: サーバーエラーが発生しました"
 // @Router /cl/{cid} [get]
+// @Security Bearer
 func (cc *ClassController) GetClass(ctx *gin.Context) {
 	classID, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
 	if err != nil {
@@ -75,6 +76,7 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 // @Failure 400 {object} map[string]interface{} "error: 不正なリクエストのエラーメッセージ"
 // @Failure 500 {object} map[string]interface{} "error: サーバー内部エラー"
 // @Router /cl/create [post]
+// @Security Bearer
 func (cc *ClassController) CreateClass(ctx *gin.Context) {
 	var createDTO dto.CreateClassRequest
 	if err := ctx.ShouldBindWith(&createDTO, binding.FormMultipart); err != nil {
@@ -144,6 +146,7 @@ func (c *ClassController) handleImageUpload(ctx *gin.Context) (string, error) {
 // @Failure 401 {object} map[string]interface{} "error: 認証エラー"
 // @Failure 500 {object} map[string]interface{} "error: サーバー内部エラー"
 // @Router /cl/{uid}/{cid} [patch]
+// @Security Bearer
 func (cc *ClassController) UpdateClass(ctx *gin.Context) {
 	userID, _ := strconv.ParseUint(ctx.Param("uid"), 10, 32)
 	classID, _ := strconv.ParseUint(ctx.Param("cid"), 10, 32)
@@ -188,6 +191,7 @@ func (cc *ClassController) UpdateClass(ctx *gin.Context) {
 // @Failure 401 {object} map[string]interface{} "error: 認証エラー"
 // @Failure 500 {object} map[string]interface{} "error: サーバー内部エラー"
 // @Router /cl/{uid}/{cid} [delete]
+// @Security Bearer
 func (cc *ClassController) DeleteClass(ctx *gin.Context) {
 	userID, _ := strconv.ParseUint(ctx.Param("uid"), 10, 32)
 	classID, _ := strconv.ParseUint(ctx.Param("cid"), 10, 32)

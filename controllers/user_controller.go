@@ -29,6 +29,7 @@ func NewCreateUserController(userService services.UserService) *UserController {
 // @Failure 404 {object} string "申請中のクラスが見つかりません"
 // @Failure 500 {object} string "内部サーバーエラー"
 // @Router /u/{userID}/applying-classes [get]
+// @Security Bearer
 func (uc *UserController) GetApplyingClasses(ctx *gin.Context) {
 	userID, err := strconv.ParseUint(ctx.Param("userID"), 10, 64)
 	if err != nil {

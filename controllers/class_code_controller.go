@@ -30,6 +30,7 @@ func NewClassCodeController(classCodeService services.ClassCodeService, classUse
 // @Failure 400 {object} string "無効なリクエストです"
 // @Failure 404 {object} string "コードが見つかりません"
 // @Router /cc/checkSecretExists [get]
+// @Security Bearer
 func (c *ClassCodeController) CheckSecretExists(ctx *gin.Context) {
 	code := ctx.Query("code")
 
@@ -61,6 +62,7 @@ func (c *ClassCodeController) CheckSecretExists(ctx *gin.Context) {
 // @Failure 401 {object} string "シークレットが一致しません"
 // @Failure 404 {object} string "コードが見つかりません"
 // @Router /cc/verifyClassCode [get]
+// @Security Bearer
 func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
 	code := ctx.Query("code")
 	secret := ctx.Query("secret")
