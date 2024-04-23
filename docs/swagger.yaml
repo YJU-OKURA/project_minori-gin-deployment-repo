@@ -225,6 +225,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 出席情報を作成または更新
       tags:
       - Attendance
@@ -252,6 +254,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: クラスの全ての出席情報を取得
       tags:
       - Attendance
@@ -287,6 +291,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 出席情報を削除
       tags:
       - Attendance
@@ -311,6 +317,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 出席情報を取得
       tags:
       - Attendance
@@ -427,6 +435,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 全てのグループ掲示板を取得
       tags:
       - Class Board
@@ -484,6 +494,7 @@ paths:
             type: string
       security:
       - ApiKeyAuth: []
+      - Bearer: []
       summary: クラス掲示板を作成
       tags:
       - Class Board
@@ -533,6 +544,7 @@ paths:
             type: string
       security:
       - ApiKeyAuth: []
+      - Bearer: []
       summary: グループ掲示板を削除
       tags:
       - Class Board
@@ -565,6 +577,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: IDでグループ掲示板を取得
       tags:
       - Class Board
@@ -618,6 +632,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: グループ掲示板を更新
       tags:
       - Class Board
@@ -647,6 +663,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 公告されたグループ掲示板を取得
       tags:
       - Class Board
@@ -676,6 +694,8 @@ paths:
           description: コードが見つかりません
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: グループコードにシークレットが存在するかチェック
       tags:
       - Class Code
@@ -718,6 +738,8 @@ paths:
           description: コードが見つかりません
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: グループコードとシークレットを検証＆ユーザーに役割を割り当てる
       tags:
       - Class Code
@@ -743,6 +765,8 @@ paths:
           description: Failed to create chat room
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: チャットルームを作成
       tags:
       - Chat Room
@@ -774,6 +798,8 @@ paths:
           description: Message sent successfully
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: Send a direct message
       tags:
       - Direct Message
@@ -800,6 +826,8 @@ paths:
           description: Messages fetched successfully
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: Get direct messages
       tags:
       - Direct Message
@@ -821,6 +849,8 @@ paths:
           description: success
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: チャットメッセージを取得
       tags:
       - Chat Room
@@ -842,6 +872,8 @@ paths:
           description: success
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: チャットルームを削除
       tags:
       - Chat Room
@@ -872,6 +904,8 @@ paths:
           description: success
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: チャットルームに投稿
       tags:
       - Chat Room
@@ -898,6 +932,8 @@ paths:
           description: チャットルームが正常にハンドルされました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: チャットルームをハンドル
       tags:
       - Chat Room
@@ -915,6 +951,8 @@ paths:
       produces:
       - application/json
       responses: {}
+      security:
+      - Bearer: []
       summary: チャットをストリーム
       tags:
       - Chat Room
@@ -951,6 +989,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - Bearer: []
       summary: クラスの情報を取得します
       tags:
       - Class
@@ -988,6 +1028,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - Bearer: []
       summary: クラスを削除します
       tags:
       - Class
@@ -1045,6 +1087,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - Bearer: []
       summary: クラス情報を更新します
       tags:
       - Class
@@ -1094,6 +1138,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - Bearer: []
       summary: 新しいクラスを作成します
       tags:
       - Class
@@ -1122,6 +1168,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 全てのクラススケジュールを取得
       tags:
       - Class Schedule
@@ -1161,6 +1209,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: クラススケジュールを作成
       tags:
       - Class Schedule
@@ -1200,6 +1250,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: クラススケジュールを削除
       tags:
       - Class Schedule
@@ -1228,6 +1280,8 @@ paths:
           description: クラススケジュールが見つかりません
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: IDでクラススケジュールを取得
       tags:
       - Class Schedule
@@ -1272,6 +1326,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: クラススケジュールを更新
       tags:
       - Class Schedule
@@ -1310,6 +1366,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 日付でクラススケジュールを取得
       tags:
       - Class Schedule
@@ -1339,6 +1397,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: ライブ中のクラススケジュールを取得
       tags:
       - Class Schedule
@@ -1379,6 +1439,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: ユーザーのロールを変更します。
       tags:
       - Class User
@@ -1417,6 +1479,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: ユーザーに関連するクラスユーザー情報を取得
       tags:
       - Class User
@@ -1455,6 +1519,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: ユーザーをクラスから削除します。
       tags:
       - Class User
@@ -1492,6 +1558,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: ユーザーの名前を更新します。
       tags:
       - Class User
@@ -1530,6 +1598,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: お気に入りのクラスを切り替えます
       tags:
       - Class User
@@ -1563,6 +1633,8 @@ paths:
             items:
               $ref: '#/definitions/models.Class'
             type: array
+      security:
+      - Bearer: []
       summary: ユーザーが参加しているクラスのリストを取得
       tags:
       - Class User
@@ -1613,6 +1685,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: ユーザーとロールに関連するクラス情報を取得
       tags:
       - Class User
@@ -1658,6 +1732,8 @@ paths:
           description: サーバーエラーが発生しました
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: お気に入りのクラス情報を取得
       tags:
       - Class User
@@ -1695,6 +1771,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - Bearer: []
       summary: クラスメンバーの情報を取得します
       tags:
       - Class User
@@ -1898,7 +1976,15 @@ paths:
           description: 内部サーバーエラー
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 申し込んだクラスを取得
       tags:
       - User
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

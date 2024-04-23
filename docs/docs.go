@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/at/attendance/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDの出席情報を取得",
                 "consumes": [
                     "application/json"
@@ -53,6 +58,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDの出席情報を削除",
                 "consumes": [
                     "application/json"
@@ -105,6 +115,11 @@ const docTemplate = `{
         },
         "/at/{cid}/{uid}/{csid}": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "出席情報を作成または更新",
                 "consumes": [
                     "application/json"
@@ -164,6 +179,11 @@ const docTemplate = `{
         },
         "/at/{classID}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "クラスの全ての出席情報を取得",
                 "consumes": [
                     "application/json"
@@ -314,6 +334,11 @@ const docTemplate = `{
         },
         "/cb": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "cidに基づいて、グループの全ての掲示板を取得します。",
                 "consumes": [
                     "application/json"
@@ -379,6 +404,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKeyAuth": []
+                    },
+                    {
+                        "Bearer": []
                     }
                 ],
                 "description": "クラス掲示板を作成します。",
@@ -464,6 +492,11 @@ const docTemplate = `{
         },
         "/cb/announced": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "cidに基づいて、公告されたグループの掲示板を取得します。",
                 "consumes": [
                     "application/json"
@@ -508,6 +541,11 @@ const docTemplate = `{
         },
         "/cb/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDのグループ掲示板の詳細を取得します。",
                 "consumes": [
                     "application/json"
@@ -559,6 +597,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKeyAuth": []
+                    },
+                    {
+                        "Bearer": []
                     }
                 ],
                 "description": "指定されたIDのグループ掲示板を削除します。",
@@ -631,6 +672,11 @@ const docTemplate = `{
         },
         "/cb/{id}/{cid}/{uid}": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDのグループ掲示板の詳細を更新します。",
                 "consumes": [
                     "application/json"
@@ -710,6 +756,11 @@ const docTemplate = `{
         },
         "/cc/checkSecretExists": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたグループコードにシークレットがあるかどうかをチェックする。",
                 "consumes": [
                     "application/json"
@@ -754,6 +805,11 @@ const docTemplate = `{
         },
         "/cc/verifyClassCode": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "グループコードと、該当する場合はそのシークレットを確認する。また、指定されたユーザーに役割を割り当てる。",
                 "consumes": [
                     "application/json"
@@ -817,6 +873,11 @@ const docTemplate = `{
         },
         "/chat/create-room/{scheduleId}": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "チャットルームを作成する。",
                 "consumes": [
                     "application/json"
@@ -855,6 +916,11 @@ const docTemplate = `{
         },
         "/chat/dm/{senderId}/{receiverId}": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Send a direct message to a specific user",
                 "consumes": [
                     "application/json"
@@ -901,6 +967,11 @@ const docTemplate = `{
         },
         "/chat/dm/{userId1}/{userId2}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Get direct messages history between two users",
                 "consumes": [
                     "application/json"
@@ -940,6 +1011,11 @@ const docTemplate = `{
         },
         "/chat/messages/{roomid}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "チャットメッセージを取得する。",
                 "consumes": [
                     "application/json"
@@ -972,6 +1048,11 @@ const docTemplate = `{
         },
         "/chat/room/{scheduleId}": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "チャットルームにメッセージを投稿する。",
                 "consumes": [
                     "multipart/form-data"
@@ -1016,6 +1097,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "チャットルームを削除する。",
                 "consumes": [
                     "application/json"
@@ -1048,6 +1134,11 @@ const docTemplate = `{
         },
         "/chat/room/{scheduleId}/{userId}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "チャットルームをハンドルする。",
                 "consumes": [
                     "text/html"
@@ -1087,6 +1178,11 @@ const docTemplate = `{
         },
         "/chat/stream/{scheduleId}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "チャットをストリームする。",
                 "consumes": [
                     "application/json"
@@ -1112,6 +1208,11 @@ const docTemplate = `{
         },
         "/cl/create": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "名前、定員、説明、画像URL、作成者のUIDを持つ新しいクラスを作成します。画像はオプショナルです。",
                 "consumes": [
                     "multipart/form-data"
@@ -1184,6 +1285,11 @@ const docTemplate = `{
         },
         "/cl/{cid}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDを持つクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
@@ -1237,6 +1343,11 @@ const docTemplate = `{
         },
         "/cl/{uid}/{cid}": {
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDを持つクラスを削除します。",
                 "consumes": [
                     "application/json"
@@ -1289,6 +1400,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDを持つクラスの情報を更新します。",
                 "consumes": [
                     "multipart/form-data"
@@ -1374,6 +1490,11 @@ const docTemplate = `{
         },
         "/cs": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたクラスIDの全てのクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1415,6 +1536,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "新しいクラススケジュールを作成する。",
                 "consumes": [
                     "application/json"
@@ -1475,6 +1601,11 @@ const docTemplate = `{
         },
         "/cs/date": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたクラスIDと日付のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1532,6 +1663,11 @@ const docTemplate = `{
         },
         "/cs/live": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたクラスIDのライブ中のクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1576,6 +1712,11 @@ const docTemplate = `{
         },
         "/cs/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDのクラススケジュールを取得する。",
                 "consumes": [
                     "application/json"
@@ -1618,6 +1759,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDのクラススケジュールを削除する。",
                 "consumes": [
                     "application/json"
@@ -1674,6 +1820,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDのクラススケジュールを更新する。",
                 "consumes": [
                     "application/json"
@@ -1741,6 +1892,11 @@ const docTemplate = `{
         },
         "/cu/class/{cid}/{role}/members": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたcidのクラスに所属しているメンバーの情報を取得します。",
                 "consumes": [
                     "application/json"
@@ -1796,6 +1952,11 @@ const docTemplate = `{
         },
         "/cu/{uid}/classes": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "特定のユーザーが参加している全てのクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
@@ -1845,6 +2006,11 @@ const docTemplate = `{
         },
         "/cu/{uid}/classes/{roleID}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "ユーザーIDとロールIDに基づいて、ユーザーが所属しているクラスの情報を取得します。ロールIDが2の場合は自分が作ったクラスリスト、ロールIDが4の場合はユーザーから申し込んだクラスリスト、ロールIDが6の場合はクラスの管理者から招待されたクラスリストを取得します。",
                 "consumes": [
                     "application/json"
@@ -1919,6 +2085,11 @@ const docTemplate = `{
         },
         "/cu/{uid}/favorite-classes": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "ユーザーIDに基づいて、お気에入りに設定されたクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
@@ -1986,6 +2157,11 @@ const docTemplate = `{
         },
         "/cu/{uid}/{cid}/info": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "特定のユーザーIDに基づいて、クラスユーザー情報を取得します。",
                 "consumes": [
                     "application/json"
@@ -2043,6 +2219,11 @@ const docTemplate = `{
         },
         "/cu/{uid}/{cid}/remove": {
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定したユーザーIDとクラスIDに基づいて、ユーザーをクラスから削除します。",
                 "consumes": [
                     "application/json"
@@ -2100,6 +2281,11 @@ const docTemplate = `{
         },
         "/cu/{uid}/{cid}/rename": {
             "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "特定のユーザーIDとグループIDに対してユーザーの名前を更新します。",
                 "consumes": [
                     "application/json"
@@ -2155,6 +2341,11 @@ const docTemplate = `{
         },
         "/cu/{uid}/{cid}/toggle-favorite": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "ユーザーIDとクラスIDに基づいて、お気に入りのクラスを切り替えます。",
                 "consumes": [
                     "application/json"
@@ -2212,6 +2403,11 @@ const docTemplate = `{
         },
         "/cu/{uid}/{cid}/{roleID}": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "ユーザーのロールを変更します。",
                 "consumes": [
                     "application/json"
@@ -2515,6 +2711,11 @@ const docTemplate = `{
         },
         "/u/{userID}/applying-classes": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "ユーザーが申し込んだクラスを取得します。",
                 "consumes": [
                     "application/json"
@@ -2848,6 +3049,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
