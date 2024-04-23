@@ -77,7 +77,7 @@ func (s *JWTServiceImpl) RefreshAccessToken(refreshToken string) (*jwt.Token, er
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if claims["type"] == "refresh" {
-			newAccessToken, err := s.GenerateToken(uint(claims["user_id"].(float64)))
+			newAccessToken, err := s.GenerateToken(uint(claims["id"].(float64)))
 			if err != nil {
 				return nil, err
 			}
