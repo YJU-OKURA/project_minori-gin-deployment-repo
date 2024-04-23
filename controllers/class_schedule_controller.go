@@ -35,6 +35,7 @@ func NewClassScheduleController(service services.ClassScheduleService) *ClassSch
 // @Failure 400 {object} string "リクエストが不正です"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cs [post]
+// @Security Bearer
 func (controller *ClassScheduleController) CreateClassSchedule(c *gin.Context) {
 	var dto dto.ClassScheduleDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -69,6 +70,7 @@ func (controller *ClassScheduleController) CreateClassSchedule(c *gin.Context) {
 // @Failure 400 {object} string "無効なID形式です"
 // @Failure 404 {object} string "クラススケジュールが見つかりません"
 // @Router /cs/{id} [get]
+// @Security Bearer
 func (controller *ClassScheduleController) GetClassScheduleByID(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -95,6 +97,7 @@ func (controller *ClassScheduleController) GetClassScheduleByID(c *gin.Context) 
 // @Success 200 {array} []models.ClassSchedule "クラススケジュールが見つかりました"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cs [get]
+// @Security Bearer
 func (controller *ClassScheduleController) GetAllClassSchedules(c *gin.Context) {
 	cid, _ := strconv.ParseUint(c.DefaultQuery("cid", "0"), 10, 32)
 	classSchedules, err := controller.classScheduleService.GetAllClassSchedules(uint(cid))
@@ -119,6 +122,7 @@ func (controller *ClassScheduleController) GetAllClassSchedules(c *gin.Context) 
 // @Failure 400 {object} string "リクエストが不正です"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cs/{id} [patch]
+// @Security Bearer
 func (controller *ClassScheduleController) UpdateClassSchedule(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -154,6 +158,7 @@ func (controller *ClassScheduleController) UpdateClassSchedule(c *gin.Context) {
 // @Failure 400 {object} string "無効なID形式です"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cs/{id} [delete]
+// @Security Bearer
 func (controller *ClassScheduleController) DeleteClassSchedule(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -179,6 +184,7 @@ func (controller *ClassScheduleController) DeleteClassSchedule(c *gin.Context) {
 // @Success 200 {array} []models.ClassSchedule "ライブ中のクラススケジュールが見つかりました"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cs/live [get]
+// @Security Bearer
 func (controller *ClassScheduleController) GetLiveClassSchedules(c *gin.Context) {
 	cid, _ := strconv.ParseUint(c.Query("cid"), 10, 32)
 	classSchedules, err := controller.classScheduleService.GetLiveClassSchedules(uint(cid))
@@ -201,6 +207,7 @@ func (controller *ClassScheduleController) GetLiveClassSchedules(c *gin.Context)
 // @Failure 400 {object} string "日付が必要です"
 // @Failure 500 {object} string "サーバーエラーが発生しました"
 // @Router /cs/date [get]
+// @Security Bearer
 func (controller *ClassScheduleController) GetClassSchedulesByDate(c *gin.Context) {
 	cid, _ := strconv.ParseUint(c.Query("cid"), 10, 32)
 	date := c.Query("date") // Expecting date in the format 'YYYY-MM-DD'

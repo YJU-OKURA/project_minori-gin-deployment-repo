@@ -247,6 +247,10 @@ func setupRoutes(router *gin.Engine, userController *controllers.UserController,
 	setupLiveClassRoutes(router, liveClassController, jwtService)
 }
 
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupUserRoutes(router *gin.Engine, controller *controllers.UserController, jwtService services.JWTService) {
 	u := router.Group("/api/gin/u")
 	u.Use(middlewares.TokenAuthMiddleware(jwtService))
@@ -256,6 +260,10 @@ func setupUserRoutes(router *gin.Engine, controller *controllers.UserController,
 }
 
 // setupClassBoardRoutes ClassBoardのルートをセットアップする
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoardController, classUserService services.ClassUserService, jwtService services.JWTService) {
 	cb := router.Group("/api/gin/cb")
 	cb.Use(middlewares.TokenAuthMiddleware(jwtService))
@@ -281,6 +289,10 @@ func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoar
 }
 
 // setupClassCodeRoutes ClassCodeのルートをセットアップする
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeController, jwtService services.JWTService) {
 	cc := router.Group("/api/gin/cc")
 	cc.Use(middlewares.TokenAuthMiddleware(jwtService))
@@ -291,6 +303,10 @@ func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeC
 }
 
 // setupClassScheduleRoutes ClassScheduleのルートをセットアップする
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupClassScheduleRoutes(router *gin.Engine, controller *controllers.ClassScheduleController, classUserService services.ClassUserService, jwtService services.JWTService) {
 	cs := router.Group("/api/gin/cs")
 	cs.Use(middlewares.TokenAuthMiddleware(jwtService))
@@ -329,6 +345,10 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 }
 
 // setupCreateClassRoutes CreateClassのルートをセットアップする
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController, jwtService services.JWTService) {
 	cl := router.Group("/api/gin/cl")
 	cl.Use(middlewares.TokenAuthMiddleware(jwtService))
@@ -341,6 +361,10 @@ func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassCon
 }
 
 // setupClassUserRoutes ClassUserのルートをセットアップする
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserController, classUserService services.ClassUserService, jwtService services.JWTService) {
 	cu := router.Group("/api/gin/cu")
 	cu.Use(middlewares.TokenAuthMiddleware(jwtService))
@@ -370,6 +394,10 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 }
 
 // setupAttendanceRoutes Attendanceのルートをセットアップする
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupAttendanceRoutes(router *gin.Engine, controller *controllers.AttendanceController, classUserService services.ClassUserService, jwtService services.JWTService) {
 	at := router.Group("/api/gin/at")
 	at.Use(middlewares.TokenAuthMiddleware(jwtService))
@@ -393,6 +421,10 @@ func setupAttendanceRoutes(router *gin.Engine, controller *controllers.Attendanc
 }
 
 // setupChatRoutes Chatのルートをセットアップする
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatController, jwtService services.JWTService) {
 	chat := router.Group("/api/gin/chat")
 	chat.Use(middlewares.TokenAuthMiddleware(jwtService))
@@ -432,9 +464,13 @@ func manageChatRooms(db *gorm.DB, chatManager *services.Manager) {
 }
 
 // setupLiveClassRoutes LiveClassのルートをセットアップする
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func setupLiveClassRoutes(router *gin.Engine, liveClassController *controllers.LiveClassController, jwtService services.JWTService) {
 	live := router.Group("/api/gin/live")
-	//live.Use(middlewares.TokenAuthMiddleware(jwtService))
+	live.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		live.POST("create-room/:classID/:userID", liveClassController.CreateRoom)
 		live.POST("start-screen-share/:roomID/:userID", liveClassController.StartScreenShare)

@@ -41,6 +41,7 @@ type UpdateUserNameRequest struct {
 // @Failure 404 {string} string "情報が見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/{cid}/info [get]
+// @Security Bearer
 func (c *ClassUserController) GetUserClassUserInfo(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
 	uid, err := strconv.ParseUint(uidStr, 10, 32)
@@ -80,6 +81,7 @@ func (c *ClassUserController) GetUserClassUserInfo(ctx *gin.Context) {
 // @Param limit query int false "Page size" default(10)
 // @Success 200 {array} models.Class "成功"
 // @Router /cu/{uid}/classes [get]
+// @Security Bearer
 func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
 	pageStr := ctx.DefaultQuery("page", "1")
@@ -127,6 +129,7 @@ func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
 // @Failure 400 {object} map[string]interface{} "無効なクラスIDが指定された場合のエラーメッセージ"
 // @Failure 500 {object} map[string]interface{} "サーバー内部エラー"
 // @Router /cu/class/{cid}/{role}/members [get]
+// @Security Bearer
 func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 	cid, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
 	if err != nil {
@@ -178,6 +181,7 @@ func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 // @Failure 404 {string} string "クラスが見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/favorite-classes [get]
+// @Security Bearer
 func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
 	uid, err := strconv.ParseUint(uidStr, 10, 32)
@@ -224,6 +228,7 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 // @Failure 404 {string} string "クラスが見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/classes/{roleID} [get]
+// @Security Bearer
 func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
 	uid, err := strconv.ParseUint(uidStr, 10, 32)
@@ -274,6 +279,7 @@ func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 // @Failure 400 {string} string "無効なリクエスト"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/{cid}/{roleID} [patch]
+// @Security Bearer
 func (c *ClassUserController) ChangeUserRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
 	cidStr := ctx.Param("cid")
@@ -337,6 +343,7 @@ func isValidRoleID(roleID int) bool {
 // @Success 200 {string} string "成功"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/{cid}/rename [put]
+// @Security Bearer
 func (c *ClassUserController) UpdateUserName(ctx *gin.Context) {
 	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 32)
 	if err != nil {
@@ -377,6 +384,7 @@ func (c *ClassUserController) UpdateUserName(ctx *gin.Context) {
 // @Failure 404 {string} string "ユーザーまたはクラスが見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/{cid}/toggle-favorite [patch]
+// @Security Bearer
 func (c *ClassUserController) ToggleFavorite(ctx *gin.Context) {
 	uid, uidErr := strconv.ParseUint(ctx.Param("uid"), 10, 32)
 	cid, cidErr := strconv.ParseUint(ctx.Param("cid"), 10, 32)
@@ -411,6 +419,7 @@ func (c *ClassUserController) ToggleFavorite(ctx *gin.Context) {
 // @Failure 404 {string} string "ユーザーまたはクラスが見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /cu/{uid}/{cid}/remove [delete]
+// @Security Bearer
 func (c *ClassUserController) RemoveUserFromClass(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
 	uid, err := strconv.ParseUint(uidStr, 10, 32)

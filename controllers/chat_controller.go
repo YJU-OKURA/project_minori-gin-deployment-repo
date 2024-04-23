@@ -39,6 +39,7 @@ func NewChatController(chatMgr *services.Manager, redisClient *redis.Client) *Ch
 // @Param userId path string true "User ID"
 // @Success 200 {string} string "チャットルームが正常にハンドルされました"
 // @Router /chat/room/{scheduleId}/{userId} [get]
+// @Security Bearer
 func (controller *ChatController) HandleChatRoom(ctx *gin.Context) {
 	scheduleId := ctx.Param("scheduleId")
 	userId := ctx.Param("userId")
@@ -59,6 +60,7 @@ func (controller *ChatController) HandleChatRoom(ctx *gin.Context) {
 // @Success 200 {object} string "Chat room created successfully"
 // @Failure 400 {object} string "Failed to create chat room"
 // @Router /chat/create-room/{scheduleId} [post]
+// @Security Bearer
 func (controller *ChatController) CreateChatRoom(ctx *gin.Context) {
 	scheduleId := ctx.Param("scheduleId")
 
@@ -80,6 +82,7 @@ func (controller *ChatController) CreateChatRoom(ctx *gin.Context) {
 // @Param message formData string true "Message"
 // @Success 200 {object} string "success"
 // @Router /chat/room/{scheduleId} [post]
+// @Security Bearer
 func (controller *ChatController) PostToChatRoom(ctx *gin.Context) {
 	user := ctx.PostForm("user")
 	message := ctx.PostForm("message")
@@ -107,6 +110,7 @@ func (controller *ChatController) PostToChatRoom(ctx *gin.Context) {
 // @Param scheduleId path string true "Schedule ID"
 // @Success 200 {object} string "success"
 // @Router /chat/room/{scheduleId} [delete]
+// @Security Bearer
 func (controller *ChatController) DeleteChatRoom(ctx *gin.Context) {
 	scheduleId := ctx.Param("scheduleId")
 	controller.chatManager.DeleteBroadcast(scheduleId)
@@ -124,6 +128,7 @@ func (controller *ChatController) DeleteChatRoom(ctx *gin.Context) {
 // @Produce json
 // @Param scheduleId path int true "Schedule ID"
 // @Router /chat/stream/{scheduleId} [get]
+// @Security Bearer
 func (controller *ChatController) StreamChat(ctx *gin.Context) {
 	scheduleId := ctx.Param("scheduleId")
 	listener := controller.chatManager.OpenListener(scheduleId)
@@ -150,6 +155,7 @@ func (controller *ChatController) StreamChat(ctx *gin.Context) {
 // @Param roomid path string true "Room ID"
 // @Success 200 {object} string "success"
 // @Router /chat/messages/{roomid} [get]
+// @Security Bearer
 func (controller *ChatController) GetChatMessages(ctx *gin.Context) {
 	roomid := ctx.Param("roomid")
 	messages, err := controller.redisClient.LRange(context.Background(), "chat:"+roomid, 0, -1).Result()
@@ -174,6 +180,7 @@ func (controller *ChatController) GetChatMessages(ctx *gin.Context) {
 // @Param message formData string true "Message"
 // @Success 200 {object} string "Message sent successfully"
 // @Router /chat/dm/{senderId}/{receiverId} [post]
+// @Security Bearer
 func (controller *ChatController) SendDirectMessage(ctx *gin.Context) {
 	senderId := ctx.Param("senderId")
 	receiverId := ctx.Param("receiverId")
@@ -200,6 +207,7 @@ func (controller *ChatController) SendDirectMessage(ctx *gin.Context) {
 // @Param userId2 path string true "User ID 2"
 // @Success 200 {object} string "Messages fetched successfully"
 // @Router /chat/dm/{userId1}/{userId2} [get]
+// @Security Bearer
 func (controller *ChatController) GetDirectMessages(ctx *gin.Context) {
 	userId1 := ctx.Param("userId1")
 	userId2 := ctx.Param("userId2")
