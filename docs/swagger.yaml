@@ -1776,172 +1776,66 @@ paths:
       summary: クラスメンバーの情報を取得します
       tags:
       - Class User
-  /live/create-room/{classID}/{userID}:
-    post:
-      consumes:
-      - application/json
-      description: 新しいルームを作成します。
-      parameters:
-      - description: Class ID
-        in: path
-        name: classID
-        required: true
-        type: integer
-      - description: User ID
-        in: path
-        name: userID
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: roomID returned on successful creation
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid class ID
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized to create room
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 新しいルームを作成します。
-      tags:
-      - Live Class
-  /live/join-screen-share/{roomID}/{userID}:
+  /live/screen_share/{uid}/{cid}:
     get:
       consumes:
       - application/json
-      description: 画面共有に参加します。
+      description: 特定のクラスのスクリーン共有情報を取得します。ユーザーがそのクラスのメンバーである必要があります。
       parameters:
-      - description: Room ID
+      - description: ユーザーID
         in: path
-        name: roomID
+        name: uid
         required: true
-        type: string
-      - description: User ID
+        type: integer
+      - description: クラスID
         in: path
-        name: userID
+        name: cid
         required: true
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: SDP data for the screen share
+          description: OK
           schema:
             additionalProperties: true
             type: object
         "400":
-          description: Invalid room ID or User ID
+          description: Bad Request
           schema:
-            additionalProperties: true
+            additionalProperties:
+              type: string
             type: object
-        "401":
-          description: Unauthorized to join screen sharing
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 画面共有に参加します。
+      summary: スクリーン共有情報を取得
       tags:
       - Live Class
-  /live/start-screen-share/{roomID}/{userID}:
+  /live/screen_share/start/{cid}:
     post:
       consumes:
       - application/json
-      description: 画面共有を開始します。
+      description: 特定のクラスのスクリーン共有を開始します。
       parameters:
-      - description: Room ID
+      - description: クラスID
         in: path
-        name: roomID
-        required: true
-        type: string
-      - description: User ID
-        in: path
-        name: userID
+        name: cid
         required: true
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: SDP data for the screen share
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid room ID
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized to start screen sharing
+          description: Message and stream URL indicating the screen sharing has started
+            successfully
           schema:
             additionalProperties: true
             type: object
         "500":
-          description: Internal server error
+          description: Internal server error with error message
           schema:
-            additionalProperties: true
+            additionalProperties:
+              type: string
             type: object
-      summary: 画面共有を開始します。
-      tags:
-      - Live Class
-  /live/stop-screen-share/{roomID}/{userID}:
-    post:
-      consumes:
-      - application/json
-      description: 画面共有を停止します。
-      parameters:
-      - description: Room ID
-        in: path
-        name: roomID
-        required: true
-        type: string
-      - description: User ID
-        in: path
-        name: userID
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Screen sharing stopped successfully
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid room ID
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized to stop screen sharing
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: 画面共有を停止します。
+      summary: スクリーン共有を開始
       tags:
       - Live Class
   /u/{userID}/applying-classes:

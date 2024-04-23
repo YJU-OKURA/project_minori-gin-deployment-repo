@@ -2465,9 +2465,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/live/create-room/{classID}/{userID}": {
+        "/live/screen_share/start/{cid}": {
             "post": {
-                "description": "新しいルームを作成します。",
+                "description": "特定のクラスのスクリーン共有を開始します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -2477,58 +2477,39 @@ const docTemplate = `{
                 "tags": [
                     "Live Class"
                 ],
-                "summary": "新しいルームを作成します。",
+                "summary": "スクリーン共有を開始",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Class ID",
-                        "name": "classID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
+                        "description": "クラスID",
+                        "name": "cid",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "roomID returned on successful creation",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid class ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized to create room",
+                        "description": "Message and stream URL indicating the screen sharing has started successfully",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal server error with error message",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/live/join-screen-share/{roomID}/{userID}": {
+        "/live/screen_share/{uid}/{cid}": {
             "get": {
-                "description": "画面共有に参加します。",
+                "description": "特定のクラスのスクリーン共有情報を取得します。ユーザーがそのクラスのメンバーである必要があります。",
                 "consumes": [
                     "application/json"
                 ],
@@ -2538,172 +2519,38 @@ const docTemplate = `{
                 "tags": [
                     "Live Class"
                 ],
-                "summary": "画面共有に参加します。",
+                "summary": "スクリーン共有情報を取得",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Room ID",
-                        "name": "roomID",
+                        "type": "integer",
+                        "description": "ユーザーID",
+                        "name": "uid",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
+                        "description": "クラスID",
+                        "name": "cid",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "SDP data for the screen share",
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Invalid room ID or User ID",
+                        "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized to join screen sharing",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/live/start-screen-share/{roomID}/{userID}": {
-            "post": {
-                "description": "画面共有を開始します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Live Class"
-                ],
-                "summary": "画面共有を開始します。",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Room ID",
-                        "name": "roomID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "SDP data for the screen share",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid room ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized to start screen sharing",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/live/stop-screen-share/{roomID}/{userID}": {
-            "post": {
-                "description": "画面共有を停止します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Live Class"
-                ],
-                "summary": "画面共有を停止します。",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Room ID",
-                        "name": "roomID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Screen sharing stopped successfully",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid room ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized to stop screen sharing",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
