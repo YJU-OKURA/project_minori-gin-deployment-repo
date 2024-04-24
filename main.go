@@ -367,7 +367,8 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
-	clients[conn] = true
+
+	clients[conn] = true // Register client
 
 	for {
 		var msg Message
@@ -377,7 +378,28 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 			delete(clients, conn)
 			break
 		}
-		broadcast <- msg
+
+		// Handle different message types here
+		switch msg.Type {
+		case "offer", "answer", "candidate":
+			// Assume 'Data' contains the SDP or ICE candidate information
+			handleWebRTCMessage(msg, conn)
+		default:
+			broadcast <- msg // Continue handling other messages as before
+		}
+	}
+}
+
+func handleWebRTCMessage(msg Message, sender *websocket.Conn) {
+	// Broadcast WebRTC signaling messages to all clients except the sender
+	for client := range clients {
+		if client != sender {
+			if err := client.WriteJSON(msg); err != nil {
+				log.Printf("error sending to client: %v, error: %v", client.RemoteAddr(), err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
 	}
 }
 
