@@ -50,8 +50,13 @@ var broadcast = make(chan Message)           // broadcast channel for sending me
 
 // Message holds data for sending/receiving through WebSocket
 type Message struct {
-	Type string `json:"type"` // Type of message: "offer", "answer", "candidate"
-	Data string `json:"data"` // SDP or candidate information
+	Type string          `json:"type"` // Type of message: "offer", "answer", "candidate"
+	Data json.RawMessage `json:"data"` // SDP or candidate information
+}
+
+type WebRTCData struct {
+	SDP   string `json:"sdp"`
+	Media string `json:"media"`
 }
 
 func main() {
@@ -368,48 +373,44 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	clients[conn] = true // Register client
+	clients[conn] = true
 
 	for {
-		var msg Message
-		err := conn.ReadJSON(&msg)
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("error: %v", err)
 			delete(clients, conn)
 			break
 		}
 
-		// Handle different message types here
+		var msg Message
+		err = json.Unmarshal(message, &msg)
+		if err != nil {
+			log.Printf("error unmarshalling message: %v", err)
+			continue // handle the error as needed
+		}
+
 		switch msg.Type {
 		case "offer", "answer", "candidate":
-			// Assume 'Data' contains the SDP or ICE candidate information
-			handleWebRTCMessage(msg, conn)
+			var details WebRTCData
+			if err := json.Unmarshal(msg.Data, &details); err != nil {
+				log.Printf("error unmarshalling message data: %v", err)
+				continue // handle the error appropriately
+			}
+			// Use 'details' as needed
+			handleWebRTCMessage(msg, details, conn)
 		default:
-			broadcast <- msg // Continue handling other messages as before
+			broadcast <- msg
 		}
 	}
 }
 
-func handleWebRTCMessage(msg Message, sender *websocket.Conn) {
-	// Broadcast WebRTC signaling messages to all clients except the sender
+func handleWebRTCMessage(msg Message, data WebRTCData, sender *websocket.Conn) {
+	// Handle your WebRTC data here
 	for client := range clients {
 		if client != sender {
 			if err := client.WriteJSON(msg); err != nil {
 				log.Printf("error sending to client: %v, error: %v", client.RemoteAddr(), err)
-				client.Close()
-				delete(clients, client)
-			}
-		}
-	}
-}
-
-func handleMessages() {
-	for {
-		msg := <-broadcast
-		for client := range clients {
-			err := client.WriteJSON(msg)
-			if err != nil {
-				log.Printf("error: %v", err)
 				client.Close()
 				delete(clients, client)
 			}
