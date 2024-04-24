@@ -494,6 +494,11 @@ func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 	initializeSwagger(router)
 	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController := initializeControllers(db, redisClient)
 
+	// WebSocket 연결을 위한 라우터 설정
+	router.GET("/ws", func(c *gin.Context) {
+		handleConnections(c.Writer, c.Request)
+	})
+
 	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController, jwtService)
 	return router
 }
