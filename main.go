@@ -11,7 +11,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/middlewares"
-	socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/websocket"
 	"github.com/pion/interceptor"
 	"github.com/pion/interceptor/pkg/intervalpli"
@@ -69,39 +68,6 @@ func main() {
 
 	router := setupRouter(db, jwtService)
 	startServer(router)
-
-	server := socketio.NewServer(nil)
-
-	server.OnConnect("/", func(s socketio.Conn) error {
-		fmt.Println("connected:", s.ID())
-		return nil
-	})
-
-	server.OnEvent("/", "offer", func(s socketio.Conn, offer string) {
-		// 여기서 offer 처리 로직을 구현
-		fmt.Println("Received offer:", offer)
-	})
-
-	server.OnEvent("/", "answer", func(s socketio.Conn, answer string) {
-		// 여기서 answer 처리 로직을 구현
-		fmt.Println("Received answer:", answer)
-	})
-
-	server.OnEvent("/", "candidate", func(s socketio.Conn, candidate string) {
-		// 여기서 candidate 처리 로직을 구현
-		fmt.Println("Received candidate:", candidate)
-	})
-
-	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
-		fmt.Println("disconnected:", reason)
-	})
-
-	go server.Serve()
-	defer server.Close()
-
-	http.Handle("/socket.io/", server)
-	log.Println("Serving at localhost:8000...")
-	log.Fatal(http.ListenAndServe(":8000", nil))
 
 	port := flag.Int("port", 8080, "http server port")
 	flag.Parse()
