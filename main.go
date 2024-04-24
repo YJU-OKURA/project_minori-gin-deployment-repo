@@ -376,31 +376,36 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	clients[conn] = true
 
 	for {
-		_, message, err := conn.ReadMessage()
+		messageType, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("error: %v", err)
 			delete(clients, conn)
 			break
 		}
 
-		var msg Message
-		err = json.Unmarshal(message, &msg)
-		if err != nil {
-			log.Printf("error unmarshalling message: %v", err)
-			continue // handle the error as needed
-		}
-
-		switch msg.Type {
-		case "offer", "answer", "candidate":
-			var details WebRTCData
-			if err := json.Unmarshal(msg.Data, &details); err != nil {
-				log.Printf("error unmarshalling message data: %v", err)
-				continue // handle the error appropriately
+		if messageType == websocket.TextMessage {
+			var msg Message
+			if err = json.Unmarshal(message, &msg); err != nil {
+				log.Printf("error unmarshalling message: %v", err)
+				continue // handle the error as needed
 			}
-			// Use 'details' as needed
-			handleWebRTCMessage(msg, details, conn)
-		default:
-			broadcast <- msg
+
+			if msg.Type == "ping" {
+				conn.WriteMessage(websocket.TextMessage, []byte(`{"type":"pong"}`))
+			}
+
+			switch msg.Type {
+			case "offer", "answer", "candidate":
+				var details WebRTCData
+				if err := json.Unmarshal(msg.Data, &details); err != nil {
+					log.Printf("error unmarshalling message data: %v", err)
+					continue // handle the error appropriately
+				}
+				// Use 'details' as needed
+				handleWebRTCMessage(msg, details, conn)
+			default:
+				broadcast <- msg
+			}
 		}
 	}
 }
