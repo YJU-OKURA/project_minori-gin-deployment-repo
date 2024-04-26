@@ -1031,6 +1031,12 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    "404": {
+                        "description": "Chat room not found",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
@@ -2449,48 +2455,6 @@
                         "description": "サーバーエラーが発生しました",
                         "schema": {
                             "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/live/screen_share/start/{cid}": {
-            "post": {
-                "description": "特定のクラスのスクリーン共有を開始します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Live Class"
-                ],
-                "summary": "スクリーン共有を開始",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "クラスID",
-                        "name": "cid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Message and stream URL indicating the screen sharing has started successfully",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error with error message",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
                         }
                     }
                 }
