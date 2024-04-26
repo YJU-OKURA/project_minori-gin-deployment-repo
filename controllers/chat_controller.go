@@ -154,10 +154,23 @@ func (controller *ChatController) StreamChat(ctx *gin.Context) {
 // @Produce json
 // @Param roomid path string true "Room ID"
 // @Success 200 {object} string "success"
+// @Failure 404 {object} string "Chat room not found"
 // @Router /chat/messages/{roomid} [get]
 // @Security Bearer
 func (controller *ChatController) GetChatMessages(ctx *gin.Context) {
 	roomid := ctx.Param("roomid")
+
+	// Check if the room exists in Redis
+	exists, err := controller.redisClient.Exists(context.Background(), "chat:"+roomid).Result()
+	if err != nil {
+		respondWithError(ctx, constants.StatusInternalServerError, "Error checking room existence")
+		return
+	}
+	if exists == 0 {
+		respondWithError(ctx, http.StatusNotFound, "Chat room not found")
+		return
+	}
+
 	messages, err := controller.redisClient.LRange(context.Background(), "chat:"+roomid, 0, -1).Result()
 	if err != nil {
 		respondWithError(ctx, constants.StatusInternalServerError, constants.ErrLoadMessage)

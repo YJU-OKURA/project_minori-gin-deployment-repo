@@ -849,6 +849,10 @@ paths:
           description: success
           schema:
             type: string
+        "404":
+          description: Chat room not found
+          schema:
+            type: string
       security:
       - Bearer: []
       summary: チャットメッセージを取得
@@ -1807,35 +1811,6 @@ paths:
               type: string
             type: object
       summary: スクリーン共有情報を取得
-      tags:
-      - Live Class
-  /live/screen_share/start/{cid}:
-    post:
-      consumes:
-      - application/json
-      description: 特定のクラスのスクリーン共有を開始します。
-      parameters:
-      - description: クラスID
-        in: path
-        name: cid
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Message and stream URL indicating the screen sharing has started
-            successfully
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal server error with error message
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: スクリーン共有を開始
       tags:
       - Live Class
   /u/{userID}/applying-classes:
