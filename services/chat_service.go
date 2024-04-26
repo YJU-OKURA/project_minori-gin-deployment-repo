@@ -193,14 +193,19 @@ func (m *Manager) CreateRoom(roomID string) {
 }
 
 func (m *Manager) DeleteBroadcast(roomID string) {
-	if broadcaster, exists := m.roomChannels[roomID]; exists {
-		err := broadcaster.Close()
+	b, ok := m.roomChannels[roomID]
+	if ok {
+		err := b.Close()
 		if err != nil {
 			log.Printf("Error closing broadcaster for room %s: %v", roomID, err)
-		} else {
-			delete(m.roomChannels, roomID)
-			fmt.Printf("Chat room deleted: %s", roomID)
+			return
 		}
+		delete(m.roomChannels, roomID)
+		delErr := m.redisClient.Del(context.Background(), "chat:"+roomID).Err()
+		if delErr != nil {
+			log.Printf("Error deleting Redis key for room %s: %v", roomID, delErr)
+		}
+		log.Printf("Chat room deleted: %s", roomID)
 	} else {
 		log.Printf("Attempted to delete a non-existing room: %s", roomID)
 	}
