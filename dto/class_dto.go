@@ -6,6 +6,7 @@ type CreateClassRequest struct {
 	Limitation  *int    `form:"limitation"`             // 参加制限人数
 	Description *string `form:"description"`            // クラス説明
 	UID         uint    `form:"uid" binding:"required"` // ユーザID
+	Secret      *string `form:"secret,omitempty"`
 }
 
 type UpdateClassRequest struct {

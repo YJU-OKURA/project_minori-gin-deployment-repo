@@ -66,9 +66,10 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 	}
 
 	classCode := models.ClassCode{
-		Code: code,
-		CID:  classID,
-		UID:  request.UID,
+		Code:   code,
+		CID:    classID,
+		UID:    request.UID,
+		Secret: request.Secret,
 	}
 
 	if err := s.classCodeRepo.SaveClassCode(&classCode); err != nil {
