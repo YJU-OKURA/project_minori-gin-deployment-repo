@@ -218,7 +218,6 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	googleAuthRepo := repositories.NewGoogleAuthRepository(db)
 
 	userService := services.NewCreateUserService(userRepo)
-	createClassService := services.NewCreateClassService(classRepo, classUserRepo)
 	classBoardService := services.NewClassBoardService(classBoardRepo)
 	classCodeService := services.NewClassCodeService(classCodeRepo)
 	classUserService := services.NewClassUserService(classUserRepo, roleRepo)
@@ -230,15 +229,17 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	liveClassService := services.NewLiveClassService(classUserRepo, redisClient)
 	go manageChatRooms(db, chatManager)
 
+	createClassService := services.NewCreateClassService(classRepo, classUserRepo, classCodeRepo)
+
 	uploader := utils.NewAwsUploader()
 	userController := controllers.NewCreateUserController(userService)
-	createClassController := controllers.NewCreateClassController(createClassService, uploader)
 	classBoardController := controllers.NewClassBoardController(classBoardService, uploader)
 	classCodeController := controllers.NewClassCodeController(classCodeService, classUserService)
 	classScheduleController := controllers.NewClassScheduleController(classScheduleService)
 	classUserController := controllers.NewClassUserController(classUserService)
 	attendanceController := controllers.NewAttendanceController(attendanceService)
 	googleAuthController := controllers.NewGoogleAuthController(googleAuthService, jwtService)
+	createClassController := controllers.NewCreateClassController(createClassService, uploader)
 	chatController := controllers.NewChatController(chatManager, redisClient)
 	liveClassController := controllers.NewLiveClassController(liveClassService)
 
@@ -363,7 +364,7 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 // @description Type "Bearer" followed by a space and JWT token.
 func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController, jwtService services.JWTService) {
 	cl := router.Group("/api/gin/cl")
-	cl.Use(middlewares.TokenAuthMiddleware(jwtService))
+	//cl.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		cl.GET(":cid", controller.GetClass)
 		cl.POST("create", controller.CreateClass)

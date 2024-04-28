@@ -18,11 +18,11 @@ type ClassCodeService interface {
 
 // classCodeServiceImpl はClassCodeServiceの実装です。
 type classCodeServiceImpl struct {
-	repo *repositories.ClassCodeRepository
+	repo repositories.ClassCodeRepository
 }
 
 // NewClassCodeService はClassCodeServiceを生成します。
-func NewClassCodeService(repo *repositories.ClassCodeRepository) ClassCodeService {
+func NewClassCodeService(repo repositories.ClassCodeRepository) ClassCodeService {
 	return &classCodeServiceImpl{repo: repo}
 }
 
