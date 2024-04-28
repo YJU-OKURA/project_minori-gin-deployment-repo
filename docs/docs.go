@@ -900,28 +900,30 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Chat room created successfully",
+                        "description": "Chat room created successfully.",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Failed to create chat room",
+                        "description": "Failed to create chat room.",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
             }
         },
         "/chat/dm/{senderId}/{receiverId}": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "Send a direct message to a specific user",
+                "description": "特定のユーザー間のDM履歴を取得",
                 "consumes": [
                     "application/json"
                 ],
@@ -931,7 +933,49 @@ const docTemplate = `{
                 "tags": [
                     "Direct Message"
                 ],
-                "summary": "Send a direct message",
+                "summary": "DM履歴を取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sender ID",
+                        "name": "senderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Receiver ID",
+                        "name": "receiverId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Messages fetched successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "特定のユーザーにDMを送信",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Direct Message"
+                ],
+                "summary": "DMを送信",
                 "parameters": [
                     {
                         "type": "string",
@@ -958,50 +1002,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Message sent successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/chat/dm/{userId1}/{userId2}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Get direct messages history between two users",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Direct Message"
-                ],
-                "summary": "Get direct messages",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID 1",
-                        "name": "userId1",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User ID 2",
-                        "name": "userId2",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Messages fetched successfully",
                         "schema": {
                             "type": "string"
                         }
@@ -1095,9 +1095,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "success",
+                        "description": "Message posted successfully.",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -1130,7 +1131,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "success",
+                        "description": "Chat room deleted successfully.",
                         "schema": {
                             "type": "string"
                         }
