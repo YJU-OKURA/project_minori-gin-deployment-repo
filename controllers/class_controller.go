@@ -71,6 +71,7 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 // @Param limitation formData int false "クラスの定員数"
 // @Param description formData string false "クラスの説明"
 // @Param uid formData int true "クラスを作成するユーザーのUID"
+// @Param secret formData string false "クラス加入暗証番号"
 // @Param image formData file false "クラスの画像"
 // @Success 201 {object} map[string]interface{} "message: クラスが正常に作成されました"
 // @Failure 400 {object} map[string]interface{} "error: 不正なリクエストのエラーメッセージ"
@@ -160,19 +161,19 @@ func (cc *ClassController) UpdateClass(ctx *gin.Context) {
 	if fileHeader, _ := ctx.FormFile("image"); fileHeader != nil {
 		imageUrl, fileErr := cc.uploader.UploadImage(fileHeader, uint(classID), false)
 		if fileErr != nil {
-			respondWithError(ctx, http.StatusInternalServerError, "Image upload failed: "+fileErr.Error())
+			respondWithError(ctx, constants.StatusInternalServerError, "Image upload failed: "+fileErr.Error())
 			return
 		}
 
 		// Call a separate method to update the image URL
 		if err := cc.classService.UpdateClassImage(uint(classID), imageUrl); err != nil {
-			respondWithError(ctx, http.StatusInternalServerError, "Failed to update class image: "+err.Error())
+			respondWithError(ctx, constants.StatusInternalServerError, "Failed to update class image: "+err.Error())
 			return
 		}
 	}
 
 	if err := cc.classService.UpdateClass(uint(classID), uint(userID), updateDTO); err != nil {
-		respondWithError(ctx, http.StatusInternalServerError, "Class update failed: "+err.Error())
+		respondWithError(ctx, constants.StatusInternalServerError, "Class update failed: "+err.Error())
 		return
 	}
 

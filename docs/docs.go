@@ -1259,6 +1259,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "クラス加入暗証番号",
+                        "name": "secret",
+                        "in": "formData"
+                    },
+                    {
                         "type": "file",
                         "description": "クラスの画像",
                         "name": "image",

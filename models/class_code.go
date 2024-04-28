@@ -1,7 +1,7 @@
 package models
 
 type ClassCode struct {
-	ID     string  `gorm:"primaryKey;size:255"`
+	ID     uint    `gorm:"primaryKey;size:255;autoIncrement"`
 	Code   string  `gorm:"size:10;not null"`
 	Secret *string `gorm:"size:20"`
 	CID    uint    `gorm:"column:cid;not null;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
