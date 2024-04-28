@@ -1122,6 +1122,10 @@ paths:
         name: uid
         required: true
         type: integer
+      - description: クラス加入暗証番号
+        in: formData
+        name: secret
+        type: string
       - description: クラスの画像
         in: formData
         name: image
