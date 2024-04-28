@@ -758,23 +758,52 @@ paths:
       - application/json
       responses:
         "200":
-          description: Chat room created successfully
+          description: Chat room created successfully.
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "400":
-          description: Failed to create chat room
+          description: Failed to create chat room.
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       security:
       - Bearer: []
       summary: チャットルームを作成
       tags:
       - Chat Room
   /chat/dm/{senderId}/{receiverId}:
+    get:
+      consumes:
+      - application/json
+      description: 特定のユーザー間のDM履歴を取得
+      parameters:
+      - description: Sender ID
+        in: path
+        name: senderId
+        required: true
+        type: string
+      - description: Receiver ID
+        in: path
+        name: receiverId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages fetched successfully
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: DM履歴を取得
+      tags:
+      - Direct Message
     post:
       consumes:
       - application/json
-      description: Send a direct message to a specific user
+      description: 特定のユーザーにDMを送信
       parameters:
       - description: Sender ID
         in: path
@@ -800,35 +829,7 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: Send a direct message
-      tags:
-      - Direct Message
-  /chat/dm/{userId1}/{userId2}:
-    get:
-      consumes:
-      - application/json
-      description: Get direct messages history between two users
-      parameters:
-      - description: User ID 1
-        in: path
-        name: userId1
-        required: true
-        type: string
-      - description: User ID 2
-        in: path
-        name: userId2
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Messages fetched successfully
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: Get direct messages
+      summary: DMを送信
       tags:
       - Direct Message
   /chat/messages/{roomid}:
@@ -873,7 +874,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: success
+          description: Chat room deleted successfully.
           schema:
             type: string
       security:
@@ -905,9 +906,10 @@ paths:
       - application/json
       responses:
         "200":
-          description: success
+          description: Message posted successfully.
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       security:
       - Bearer: []
       summary: チャットルームに投稿
