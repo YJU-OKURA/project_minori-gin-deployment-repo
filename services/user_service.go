@@ -10,6 +10,7 @@ const ErrUserNotFound = "user not found"
 
 type UserService interface {
 	GetApplyingClasses(userID uint) ([]models.ClassUser, error)
+	SearchUsersByName(name string) ([]models.User, error)
 }
 
 type userServiceImpl struct {
@@ -32,4 +33,8 @@ func (s *userServiceImpl) GetApplyingClasses(userID uint) ([]models.ClassUser, e
 	}
 
 	return s.userRepo.GetApplyingClasses(userID)
+}
+
+func (s *userServiceImpl) SearchUsersByName(name string) ([]models.User, error) {
+	return s.userRepo.FindByName(name)
 }
