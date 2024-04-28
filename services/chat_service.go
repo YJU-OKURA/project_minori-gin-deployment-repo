@@ -151,7 +151,7 @@ func (m *Manager) SubmitDirectMessage(senderId, receiverId, text string) error {
 
 	messageJSON, _ := json.Marshal(msg)
 	key := "dm:" + senderId + ":" + receiverId
-	if err := m.redisClient.RPush(context.Background(), key, messageJSON).Err(); err != nil {
+	if err := m.pushToRedis(key, messageJSON); err != nil {
 		log.Printf("Redis error: %v", err)
 		return err
 	}
@@ -161,6 +161,19 @@ func (m *Manager) SubmitDirectMessage(senderId, receiverId, text string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (m *Manager) pushToRedis(key string, data []byte) error {
+	if err := m.redisClient.RPush(context.Background(), key, data).Err(); err != nil {
+		return err
+	}
+
+	// Set the expiration of the message to 1 hour
+	if err := m.redisClient.Expire(context.Background(), key, time.Hour).Err(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
