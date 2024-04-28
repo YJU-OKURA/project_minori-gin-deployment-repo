@@ -364,7 +364,7 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 // @description Type "Bearer" followed by a space and JWT token.
 func setupCreateClassRoutes(router *gin.Engine, controller *controllers.ClassController, jwtService services.JWTService) {
 	cl := router.Group("/api/gin/cl")
-	//cl.Use(middlewares.TokenAuthMiddleware(jwtService))
+	cl.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		cl.GET(":cid", controller.GetClass)
 		cl.POST("create", controller.CreateClass)
