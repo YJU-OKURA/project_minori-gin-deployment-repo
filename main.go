@@ -269,6 +269,7 @@ func setupUserRoutes(router *gin.Engine, controller *controllers.UserController,
 	u.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		u.GET(":userID/applying-classes", controller.GetApplyingClasses)
+		u.GET("search", controller.SearchByName)
 	}
 }
 

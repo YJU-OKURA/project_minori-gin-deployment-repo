@@ -1852,6 +1852,37 @@ paths:
       summary: 申し込んだクラスを取得
       tags:
       - User
+  /u/search:
+    get:
+      consumes:
+      - application/json
+      description: 名前でユーザーを検索します。
+      parameters:
+      - description: ユーザー名
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Nameパラメーターが必要です
+          schema:
+            type: string
+        "500":
+          description: サーバーエラー
+          schema:
+            type: string
+      summary: 名前でユーザーを検索
+      tags:
+      - User
 securityDefinitions:
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.
