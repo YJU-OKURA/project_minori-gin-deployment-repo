@@ -6,18 +6,23 @@ import (
 	"gorm.io/gorm"
 )
 
+type ClassCodeRepository interface {
+	FindByCode(code string) (*models.ClassCode, error)
+	SaveClassCode(classCode *models.ClassCode) error
+}
+
 // ClassCodeRepository はグループコードのリポジトリです。
-type ClassCodeRepository struct {
+type classCodeRepository struct {
 	db *gorm.DB
 }
 
 // NewClassCodeRepository はClassCodeRepositoryを生成します。
-func NewClassCodeRepository(db *gorm.DB) *ClassCodeRepository {
-	return &ClassCodeRepository{db: db}
+func NewClassCodeRepository(db *gorm.DB) ClassCodeRepository {
+	return &classCodeRepository{db: db}
 }
 
 // FindByCode は指定されたコードのグループコードを取得します。
-func (r *ClassCodeRepository) FindByCode(code string) (*models.ClassCode, error) {
+func (r *classCodeRepository) FindByCode(code string) (*models.ClassCode, error) {
 	var classCode models.ClassCode
 	result := r.db.Where("code = ?", code).First(&classCode)
 	if result.Error != nil {
@@ -29,4 +34,8 @@ func (r *ClassCodeRepository) FindByCode(code string) (*models.ClassCode, error)
 		return nil, result.Error
 	}
 	return &classCode, nil
+}
+
+func (r *classCodeRepository) SaveClassCode(classCode *models.ClassCode) error {
+	return r.db.Create(classCode).Error
 }

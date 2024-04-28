@@ -6,6 +6,8 @@ import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
+	"math/rand"
+	"time"
 )
 
 type ClassService interface {
@@ -14,18 +16,31 @@ type ClassService interface {
 	UpdateClassImage(classID uint, imageUrl string) error
 	UpdateClass(classID uint, userID uint, request dto.UpdateClassRequest) error
 	DeleteClass(classID uint, userID uint) error
+	GenerateClassCode() (string, error)
 }
 
 type classServiceImpl struct {
 	classRepo     repositories.ClassRepository
 	classUserRepo repositories.ClassUserRepository
+	classCodeRepo repositories.ClassCodeRepository
 }
 
-func NewCreateClassService(classRepo repositories.ClassRepository, classUserRepo repositories.ClassUserRepository) ClassService {
+func NewCreateClassService(
+	classRepo repositories.ClassRepository,
+	classUserRepo repositories.ClassUserRepository,
+	classCodeRepo repositories.ClassCodeRepository,
+) ClassService {
 	return &classServiceImpl{
 		classRepo:     classRepo,
 		classUserRepo: classUserRepo,
+		classCodeRepo: classCodeRepo,
 	}
+}
+
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
 }
 
 func (s *classServiceImpl) GetClass(classID uint) (*models.Class, error) {
@@ -42,6 +57,21 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 
 	classID, err := s.classRepo.Save(&class)
 	if err != nil {
+		return 0, err
+	}
+
+	code, err := s.GenerateClassCode()
+	if err != nil {
+		return 0, err
+	}
+
+	classCode := models.ClassCode{
+		Code: code,
+		CID:  classID,
+		UID:  request.UID,
+	}
+
+	if err := s.classCodeRepo.SaveClassCode(&classCode); err != nil {
 		return 0, err
 	}
 
@@ -105,4 +135,20 @@ func (s *classServiceImpl) DeleteClass(classID uint, userID uint) error {
 	}
 
 	return s.classRepo.Delete(classID)
+}
+
+func (s *classServiceImpl) GenerateClassCode() (string, error) {
+	for {
+		code := make([]byte, 6)
+		for i := range code {
+			code[i] = letters[rand.Intn(len(letters))]
+		}
+		existingCode, err := s.classCodeRepo.FindByCode(string(code))
+		if err != nil {
+			return "", err
+		}
+		if existingCode == nil {
+			return string(code), nil
+		}
+	}
 }
