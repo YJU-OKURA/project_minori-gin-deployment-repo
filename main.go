@@ -266,7 +266,7 @@ func setupRoutes(router *gin.Engine, userController *controllers.UserController,
 // @description Type "Bearer" followed by a space and JWT token.
 func setupUserRoutes(router *gin.Engine, controller *controllers.UserController, jwtService services.JWTService) {
 	u := router.Group("/api/gin/u")
-	//u.Use(middlewares.TokenAuthMiddleware(jwtService))
+	u.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		u.GET(":userID/applying-classes", controller.GetApplyingClasses)
 		u.GET("search", controller.SearchByName)
