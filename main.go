@@ -291,6 +291,8 @@ func setupClassBoardRoutes(router *gin.Engine, controller *controllers.ClassBoar
 		cb.PATCH(":id/:cid/:uid", controller.UpdateClassBoard)
 		cb.DELETE(":id", controller.DeleteClassBoard)
 
+		cb.GET("subscribe", controller.SubscribeClassBoardUpdates)
+
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
 		//protected := cb.Group("/:uid/:cid")
 		//protected.Use(middlewares.AdminMiddleware(classUserService), middlewares.AssistantMiddleware(classUserService))
