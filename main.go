@@ -15,8 +15,6 @@ import (
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 
-	_ "github.com/go-redis/redis/v8"
-
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/controllers"
 	docs "github.com/YJU-OKURA/project_minori-gin-deployment-repo/docs"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/migration"
@@ -450,7 +448,7 @@ func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatControl
 		chat.GET("stream/:scheduleId", chatController.StreamChat)
 		chat.GET("messages/:roomid", chatController.GetChatMessages)
 		chat.POST("dm/:senderId/:receiverId", chatController.SendDirectMessage)
-		chat.GET("dm/:userId1/:userId2", chatController.GetDirectMessages)
+		chat.GET("dm/:senderId/:receiverId", chatController.GetDirectMessages)
 	}
 }
 

@@ -7,18 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"io"
-	"net/http"
 )
 
-// ChatController インタフェースを実装
+// ChatController チャットコントローラ
 type ChatController struct {
 	chatManager *services.Manager
 	redisClient *redis.Client
-}
-
-type ChatMessage struct {
-	User    string `json:"user"`
-	Message string `json:"message"`
 }
 
 // NewChatController ChatControllerを生成
@@ -40,11 +34,11 @@ func NewChatController(chatMgr *services.Manager, redisClient *redis.Client) *Ch
 // @Success 200 {string} string "チャットルームが正常にハンドルされました"
 // @Router /chat/room/{scheduleId}/{userId} [get]
 // @Security Bearer
-func (controller *ChatController) HandleChatRoom(ctx *gin.Context) {
+func (c *ChatController) HandleChatRoom(ctx *gin.Context) {
 	scheduleId := ctx.Param("scheduleId")
 	userId := ctx.Param("userId")
 
-	ctx.HTML(http.StatusOK, "chat_room", gin.H{
+	ctx.HTML(constants.StatusOK, "chat_room", gin.H{
 		"scheduleId": scheduleId,
 		"userid":     userId,
 	})
@@ -57,18 +51,14 @@ func (controller *ChatController) HandleChatRoom(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param scheduleId path string true "Schedule ID"
-// @Success 200 {object} string "Chat room created successfully"
-// @Failure 400 {object} string "Failed to create chat room"
+// @Success 200 {object} map[string]interface{} "Chat room created successfully."
+// @Failure 400 {object} map[string]interface{} "Failed to create chat room."
 // @Router /chat/create-room/{scheduleId} [post]
 // @Security Bearer
-func (controller *ChatController) CreateChatRoom(ctx *gin.Context) {
+func (c *ChatController) CreateChatRoom(ctx *gin.Context) {
 	scheduleId := ctx.Param("scheduleId")
-
-	controller.chatManager.CreateRoom(scheduleId)
-
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{
-		"status": "Chat room created successfully",
-	})
+	c.chatManager.CreateRoom(scheduleId)
+	respondWithSuccess(ctx, constants.StatusOK, "Chat room created successfully.")
 }
 
 // PostToChatRoom godoc
@@ -80,25 +70,18 @@ func (controller *ChatController) CreateChatRoom(ctx *gin.Context) {
 // @Param scheduleId path int true "Schedule ID"
 // @Param user formData string true "User ID"
 // @Param message formData string true "Message"
-// @Success 200 {object} string "success"
+// @Success 200 {object} map[string]interface{} "Message posted successfully."
 // @Router /chat/room/{scheduleId} [post]
 // @Security Bearer
-func (controller *ChatController) PostToChatRoom(ctx *gin.Context) {
-	user := ctx.PostForm("user")
-	message := ctx.PostForm("message")
-	scheduleId := ctx.Param("scheduleId")
-
+func (c *ChatController) PostToChatRoom(ctx *gin.Context) {
+	user, message := ctx.PostForm("user"), ctx.PostForm("message")
 	if user == "" || message == "" {
-		respondWithError(ctx, constants.StatusBadRequest, "Invalid request: user and message must be provided")
+		respondWithError(ctx, constants.StatusBadRequest, "User and message must be provided.")
 		return
 	}
-
-	controller.chatManager.Submit(user, scheduleId, message)
-
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{
-		"status":  "Message sent",
-		"message": message,
-	})
+	scheduleId := ctx.Param("scheduleId")
+	c.chatManager.Submit(user, scheduleId, message)
+	respondWithSuccess(ctx, constants.StatusOK, "Message posted successfully.")
 }
 
 // DeleteChatRoom godoc
@@ -108,16 +91,13 @@ func (controller *ChatController) PostToChatRoom(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param scheduleId path string true "Schedule ID"
-// @Success 200 {object} string "success"
+// @Success 200 {object} string "Chat room deleted successfully."
 // @Router /chat/room/{scheduleId} [delete]
 // @Security Bearer
-func (controller *ChatController) DeleteChatRoom(ctx *gin.Context) {
+func (c *ChatController) DeleteChatRoom(ctx *gin.Context) {
 	scheduleId := ctx.Param("scheduleId")
-	controller.chatManager.DeleteBroadcast(scheduleId)
-
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{
-		"status": constants.DeleteSuccess,
-	})
+	c.chatManager.DeleteBroadcast(scheduleId)
+	respondWithSuccess(ctx, constants.StatusOK, "Chat room deleted successfully.")
 }
 
 // StreamChat godoc
@@ -129,19 +109,18 @@ func (controller *ChatController) DeleteChatRoom(ctx *gin.Context) {
 // @Param scheduleId path int true "Schedule ID"
 // @Router /chat/stream/{scheduleId} [get]
 // @Security Bearer
-func (controller *ChatController) StreamChat(ctx *gin.Context) {
+func (c *ChatController) StreamChat(ctx *gin.Context) {
 	scheduleId := ctx.Param("scheduleId")
-	listener := controller.chatManager.OpenListener(scheduleId)
-	defer controller.chatManager.CloseListener(scheduleId, listener)
+	listener := c.chatManager.OpenListener(scheduleId)
+	defer c.chatManager.CloseListener(scheduleId, listener)
 
-	clientGone := ctx.Request.Context().Done()
 	ctx.Stream(func(w io.Writer) bool {
 		select {
-		case <-clientGone:
-			return false
 		case message := <-listener:
 			ctx.SSEvent("message", message)
 			return true
+		case <-ctx.Request.Context().Done():
+			return false
 		}
 	})
 }
@@ -157,34 +136,28 @@ func (controller *ChatController) StreamChat(ctx *gin.Context) {
 // @Failure 404 {object} string "Chat room not found"
 // @Router /chat/messages/{roomid} [get]
 // @Security Bearer
-func (controller *ChatController) GetChatMessages(ctx *gin.Context) {
+func (c *ChatController) GetChatMessages(ctx *gin.Context) {
 	roomid := ctx.Param("roomid")
-
-	// Check if the room exists in Redis
-	exists, err := controller.redisClient.Exists(context.Background(), "chat:"+roomid).Result()
+	exists, err := c.redisClient.Exists(context.Background(), "chat:"+roomid).Result()
 	if err != nil {
-		respondWithError(ctx, constants.StatusInternalServerError, "Error checking room existence")
+		respondWithError(ctx, constants.StatusInternalServerError, "Error checking room existence.")
 		return
 	}
 	if exists == 0 {
-		respondWithError(ctx, http.StatusNotFound, "Chat room not found")
+		respondWithError(ctx, constants.StatusNotFound, "Chat room not found.")
 		return
 	}
-
-	messages, err := controller.redisClient.LRange(context.Background(), "chat:"+roomid, 0, -1).Result()
+	messages, err := c.redisClient.LRange(context.Background(), "chat:"+roomid, 0, -1).Result()
 	if err != nil {
-		respondWithError(ctx, constants.StatusInternalServerError, constants.ErrLoadMessage)
+		respondWithError(ctx, constants.StatusInternalServerError, "Failed to load messages.")
 		return
 	}
-
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{
-		"messages": messages,
-	})
+	respondWithSuccess(ctx, constants.StatusOK, messages)
 }
 
 // SendDirectMessage godoc
-// @Summary Send a direct message
-// @Description Send a direct message to a specific user
+// @Summary DMを送信
+// @Description 特定のユーザーにDMを送信
 // @Tags Direct Message
 // @Accept json
 // @Produce json
@@ -194,44 +167,36 @@ func (controller *ChatController) GetChatMessages(ctx *gin.Context) {
 // @Success 200 {object} string "Message sent successfully"
 // @Router /chat/dm/{senderId}/{receiverId} [post]
 // @Security Bearer
-func (controller *ChatController) SendDirectMessage(ctx *gin.Context) {
-	senderId := ctx.Param("senderId")
-	receiverId := ctx.Param("receiverId")
-	message := ctx.PostForm("message")
-
-	if err := controller.chatManager.SubmitDirectMessage(senderId, receiverId, message); err != nil {
-		respondWithError(ctx, http.StatusInternalServerError, constants.ErrSendMessage)
+func (c *ChatController) SendDirectMessage(ctx *gin.Context) {
+	senderId, receiverId, message := ctx.Param("senderId"), ctx.Param("receiverId"), ctx.PostForm("message")
+	if senderId == "" || receiverId == "" || message == "" {
+		respondWithError(ctx, constants.StatusBadRequest, "Sender, receiver and message must be provided and non-empty.")
 		return
 	}
-
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{
-		"status":  constants.MessageSent,
-		"message": message,
-	})
+	if err := c.chatManager.SubmitDirectMessage(senderId, receiverId, message); err != nil {
+		respondWithError(ctx, constants.StatusInternalServerError, "Failed to send message.")
+		return
+	}
+	respondWithSuccess(ctx, constants.StatusOK, "Message sent successfully.")
 }
 
 // GetDirectMessages godoc
-// @Summary Get direct messages
-// @Description Get direct messages history between two users
+// @Summary DM履歴を取得
+// @Description 特定のユーザー間のDM履歴を取得
 // @Tags Direct Message
 // @Accept json
 // @Produce json
-// @Param userId1 path string true "User ID 1"
-// @Param userId2 path string true "User ID 2"
+// @Param senderId path string true "Sender ID"
+// @Param receiverId path string true "Receiver ID"
 // @Success 200 {object} string "Messages fetched successfully"
-// @Router /chat/dm/{userId1}/{userId2} [get]
+// @Router /chat/dm/{senderId}/{receiverId} [get]
 // @Security Bearer
-func (controller *ChatController) GetDirectMessages(ctx *gin.Context) {
-	userId1 := ctx.Param("userId1")
-	userId2 := ctx.Param("userId2")
-
-	messages, err := controller.chatManager.GetDirectMessages(userId1, userId2)
+func (c *ChatController) GetDirectMessages(ctx *gin.Context) {
+	senderId, receiverId := ctx.Param("senderId"), ctx.Param("receiverId")
+	messages, err := c.chatManager.GetDirectMessages(senderId, receiverId)
 	if err != nil {
-		respondWithError(ctx, constants.StatusInternalServerError, constants.ErrLoadMessage)
+		respondWithError(ctx, constants.StatusInternalServerError, "Failed to fetch messages.")
 		return
 	}
-
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{
-		"messages": messages,
-	})
+	respondWithSuccess(ctx, constants.StatusOK, messages)
 }
