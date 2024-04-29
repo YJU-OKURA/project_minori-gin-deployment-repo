@@ -668,6 +668,25 @@ paths:
       summary: 公告されたグループ掲示板を取得
       tags:
       - Class Board
+  /cb/subscribe:
+    get:
+      description: クラス掲示板の更新を購読します。
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: Class board updates subscribed
+          schema:
+            type: string
+        "500":
+          description: Error setting up SSE connection.
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: クラス掲示板の更新を購読
+      tags:
+      - Class Board
   /cc/checkSecretExists:
     get:
       consumes:

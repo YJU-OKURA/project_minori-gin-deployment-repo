@@ -5,6 +5,8 @@ import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/utils"
+	"net/http"
+	"sync"
 )
 
 // ClassBoardService インタフェース
@@ -15,19 +17,23 @@ type ClassBoardService interface {
 	GetAnnouncedClassBoards(cid uint) ([]models.ClassBoard, error)
 	UpdateClassBoard(id uint, b dto.ClassBoardUpdateDTO, imageUrl string) (*models.ClassBoard, error) // Added imageUrl parameter
 	DeleteClassBoard(id uint) error
+	GetUpdateNotifier() *UpdateNotifier
 }
 
 // classBoardService インタフェースを実装
 type classBoardService struct {
 	repo     repositories.ClassBoardRepository
 	uploader utils.Uploader
+	notifier *UpdateNotifier
 }
 
 // NewClassBoardService ClassClassServiceを生成
 func NewClassBoardService(repo repositories.ClassBoardRepository) ClassBoardService {
+	notifier := NewUpdateNotifier()
 	return &classBoardService{
 		repo:     repo,
 		uploader: utils.NewAwsUploader(),
+		notifier: notifier,
 	}
 }
 
@@ -99,4 +105,51 @@ func (s *classBoardService) UpdateClassBoard(id uint, b dto.ClassBoardUpdateDTO,
 // DeleteClassBoard 削除
 func (s *classBoardService) DeleteClassBoard(id uint) error {
 	return s.repo.DeleteClassBoard(id)
+}
+
+type UpdateNotifier struct {
+	Register   chan http.ResponseWriter
+	Unregister chan http.ResponseWriter
+	Broadcast  chan []byte
+	clients    map[http.ResponseWriter]struct{}
+	mu         sync.Mutex
+}
+
+func NewUpdateNotifier() *UpdateNotifier {
+	notifier := &UpdateNotifier{
+		Register:   make(chan http.ResponseWriter),
+		Unregister: make(chan http.ResponseWriter),
+		Broadcast:  make(chan []byte),
+		clients:    make(map[http.ResponseWriter]struct{}),
+	}
+	go notifier.run()
+	return notifier
+}
+
+func (u *UpdateNotifier) run() {
+	for {
+		select {
+		case s := <-u.Register:
+			u.mu.Lock()
+			u.clients[s] = struct{}{}
+			u.mu.Unlock()
+		case s := <-u.Unregister:
+			u.mu.Lock()
+			delete(u.clients, s)
+			u.mu.Unlock()
+		case msg := <-u.Broadcast:
+			u.mu.Lock()
+			for s := range u.clients {
+				_, _ = s.Write(msg)
+				if f, ok := s.(http.Flusher); ok {
+					f.Flush()
+				}
+			}
+			u.mu.Unlock()
+		}
+	}
+}
+
+func (s *classBoardService) GetUpdateNotifier() *UpdateNotifier {
+	return s.notifier
 }

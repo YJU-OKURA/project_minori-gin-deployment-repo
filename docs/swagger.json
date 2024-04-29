@@ -528,6 +528,37 @@
                 }
             }
         },
+        "/cb/subscribe": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "クラス掲示板の更新を購読します。",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "Class Board"
+                ],
+                "summary": "クラス掲示板の更新を購読",
+                "responses": {
+                    "200": {
+                        "description": "Class board updates subscribed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error setting up SSE connection.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/cb/{id}": {
             "get": {
                 "security": [

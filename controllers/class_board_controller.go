@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
@@ -72,6 +73,9 @@ func (c *ClassBoardController) CreateClassBoard(ctx *gin.Context) {
 		handleServiceError(ctx, err)
 		return
 	}
+
+	msg := fmt.Sprintf("data: %s\n\n", "New class board created")
+	c.classBoardService.GetUpdateNotifier().Broadcast <- []byte(msg)
 
 	respondWithSuccess(ctx, constants.StatusOK, result)
 }
@@ -227,6 +231,9 @@ func (c *ClassBoardController) UpdateClassBoard(ctx *gin.Context) {
 		return
 	}
 
+	msg := fmt.Sprintf("data: %s\n\n", "Class board updated")
+	c.classBoardService.GetUpdateNotifier().Broadcast <- []byte(msg)
+
 	respondWithSuccess(ctx, constants.StatusOK, result)
 }
 
@@ -279,4 +286,38 @@ func (c *ClassBoardController) handleImageUpload(ctx *gin.Context, cid uint) (st
 	}
 
 	return imageUrl, nil
+}
+
+// SubscribeClassBoardUpdates godoc
+// @Summary クラス掲示板の更新を購読
+// @Description クラス掲示板の更新を購読します。
+// @Tags Class Board
+// @CrossOrigin
+// @Produce text/event-stream
+// @Success 200 {string} string "Class board updates subscribed"
+// @Failure 500 {string} string "Error setting up SSE connection."
+// @Router /cb/subscribe [get]
+// @Security Bearer
+// @Notes Clients should reconnect automatically in case the connection closes.
+func (c *ClassBoardController) SubscribeClassBoardUpdates(ctx *gin.Context) {
+	ctx.Writer.Header().Set("Content-Type", "text/event-stream")
+	ctx.Writer.Header().Set("Cache-Control", "no-cache")
+	ctx.Writer.Header().Set("Connection", "keep-alive")
+
+	notifier := c.classBoardService.GetUpdateNotifier()
+
+	// Adding defer to recover from any panic and avoid crashing the server
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recovered in SubscribeClassBoardUpdates: %v", r)
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
+		}
+		notifier.Unregister <- ctx.Writer
+	}()
+
+	// Register the client for updates
+	notifier.Register <- ctx.Writer
+
+	// Keep the connection open until the client disconnects
+	<-ctx.Request.Context().Done()
 }
