@@ -10,6 +10,7 @@ type UserRepository interface {
 	GetApplyingClasses(userID uint) ([]models.ClassUser, error)
 	UserExists(userID uint) (bool, error)
 	FindByName(name string) ([]models.User, error)
+	DeleteUser(uid uint) error
 }
 
 // roleConnection　はRoleRepositoryの実装です。
@@ -40,4 +41,8 @@ func (r *userRepository) FindByName(name string) ([]models.User, error) {
 	var users []models.User
 	err := r.db.Where("name LIKE ?", "%"+name+"%").Find(&users).Error
 	return users, err
+}
+
+func (r *userRepository) DeleteUser(uid uint) error {
+	return r.db.Where("uid = ?", uid).Delete(&models.User{}).Error
 }
