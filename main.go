@@ -453,6 +453,7 @@ func setupChatRoutes(router *gin.Engine, chatController *controllers.ChatControl
 		chat.GET("messages/:roomid", chatController.GetChatMessages)
 		chat.POST("dm/:senderId/:receiverId", chatController.SendDirectMessage)
 		chat.GET("dm/:senderId/:receiverId", chatController.GetDirectMessages)
+		chat.DELETE("dm/:senderId/:receiverId", chatController.DeleteDirectMessages)
 	}
 }
 

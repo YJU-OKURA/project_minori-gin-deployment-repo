@@ -200,3 +200,23 @@ func (c *ChatController) GetDirectMessages(ctx *gin.Context) {
 	}
 	respondWithSuccess(ctx, constants.StatusOK, messages)
 }
+
+// DeleteDirectMessages godoc
+// @Summary DM履歴を削除
+// @Description 特定のユーザー間のDM履歴を削除
+// @Tags Direct Message
+// @Accept json
+// @Produce json
+// @Param senderId path string true "Sender ID"
+// @Param receiverId path string true "Receiver ID"
+// @Success 200 {object} string "Messages deleted successfully"
+// @Router /chat/dm/{senderId}/{receiverId} [delete]
+// @Security Bearer
+func (c *ChatController) DeleteDirectMessages(ctx *gin.Context) {
+	senderId, receiverId := ctx.Param("senderId"), ctx.Param("receiverId")
+	if err := c.chatManager.DeleteDirectMessages(senderId, receiverId); err != nil {
+		respondWithError(ctx, constants.StatusInternalServerError, "Failed to delete messages.")
+		return
+	}
+	respondWithSuccess(ctx, constants.StatusOK, "Messages deleted successfully.")
+}

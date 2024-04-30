@@ -792,6 +792,33 @@ paths:
       tags:
       - Chat Room
   /chat/dm/{senderId}/{receiverId}:
+    delete:
+      consumes:
+      - application/json
+      description: 特定のユーザー間のDM履歴を削除
+      parameters:
+      - description: Sender ID
+        in: path
+        name: senderId
+        required: true
+        type: string
+      - description: Receiver ID
+        in: path
+        name: receiverId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages deleted successfully
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: DM履歴を削除
+      tags:
+      - Direct Message
     get:
       consumes:
       - application/json
