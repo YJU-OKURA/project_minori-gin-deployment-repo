@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type UserController struct {
@@ -80,4 +81,36 @@ func (uc *UserController) SearchByName(ctx *gin.Context) {
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, gin.H{"users": users})
+}
+
+// RemoveUserFromService godoc
+// @Summary ユーザー削除
+// @Description ユーザーIDによってサービスからユーザーを削除します。
+// @Tags User
+// @Accept  json
+// @Produce  json
+// @Param   uid   path    int  true  "ユーザーID"
+// @Success 200 {object} map[string]interface{} "message: ユーザーが正常に削除されました。"
+// @Failure 400 {object} map[string]interface{} "error: 不正なリクエスト、無効なユーザーIDです。"
+// @Failure 404 {object} map[string]interface{} "error: ユーザーが見つかりません。"
+// @Failure 500 {object} map[string]interface{} "error: サーバー内部エラーです。"
+// @Router /u/{uid}/delete [delete]
+func (c *UserController) RemoveUserFromService(ctx *gin.Context) {
+	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 64)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.ErrNoUserID)
+		return
+	}
+
+	err = c.userService.RemoveUserFromService(uint(uid))
+	if err != nil {
+		if err.Error() == services.ErrUserNotFound {
+			respondWithError(ctx, constants.StatusNotFound, constants.UserNotFound)
+		} else {
+			handleServiceError(ctx, err)
+		}
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"deletedUserID": uid})
 }
