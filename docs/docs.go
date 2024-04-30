@@ -1038,6 +1038,48 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "特定のユーザー間のDM履歴を削除",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Direct Message"
+                ],
+                "summary": "DM履歴を削除",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sender ID",
+                        "name": "senderId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Receiver ID",
+                        "name": "receiverId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Messages deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/chat/messages/{roomid}": {
