@@ -24,6 +24,7 @@ type ClassUserRepository interface {
 	GetFavoriteClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error)
 	IsAdmin(uid uint, cid uint) (bool, error)
 	IsMember(uid uint, cid uint) (bool, error)
+	SearchUserClassesByName(uid uint, name string) ([]dto.UserClassInfoDTO, error)
 }
 
 type classUserRepository struct {
@@ -211,4 +212,18 @@ func (r *classUserRepository) IsMember(uid uint, cid uint) (bool, error) {
 	var count int64
 	r.db.Model(&models.ClassUser{}).Where("uid = ? AND cid = ?", uid, cid).Count(&count)
 	return count > 0, nil
+}
+
+func (r *classUserRepository) SearchUserClassesByName(uid uint, name string) ([]dto.UserClassInfoDTO, error) {
+	var classes []dto.UserClassInfoDTO
+	err := r.db.Table("classes").
+		Select("classes.id, classes.name, class_users.role_id, class_users.is_favorite").
+		Joins("join class_users on classes.id = class_users.cid").
+		Where("class_users.uid = ? AND classes.name LIKE ?", uid, "%"+name+"%").
+		Scan(&classes).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return classes, nil
 }

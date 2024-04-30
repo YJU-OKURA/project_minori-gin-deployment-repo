@@ -400,6 +400,7 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 			userRoutes.PATCH(":cid/toggle-favorite", controller.ToggleFavorite)
 			userRoutes.PUT(":cid/:rename", controller.UpdateUserName)
 			userRoutes.DELETE(":cid/remove", controller.RemoveUserFromClass)
+			userRoutes.GET("classes/search", controller.SearchUserClassesByName)
 		}
 
 		// TODO: フロントエンド側の実装が完了したら、コメントアウトを外す
