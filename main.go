@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/middlewares"
-	"github.com/go-redis/redis/v8"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/middlewares"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 
@@ -270,6 +271,7 @@ func setupUserRoutes(router *gin.Engine, controller *controllers.UserController,
 	{
 		u.GET(":userID/applying-classes", controller.GetApplyingClasses)
 		u.GET("search", controller.SearchByName)
+		u.DELETE(":userID/delete", controller.RemoveUserFromService)
 	}
 }
 
