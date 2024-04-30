@@ -223,3 +223,12 @@ func (m *Manager) DeleteBroadcast(roomID string) {
 		log.Printf("Attempted to delete a non-existing room: %s", roomID)
 	}
 }
+
+func (m *Manager) DeleteDirectMessages(senderId, receiverId string) error {
+	key := "dm:" + senderId + ":" + receiverId
+	if err := m.redisClient.Del(context.Background(), key).Err(); err != nil {
+		log.Printf("Error deleting DMs from Redis: %v", err)
+		return err
+	}
+	return nil
+}
