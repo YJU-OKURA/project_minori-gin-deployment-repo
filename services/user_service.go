@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
 )
@@ -11,6 +12,7 @@ const ErrUserNotFound = "user not found"
 type UserService interface {
 	GetApplyingClasses(userID uint) ([]models.ClassUser, error)
 	SearchUsersByName(name string) ([]models.User, error)
+	RemoveUserFromService(uid uint) error
 }
 
 type userServiceImpl struct {
@@ -37,4 +39,8 @@ func (s *userServiceImpl) GetApplyingClasses(userID uint) ([]models.ClassUser, e
 
 func (s *userServiceImpl) SearchUsersByName(name string) ([]models.User, error) {
 	return s.userRepo.FindByName(name)
+}
+
+func (s *userServiceImpl) RemoveUserFromService(uid uint) error {
+	return s.userRepo.DeleteUser(uid)
 }
