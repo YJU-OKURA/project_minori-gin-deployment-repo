@@ -19,6 +19,7 @@ type ClassUserService interface {
 	UpdateUserName(uid uint, cid uint, newName string) error
 	ToggleFavorite(uid uint, cid uint) error
 	RemoveUserFromClass(uid uint, cid uint) error
+	SearchUserClassesByName(uid uint, name string) ([]dto.UserClassInfoDTO, error)
 }
 
 // classUserServiceImpl はClassCodeServiceの実装です。
@@ -85,4 +86,8 @@ func (s *classUserServiceImpl) ToggleFavorite(uid uint, cid uint) error {
 
 func (s *classUserServiceImpl) RemoveUserFromClass(uid uint, cid uint) error {
 	return s.classUserRepo.DeleteClassUser(uid, cid)
+}
+
+func (s *classUserServiceImpl) SearchUserClassesByName(uid uint, name string) ([]dto.UserClassInfoDTO, error) {
+	return s.classUserRepo.SearchUserClassesByName(uid, name)
 }

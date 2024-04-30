@@ -447,3 +447,45 @@ func (c *ClassUserController) RemoveUserFromClass(ctx *gin.Context) {
 
 	respondWithSuccess(ctx, constants.StatusOK, constants.DeleteSuccess)
 }
+
+// SearchUserClassesByName godoc
+// @Summary クラス名でクラスを検索します
+// @Description 指定されたユーザーIDとクラス名に基づいて、クラスを検索します。
+// @Tags Class User
+// @Accept json
+// @Produce json
+// @Param uid path int true "ユーザーID"
+// @Param name query string true "クラス名"
+// @Success 200 {array} dto.UserClassInfoDTO "Successfully found classes"
+// @Failure 400 {object} string "Invalid Request"
+// @Failure 404 {object} string "No classes found"
+// @Failure 500 {object} string "Internal Server Error"
+// @Router /cu/{uid}/classes/search [get]
+// @Security Bearer
+func (c *ClassUserController) SearchUserClassesByName(ctx *gin.Context) {
+	uidStr := ctx.Param("uid")
+	className := ctx.Query("name")
+
+	if className == "" {
+		respondWithError(ctx, constants.StatusBadRequest, "Class name must not be empty")
+		return
+	}
+
+	uid, err := strconv.ParseUint(uidStr, 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	classes, err := c.classUserService.SearchUserClassesByName(uint(uid), className)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			respondWithError(ctx, constants.StatusNotFound, "No classes found")
+			return
+		}
+		respondWithError(ctx, constants.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, classes)
+}
