@@ -89,20 +89,20 @@ func (uc *UserController) SearchByName(ctx *gin.Context) {
 // @Tags User
 // @Accept  json
 // @Produce  json
-// @Param   uid   path    int  true  "ユーザーID"
+// @Param   userID   path    int  true  "ユーザーID"
 // @Success 200 {object} map[string]interface{} "message: ユーザーが正常に削除されました。"
 // @Failure 400 {object} map[string]interface{} "error: 不正なリクエスト、無効なユーザーIDです。"
 // @Failure 404 {object} map[string]interface{} "error: ユーザーが見つかりません。"
 // @Failure 500 {object} map[string]interface{} "error: サーバー内部エラーです。"
-// @Router /u/{uid}/delete [delete]
+// @Router /u/{userID}/delete [delete]
 func (c *UserController) RemoveUserFromService(ctx *gin.Context) {
-	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 64)
+	userID, err := strconv.ParseUint(ctx.Param("userID"), 10, 32)
 	if err != nil {
 		respondWithError(ctx, constants.StatusBadRequest, constants.ErrNoUserID)
 		return
 	}
 
-	err = c.userService.RemoveUserFromService(uint(uid))
+	err = c.userService.RemoveUserFromService(uint(userID))
 	if err != nil {
 		if err.Error() == services.ErrUserNotFound {
 			respondWithError(ctx, constants.StatusNotFound, constants.UserNotFound)
@@ -112,5 +112,5 @@ func (c *UserController) RemoveUserFromService(ctx *gin.Context) {
 		return
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{"deletedUserID": uid})
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"deletedUserID": userID})
 }

@@ -2712,60 +2712,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/u/{uid}/delete": {
-            "delete": {
-                "description": "ユーザーIDによってサービスからユーザーを削除します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "ユーザー削除",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ユーザーID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "message: ユーザーが正常に削除されました。",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "error: 不正なリクエスト、無効なユーザーIDです。",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "error: ユーザーが見つかりません。",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "error: サーバー内部エラーです。",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/u/{userID}/applying-classes": {
             "get": {
                 "security": [
@@ -2819,6 +2765,60 @@ const docTemplate = `{
                         "description": "内部サーバーエラー",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/u/{userID}/delete": {
+            "delete": {
+                "description": "ユーザーIDによってサービスからユーザーを削除します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "ユーザー削除",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ユーザーID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "message: ユーザーが正常に削除されました。",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "error: 不正なリクエスト、無効なユーザーIDです。",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "error: ユーザーが見つかりません。",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error: サーバー内部エラーです。",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
