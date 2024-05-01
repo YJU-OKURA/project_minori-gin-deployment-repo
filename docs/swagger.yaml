@@ -1907,43 +1907,6 @@ paths:
       summary: スクリーン共有情報を取得
       tags:
       - Live Class
-  /u/{uid}/delete:
-    delete:
-      consumes:
-      - application/json
-      description: ユーザーIDによってサービスからユーザーを削除します。
-      parameters:
-      - description: ユーザーID
-        in: path
-        name: uid
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'message: ユーザーが正常に削除されました。'
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: 'error: 不正なリクエスト、無効なユーザーIDです。'
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: 'error: ユーザーが見つかりません。'
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: 'error: サーバー内部エラーです。'
-          schema:
-            additionalProperties: true
-            type: object
-      summary: ユーザー削除
-      tags:
-      - User
   /u/{userID}/applying-classes:
     get:
       consumes:
@@ -1979,6 +1942,43 @@ paths:
       security:
       - Bearer: []
       summary: 申し込んだクラスを取得
+      tags:
+      - User
+  /u/{userID}/delete:
+    delete:
+      consumes:
+      - application/json
+      description: ユーザーIDによってサービスからユーザーを削除します。
+      parameters:
+      - description: ユーザーID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message: ユーザーが正常に削除されました。'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: 不正なリクエスト、無効なユーザーIDです。'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 'error: ユーザーが見つかりません。'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: サーバー内部エラーです。'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: ユーザー削除
       tags:
       - User
   /u/search:
