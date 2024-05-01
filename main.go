@@ -83,7 +83,7 @@ func ensureEnvVariables() {
 		log.Println("環境変数ファイルが読み込めませんでした。")
 	}
 
-	requiredVars := []string{"MYSQL_HOST", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_DATABASE", "MYSQL_PORT"}
+	requiredVars := []string{"POSTGRES_HOST", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DATABASE", "POSTGRES_PORT"}
 
 	for _, varName := range requiredVars {
 		if value := os.Getenv(varName); value == "" {
