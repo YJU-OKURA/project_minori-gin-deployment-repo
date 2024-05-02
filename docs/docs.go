@@ -1976,7 +1976,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/cu/class/{cid}/{role}/members": {
+        "/cu/class/{cid}/members": {
             "get": {
                 "security": [
                     {
@@ -2003,9 +2003,9 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "ロールID",
-                        "name": "roleID",
+                        "type": "string",
+                        "description": "ロール名",
+                        "name": "role",
                         "in": "query"
                     }
                 ],
@@ -2155,14 +2155,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/cu/{uid}/classes/{roleID}": {
+        "/cu/{uid}/classes/{role}": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "ユーザーIDとロールIDに基づいて、ユーザーが所属しているクラスの情報を取得します。ロールIDが2の場合は自分が作ったクラスリスト、ロールIDが4の場合はユーザーから申し込んだクラスリスト、ロールIDが6の場合はクラスの管理者から招待されたクラスリストを取得します。",
+                "description": "ユーザーIDとロール名に基づいて、ユーザーが所属しているクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -2182,9 +2182,9 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "ロールID",
-                        "name": "roleID",
+                        "type": "string",
+                        "description": "ロール名",
+                        "name": "role",
                         "in": "path",
                         "required": true
                     },
@@ -2490,6 +2490,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/cu/{uid}/{cid}/role/{roleName}": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Change the role of a user based on user ID and class ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "Change a user's role.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class ID",
+                        "name": "cid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Role Name",
+                        "name": "roleName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role updated successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "User or class not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/cu/{uid}/{cid}/toggle-favorite": {
             "patch": {
                 "security": [
@@ -2539,70 +2602,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "ユーザーまたはクラスが見つかりません",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/cu/{uid}/{cid}/{roleID}": {
-            "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "ユーザーのロールを変更します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Class User"
-                ],
-                "summary": "ユーザーのロールを変更します。",
-                "operationId": "change-user-role",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ユーザーID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "クラスID",
-                        "name": "cid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "ロールID",
-                        "name": "roleID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "無効なリクエスト",
                         "schema": {
                             "type": "string"
                         }
@@ -2866,8 +2865,8 @@ const docTemplate = `{
                 "nickname": {
                     "type": "string"
                 },
-                "role_id": {
-                    "type": "integer"
+                "role": {
+                    "type": "string"
                 },
                 "uid": {
                     "type": "integer"
@@ -2938,8 +2937,8 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "role_id": {
-                    "type": "integer"
+                "role": {
+                    "type": "string"
                 }
             }
         },
@@ -3076,8 +3075,8 @@ const docTemplate = `{
                 "nickname": {
                     "type": "string"
                 },
-                "roleID": {
-                    "type": "integer"
+                "role": {
+                    "type": "string"
                 },
                 "uid": {
                     "type": "integer"
