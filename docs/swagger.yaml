@@ -25,8 +25,8 @@ definitions:
         type: string
       nickname:
         type: string
-      role_id:
-        type: integer
+      role:
+        type: string
       uid:
         type: integer
     type: object
@@ -73,8 +73,8 @@ definitions:
         type: integer
       name:
         type: string
-      role_id:
-        type: integer
+      role:
+        type: string
     type: object
   models.Attendance:
     properties:
@@ -165,8 +165,8 @@ definitions:
         type: boolean
       nickname:
         type: string
-      roleID:
-        type: integer
+      role:
+        type: string
       uid:
         type: integer
       user:
@@ -1458,48 +1458,6 @@ paths:
       summary: ライブ中のクラススケジュールを取得
       tags:
       - Class Schedule
-  /cu/{uid}/{cid}/{roleID}:
-    patch:
-      consumes:
-      - application/json
-      description: ユーザーのロールを変更します。
-      operationId: change-user-role
-      parameters:
-      - description: ユーザーID
-        in: path
-        name: uid
-        required: true
-        type: string
-      - description: クラスID
-        in: path
-        name: cid
-        required: true
-        type: string
-      - description: ロールID
-        in: path
-        name: roleID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            type: string
-        "400":
-          description: 無効なリクエスト
-          schema:
-            type: string
-        "500":
-          description: サーバーエラーが発生しました
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: ユーザーのロールを変更します。
-      tags:
-      - Class User
   /cu/{uid}/{cid}/info:
     get:
       consumes:
@@ -1619,6 +1577,47 @@ paths:
       summary: ユーザーの名前を更新します。
       tags:
       - Class User
+  /cu/{uid}/{cid}/role/{roleName}:
+    patch:
+      consumes:
+      - application/json
+      description: Change the role of a user based on user ID and class ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      - description: Class ID
+        in: path
+        name: cid
+        required: true
+        type: integer
+      - description: Role Name
+        in: path
+        name: roleName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role updated successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: User or class not found
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Change a user's role.
+      tags:
+      - Class User
   /cu/{uid}/{cid}/toggle-favorite:
     patch:
       consumes:
@@ -1694,22 +1693,22 @@ paths:
       summary: ユーザーが参加しているクラスのリストを取得
       tags:
       - Class User
-  /cu/{uid}/classes/{roleID}:
+  /cu/{uid}/classes/{role}:
     get:
       consumes:
       - application/json
-      description: ユーザーIDとロールIDに基づいて、ユーザーが所属しているクラスの情報を取得します。ロールIDが2の場合は自分が作ったクラスリスト、ロールIDが4の場合はユーザーから申し込んだクラスリスト、ロールIDが6の場合はクラスの管理者から招待されたクラスリストを取得します。
+      description: ユーザーIDとロール名に基づいて、ユーザーが所属しているクラスの情報を取得します。
       parameters:
       - description: ユーザーID
         in: path
         name: uid
         required: true
         type: integer
-      - description: ロールID
+      - description: ロール名
         in: path
-        name: roleID
+        name: role
         required: true
-        type: integer
+        type: string
       - default: 1
         description: Page number
         in: query
@@ -1835,7 +1834,7 @@ paths:
       summary: お気に入りのクラス情報を取得
       tags:
       - Class User
-  /cu/class/{cid}/{role}/members:
+  /cu/class/{cid}/members:
     get:
       consumes:
       - application/json
@@ -1846,10 +1845,10 @@ paths:
         name: cid
         required: true
         type: integer
-      - description: ロールID
+      - description: ロール名
         in: query
-        name: roleID
-        type: integer
+        name: role
+        type: string
       produces:
       - application/json
       responses:

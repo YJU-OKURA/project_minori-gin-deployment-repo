@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"errors"
+	"strconv"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"gorm.io/gorm"
-	"strconv"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
@@ -124,11 +125,11 @@ func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param cid path int true "クラスID"
-// @Param roleID query int false "ロールID"
+// @Param role query string false "ロール名"
 // @Success 200 {array} dto.ClassMemberDTO "成功時、クラスメンバーの情報を返します"
 // @Failure 400 {object} map[string]interface{} "無効なクラスIDが指定された場合のエラーメッセージ"
 // @Failure 500 {object} map[string]interface{} "サーバー内部エラー"
-// @Router /cu/class/{cid}/{role}/members [get]
+// @Router /cu/class/{cid}/members [get]
 // @Security Bearer
 func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 	cid, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
@@ -137,23 +138,9 @@ func (c *ClassUserController) GetClassMembers(ctx *gin.Context) {
 		return
 	}
 
-	roleIDStr := ctx.DefaultQuery("roleID", "")
-	var roleID int
-	if roleIDStr != "" {
-		roleID, err = strconv.Atoi(roleIDStr)
-		if err != nil {
-			respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
-			return
-		}
-	}
+	roleName := ctx.DefaultQuery("role", "")
 
-	var members []dto.ClassMemberDTO
-	if roleIDStr == "" {
-		members, err = c.classUserService.GetClassMembers(uint(cid))
-	} else {
-		members, err = c.classUserService.GetClassMembers(uint(cid), roleID)
-	}
-
+	members, err := c.classUserService.GetClassMembers(uint(cid), roleName)
 	if err != nil {
 		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
 		return
@@ -215,19 +202,19 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 
 // GetUserClassesByRole godoc
 // @Summary ユーザーとロールに関連するクラス情報を取得
-// @Description ユーザーIDとロールIDに基づいて、ユーザーが所属しているクラスの情報を取得します。ロールIDが2の場合は自分が作ったクラスリスト、ロールIDが4の場合はユーザーから申し込んだクラスリスト、ロールIDが6の場合はクラスの管理者から招待されたクラスリストを取得します。
+// @Description ユーザーIDとロール名に基づいて、ユーザーが所属しているクラスの情報を取得します。
 // @Tags Class User
 // @Accept json
 // @Produce json
 // @Param uid path int true "ユーザーID"
-// @Param roleID path int true "ロールID"
+// @Param role path string true "ロール名"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Page size" default(10)
 // @Success 200 {array} dto.UserClassInfoDTO "成功"
 // @Failure 400 {string} string "無効なリクエスト"
 // @Failure 404 {string} string "クラスが見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /cu/{uid}/classes/{roleID} [get]
+// @Router /cu/{uid}/classes/{role} [get]
 // @Security Bearer
 func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
@@ -237,96 +224,87 @@ func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 		return
 	}
 
-	roleIDStr := ctx.Param("roleID")
-	roleID, err := strconv.Atoi(roleIDStr)
-	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
-		return
-	}
+	roleName := ctx.Param("role")
 
 	pageStr := ctx.DefaultQuery("page", "1")
 	limitStr := ctx.DefaultQuery("limit", "10")
 	page, _ := strconv.Atoi(pageStr)
 	limit, _ := strconv.Atoi(limitStr)
 
-	classes, err := c.classUserService.GetUserClassesByRole(uint(uid), roleID, page, limit)
+	classes, err := c.classUserService.GetUserClassesByRole(uint(uid), roleName, page, limit)
 	if err != nil {
 		if errors.Is(err, services.ErrNotFound) {
 			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
 		} else {
 			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
 		}
+		return
 	}
 
 	if len(classes) == 0 {
 		respondWithSuccess(ctx, constants.StatusOK, []dto.UserClassInfoDTO{})
+		return
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, classes)
 }
 
 // ChangeUserRole godoc
-// @Summary ユーザーのロールを変更します。
-// @Description ユーザーのロールを変更します。
+// @Summary Change a user's role.
+// @Description Change the role of a user based on user ID and class ID.
 // @Tags Class User
-// @ID change-user-role
-// @Accept  json
-// @Produce  json
-// @Param uid path string true "ユーザーID"
-// @Param cid path string true "クラスID"
-// @Param roleID path string true "ロールID"
-// @Success 200 {string} string "成功"
-// @Failure 400 {string} string "無効なリクエスト"
-// @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /cu/{uid}/{cid}/{roleID} [patch]
+// @Accept json
+// @Produce json
+// @Param uid path int true "User ID"
+// @Param cid path int true "Class ID"
+// @Param roleName path string true "Role Name"
+// @Success 200 {string} string "Role updated successfully"
+// @Failure 400 {string} string "Invalid request"
+// @Failure 404 {string} string "User or class not found"
+// @Router /cu/{uid}/{cid}/role/{roleName} [patch]
 // @Security Bearer
 func (c *ClassUserController) ChangeUserRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
 	cidStr := ctx.Param("cid")
-	roleIDStr := ctx.Param("roleID")
+	roleName := ctx.Param("roleName")
 
 	uid, err := strconv.ParseUint(uidStr, 10, 32)
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid User ID")
 		return
 	}
 
 	cid, err := strconv.ParseUint(cidStr, 10, 32)
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid Class ID")
 		return
 	}
 
-	roleID, err := strconv.Atoi(roleIDStr)
-	if err != nil || !isValidRoleID(roleID) {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+	if !isValidRoleName(roleName) {
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid Role Name")
 		return
 	}
 
-	err = c.classUserService.AssignRole(uint(uid), uint(cid), roleID)
+	err = c.classUserService.AssignRole(uint(uid), uint(cid), roleName)
 	if err != nil {
-		if errors.Is(err, services.ErrNotFound) {
-			respondWithError(ctx, constants.StatusNotFound, "ユーザーまたはクラスが見つかりません")
-		} else {
-			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
-		}
+		respondWithError(ctx, constants.StatusInternalServerError, "Error changing role")
 		return
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, constants.Success)
+	respondWithSuccess(ctx, constants.StatusOK, "Role updated successfully")
 }
 
-func isValidRoleID(roleID int) bool {
-	validRoleIDs := map[int]bool{
-		1: true, // USER
-		2: true, // ADMIN
-		3: true, // ASSISTANT
-		4: true, // APPLICANT
-		5: true, // BLACKLIST
-		6: true, // INVITE
+func isValidRoleName(roleName string) bool {
+	validRoleNames := map[string]bool{
+		"USER":      true,
+		"ADMIN":     true,
+		"ASSISTANT": true,
+		"APPLICANT": true,
+		"BLACKLIST": true,
+		"INVITE":    true,
 	}
 
-	_, isValid := validRoleIDs[roleID]
+	_, isValid := validRoleNames[roleName]
 	return isValid
 }
 
