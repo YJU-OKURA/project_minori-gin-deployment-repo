@@ -1,16 +1,15 @@
 package repositories
 
 import (
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"gorm.io/gorm"
 )
 
 // RoleRepository はロールのリポジトリです。
 type RoleRepository interface {
-	FindByRoleName(roleID int, role *models.Role) error
+	FindByRoleName(roleName string) (string, error) // 변경된 메서드 시그니처
 }
 
-// roleConnection　はRoleRepositoryの実装です。
+// roleRepository はRoleRepositoryの実装です。
 type roleRepository struct {
 	db *gorm.DB
 }
@@ -20,7 +19,11 @@ func NewRoleRepository(db *gorm.DB) RoleRepository {
 	return &roleRepository{db: db}
 }
 
-// FindByRoleName は指定されたロール名のロールを取得します。
-func (r *roleRepository) FindByRoleName(roleID int, role *models.Role) error {
-	return r.db.Where("id = ?", roleID).First(role).Error
+func (r *roleRepository) FindByRoleName(roleName string) (string, error) {
+	var role string
+	result := r.db.Table("class_users").Select("role").Where("role = ?", roleName).Limit(1).Scan(&role)
+	if result.Error != nil {
+		return "", result.Error
+	}
+	return role, nil
 }
