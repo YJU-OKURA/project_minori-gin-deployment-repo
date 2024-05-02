@@ -52,7 +52,6 @@ func Migrate(db *gorm.DB) {
 		&models.ClassBoard{},
 		&models.ClassCode{},
 		&models.ClassSchedule{},
-		&models.Role{},
 		&models.Attendance{},
 	)
 	if err != nil {
