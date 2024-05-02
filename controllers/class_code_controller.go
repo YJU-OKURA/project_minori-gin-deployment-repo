@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type ClassCodeController struct {
@@ -66,7 +67,8 @@ func (c *ClassCodeController) CheckSecretExists(ctx *gin.Context) {
 func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
 	code := ctx.Query("code")
 	secret := ctx.Query("secret")
-	uid, err := parseUintQueryParam(ctx, "uid")
+	uidStr := ctx.Query("uid")
+	uid, err := strconv.ParseUint(uidStr, 10, 32)
 	if err != nil {
 		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
@@ -87,13 +89,9 @@ func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
 		return
 	}
 
-	uidUint, err := strconv.ParseUint(strconv.FormatUint(uid, 10), 10, 32)
-	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
-		return
-	}
-
-	err = c.classUserService.AssignRole(uint(uid), uint(uidUint), 4)
+	roleName := "APPLICANT"
+	cid := uint(uid)
+	err = c.classUserService.AssignRole(uint(uid), cid, roleName)
 	if err != nil {
 		respondWithError(ctx, constants.StatusInternalServerError, constants.AssignError)
 		return
