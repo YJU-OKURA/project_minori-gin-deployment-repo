@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	AdminRoleID     = 2
-	AssistantRoleID = 3
+	AdminRole     = "ADMIN"
+	AssistantRole = "ASSISTANT"
 )
 
 // getUserInfoFromPath はクエリパラメータからユーザー情報を取得します。
@@ -28,7 +28,7 @@ func getUserInfoFromPath(ctx *gin.Context) (uid uint, cid uint, err error) {
 }
 
 // ClassUserRoleMiddleware は指定された権限を持っているかどうかを確認するミドルウェアです。
-func ClassUserRoleMiddleware(roleService services.ClassUserService, requiredRoleID int) gin.HandlerFunc {
+func ClassUserRoleMiddleware(roleService services.ClassUserService, requiredRoleName string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		uid, cid, err := getUserInfoFromPath(ctx)
 		if err != nil {
@@ -36,13 +36,13 @@ func ClassUserRoleMiddleware(roleService services.ClassUserService, requiredRole
 			return
 		}
 
-		roleID, err := roleService.GetRole(uid, cid)
+		roleName, err := roleService.GetRole(uid, cid)
 		if err != nil {
-			ctx.AbortWithStatusJSON(constants.StatusUnauthorized, gin.H{"error": "Unauthorized: role ID check failed"})
+			ctx.AbortWithStatusJSON(constants.StatusUnauthorized, gin.H{"error": "Unauthorized: role check failed"})
 			return
 		}
 
-		if roleID != requiredRoleID {
+		if roleName != requiredRoleName {
 			ctx.AbortWithStatusJSON(constants.StatusForbidden, gin.H{"error": "Forbidden: insufficient privileges"})
 			return
 		}
@@ -53,12 +53,12 @@ func ClassUserRoleMiddleware(roleService services.ClassUserService, requiredRole
 
 // AdminMiddleware は管理者権限を持っているかどうかを確認するミドルウェアです。
 func AdminMiddleware(roleService services.ClassUserService) gin.HandlerFunc {
-	return ClassUserRoleMiddleware(roleService, AdminRoleID)
+	return ClassUserRoleMiddleware(roleService, AdminRole)
 }
 
 // AssistantMiddleware はアシスタント権限を持っているかどうかを確認するミドルウェアです。
 func AssistantMiddleware(roleService services.ClassUserService) gin.HandlerFunc {
-	return ClassUserRoleMiddleware(roleService, AssistantRoleID)
+	return ClassUserRoleMiddleware(roleService, AssistantRole)
 }
 
 func AuthMiddleware(authenticate func(token string) bool) gin.HandlerFunc {
