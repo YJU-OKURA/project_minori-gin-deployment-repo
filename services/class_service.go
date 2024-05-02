@@ -3,11 +3,12 @@ package services
 import (
 	"errors"
 	"fmt"
+	"math/rand"
+	"time"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
-	"math/rand"
-	"time"
 )
 
 type ClassService interface {
@@ -77,9 +78,9 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 	}
 
 	classUser := models.ClassUser{
-		CID:    classID,
-		UID:    request.UID,
-		RoleID: 2,
+		CID:  classID,
+		UID:  request.UID,
+		Role: "ADMIN", // Change from RoleID: 2
 	}
 	err = s.classUserRepo.Save(&classUser)
 	if err != nil {
@@ -118,21 +119,21 @@ func (s *classServiceImpl) UpdateClass(classID uint, userID uint, request dto.Up
 }
 
 func (s *classServiceImpl) IsAdmin(userID uint, classID uint) (bool, error) {
-	roleID, err := s.classUserRepo.GetRole(userID, classID)
+	role, err := s.classUserRepo.GetRole(userID, classID)
 	if err != nil {
 		return false, err
 	}
-	return roleID == 2, nil
+	return role == "ADMIN", nil
 }
 
 func (s *classServiceImpl) DeleteClass(classID uint, userID uint) error {
-	roleID, err := s.classUserRepo.GetRole(userID, classID)
+	role, err := s.classUserRepo.GetRole(userID, classID)
 	if err != nil {
 		return err
 	}
 
-	if roleID != 2 {
-		return errors.New(fmt.Sprintf("unauthorized access: roleID %d", roleID))
+	if role != "ADMIN" {
+		return errors.New(fmt.Sprintf("unauthorized access: role %s", role))
 	}
 
 	return s.classRepo.Delete(classID)
