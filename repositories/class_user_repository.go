@@ -48,13 +48,12 @@ func (r *classUserRepository) GetClassUserInfo(uid uint, cid uint) (dto.ClassMem
 	return toClassMemberDTO(classUser), nil
 }
 
-// GetUserClasses はユーザーが所属しているクラスの情報を取得します。
 func (r *classUserRepository) GetUserClasses(uid uint, page int, limit int) ([]dto.UserClassInfoDTO, error) {
 	var userClassesInfo []dto.UserClassInfoDTO
 	offset := (page - 1) * limit
 
 	err := r.db.Table("classes").
-		Select("classes.id, classes.name, classes.limitation, classes.description, classes.image, class_users.is_favorite, class_users.role_id").
+		Select("classes.id, classes.name, classes.limitation, classes.description, classes.image, class_users.is_favorite, class_users.role").
 		Joins("INNER JOIN class_users ON classes.id = class_users.cid").
 		Where("class_users.uid = ?", uid).
 		Offset(offset).
@@ -170,7 +169,7 @@ func (r *classUserRepository) GetFavoriteClasses(uid uint, page int, limit int) 
 	offset := (page - 1) * limit
 
 	query := r.db.Table("classes").
-		Select("classes.id, classes.name, classes.description, classes.image, class_users.is_favorite, class_users.role_id").
+		Select("classes.id, classes.name, classes.description, classes.image, class_users.is_favorite").
 		Joins("join class_users on classes.id = class_users.cid").
 		Where("class_users.uid = ? AND class_users.is_favorite = ?", uid, true).
 		Offset(offset).
@@ -201,7 +200,7 @@ func (r *classUserRepository) IsMember(uid uint, cid uint) (bool, error) {
 func (r *classUserRepository) SearchUserClassesByName(uid uint, name string) ([]dto.UserClassInfoDTO, error) {
 	var classes []dto.UserClassInfoDTO
 	err := r.db.Table("classes").
-		Select("classes.id, classes.name, class_users.role_id, class_users.is_favorite").
+		Select("classes.id, classes.name, class_users.role, class_users.is_favorite").
 		Joins("join class_users on classes.id = class_users.cid").
 		Where("class_users.uid = ? AND classes.name LIKE ?", uid, "%"+name+"%").
 		Scan(&classes).Error
