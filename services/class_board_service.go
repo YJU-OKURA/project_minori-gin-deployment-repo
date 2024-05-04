@@ -18,6 +18,7 @@ type ClassBoardService interface {
 	UpdateClassBoard(id uint, b dto.ClassBoardUpdateDTO, imageUrl string) (*models.ClassBoard, error) // Added imageUrl parameter
 	DeleteClassBoard(id uint) error
 	GetUpdateNotifier() *UpdateNotifier
+	SearchClassBoardsByTitle(title string, cid uint) ([]models.ClassBoard, error)
 }
 
 // classBoardService インタフェースを実装
@@ -152,4 +153,8 @@ func (u *UpdateNotifier) run() {
 
 func (s *classBoardService) GetUpdateNotifier() *UpdateNotifier {
 	return s.notifier
+}
+
+func (s *classBoardService) SearchClassBoardsByTitle(title string, cid uint) ([]models.ClassBoard, error) {
+	return s.repo.SearchByTitle(title, cid)
 }

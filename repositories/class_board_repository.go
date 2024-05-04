@@ -13,6 +13,7 @@ type ClassBoardRepository interface {
 	FindAnnounced(isAnnounced bool, cid uint) ([]models.ClassBoard, error)
 	UpdateClassBoard(b *models.ClassBoard) error
 	DeleteClassBoard(id uint) error
+	SearchByTitle(title string, cid uint) ([]models.ClassBoard, error)
 }
 
 // classBoardConnection グループ掲示板リポジトリ
@@ -60,4 +61,10 @@ func (repo *classBoardRepository) UpdateClassBoard(b *models.ClassBoard) error {
 // DeleteClassBoard グループ掲示板を削除
 func (repo *classBoardRepository) DeleteClassBoard(id uint) error {
 	return repo.db.Delete(&models.ClassBoard{}, id).Error
+}
+
+func (repo *classBoardRepository) SearchByTitle(title string, cid uint) ([]models.ClassBoard, error) {
+	var classBoards []models.ClassBoard
+	err := repo.db.Where("title LIKE ? AND cid = ?", "%"+title+"%", cid).Find(&classBoards).Error
+	return classBoards, err
 }

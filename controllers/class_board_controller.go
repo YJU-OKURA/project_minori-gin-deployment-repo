@@ -321,3 +321,42 @@ func (c *ClassBoardController) SubscribeClassBoardUpdates(ctx *gin.Context) {
 	// Keep the connection open until the client disconnects
 	<-ctx.Request.Context().Done()
 }
+
+// SearchClassBoards godoc
+// @Summary クラス掲示板を検索
+// @Description タイトルに基づいてクラス掲示板を検索します。
+// @Tags Class Board
+// @Accept json
+// @Produce json
+// @Param cid query int true "Class ID" example="1"
+// @Param title query string true "Title to search" example="Welcome to Class"
+// @Success 200 {array} []models.ClassBoard "Search results"
+// @Failure 400 {string} string "Invalid request"
+// @Failure 404 {string} string "No class boards found"
+// @Failure 500 {string} string "Server error"
+// @Router /cb/search [get]
+func (c *ClassBoardController) SearchClassBoards(ctx *gin.Context) {
+	cid, err := strconv.ParseUint(ctx.Query("cid"), 10, 64)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, "Invalid class ID")
+		return
+	}
+
+	title := ctx.Query("title")
+	if title == "" {
+		respondWithError(ctx, constants.StatusBadRequest, "Title parameter is required")
+		return
+	}
+
+	result, err := c.classBoardService.SearchClassBoardsByTitle(title, uint(cid))
+	if err != nil {
+		handleServiceError(ctx, err)
+		return
+	}
+
+	if len(result) == 0 {
+		respondWithError(ctx, constants.StatusNotFound, "No class boards found")
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, result)
+}
