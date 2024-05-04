@@ -42,7 +42,7 @@ var (
 	upgrader    = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			origin := r.Header.Get("Origin")
-			return origin == "http://localhost:3000" // 적절한 출처를 설정해야 합니다.
+			return origin == "http://localhost:3000"
 		},
 	}
 
