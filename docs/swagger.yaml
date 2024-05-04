@@ -668,6 +668,48 @@ paths:
       summary: 公告されたグループ掲示板を取得
       tags:
       - Class Board
+  /cb/search:
+    get:
+      consumes:
+      - application/json
+      description: タイトルに基づいてクラス掲示板を検索します。
+      parameters:
+      - description: Class ID
+        in: query
+        name: cid
+        required: true
+        type: integer
+      - description: Title to search
+        in: query
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Search results
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.ClassBoard'
+              type: array
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: No class boards found
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      summary: クラス掲示板を検索
+      tags:
+      - Class Board
   /cb/subscribe:
     get:
       description: クラス掲示板の更新を購読します。
