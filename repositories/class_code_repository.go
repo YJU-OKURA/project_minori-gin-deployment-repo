@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"errors"
+	"strconv"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"gorm.io/gorm"
 )
@@ -37,5 +39,15 @@ func (r *classCodeRepository) FindByCode(code string) (*models.ClassCode, error)
 }
 
 func (r *classCodeRepository) SaveClassCode(classCode *models.ClassCode) error {
+	var class models.Class
+	if err := r.db.First(&class, "id = ?", classCode.CID).Error; err != nil {
+		return errors.New("invalid class ID: " + strconv.Itoa(int(classCode.CID)))
+	}
+
+	var user models.User
+	if err := r.db.First(&user, "id = ?", classCode.UID).Error; err != nil {
+		return errors.New("invalid user ID: " + strconv.Itoa(int(classCode.UID)))
+	}
+
 	return r.db.Create(classCode).Error
 }
