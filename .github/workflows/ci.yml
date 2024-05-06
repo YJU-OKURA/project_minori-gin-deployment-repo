@@ -4,6 +4,7 @@ on:
   pull_request_target:
     types: [closed] # プルリクエストがクローズされたときに実行
     branches: [main]  # main ブランチに対してのみ実行
+  workflow_dispatch:
 
 jobs:
   build:
