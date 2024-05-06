@@ -46,6 +46,7 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
+          no-cache: true
           tags: |
             ghcr.io/yju-okura/minori_gin:${{ steps.date.outputs.date }}
             ghcr.io/yju-okura/minori_gin:latest
