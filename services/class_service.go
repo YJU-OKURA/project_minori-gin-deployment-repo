@@ -78,9 +78,11 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 	}
 
 	classUser := models.ClassUser{
-		CID:  classID,
-		UID:  request.UID,
-		Role: "ADMIN", // Change from RoleID: 2
+		CID:        classID,
+		UID:        request.UID,
+		Nickname:   request.Name,
+		IsFavorite: false,
+		Role:       "ADMIN",
 	}
 	err = s.classUserRepo.Save(&classUser)
 	if err != nil {
