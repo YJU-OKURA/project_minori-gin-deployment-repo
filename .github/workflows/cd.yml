@@ -24,7 +24,7 @@ jobs:
       - name: Execute Deployment Commands on EC2
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@${{ env.EC2_IP }} "
-            cd /home/ubuntu/project_minori-gin-deployment-repo &&
+            cd project_minori-gin-deployment-repo &&
             docker-compose pull &&
             docker-compose up -d &&
             docker image prune -f
