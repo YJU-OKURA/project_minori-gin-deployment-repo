@@ -61,22 +61,6 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 		return 0, err
 	}
 
-	code, err := s.GenerateClassCode()
-	if err != nil {
-		return 0, err
-	}
-
-	classCode := models.ClassCode{
-		Code:   code,
-		CID:    classID,
-		UID:    request.UID,
-		Secret: request.Secret,
-	}
-
-	if err := s.classCodeRepo.SaveClassCode(&classCode); err != nil {
-		return 0, err
-	}
-
 	classUser := models.ClassUser{
 		CID:        classID,
 		UID:        request.UID,
@@ -86,6 +70,20 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 	}
 	err = s.classUserRepo.Save(&classUser)
 	if err != nil {
+		return 0, err
+	}
+
+	code, err := s.GenerateClassCode()
+	if err != nil {
+		return 0, err
+	}
+	classCode := models.ClassCode{
+		Code:   code,
+		CID:    classID,
+		UID:    request.UID,
+		Secret: request.Secret,
+	}
+	if err := s.classCodeRepo.SaveClassCode(&classCode); err != nil {
 		return 0, err
 	}
 
