@@ -24,17 +24,20 @@ type classServiceImpl struct {
 	classRepo     repositories.ClassRepository
 	classUserRepo repositories.ClassUserRepository
 	classCodeRepo repositories.ClassCodeRepository
+	userRepo      repositories.UserRepository
 }
 
 func NewCreateClassService(
 	classRepo repositories.ClassRepository,
 	classUserRepo repositories.ClassUserRepository,
 	classCodeRepo repositories.ClassCodeRepository,
+	userRepo repositories.UserRepository,
 ) ClassService {
 	return &classServiceImpl{
 		classRepo:     classRepo,
 		classUserRepo: classUserRepo,
 		classCodeRepo: classCodeRepo,
+		userRepo:      userRepo,
 	}
 }
 
@@ -49,6 +52,13 @@ func (s *classServiceImpl) GetClass(classID uint) (*models.Class, error) {
 }
 
 func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, error) {
+
+	var user *models.User
+	var err error
+	if user, err = s.userRepo.FindByID(request.UID); err != nil {
+		return 0, err
+	}
+
 	class := models.Class{
 		Name:        request.Name,
 		Limitation:  request.Limitation,
@@ -64,7 +74,7 @@ func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, er
 	classUser := models.ClassUser{
 		CID:        classID,
 		UID:        request.UID,
-		Nickname:   request.Name,
+		Nickname:   user.Name,
 		IsFavorite: false,
 		Role:       "ADMIN",
 	}
