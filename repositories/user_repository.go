@@ -10,6 +10,7 @@ type UserRepository interface {
 	UserExists(userID uint) (bool, error)
 	FindByName(name string) ([]models.User, error)
 	DeleteUser(userID uint) error
+	FindByID(userID uint) (*models.User, error)
 }
 
 type userRepository struct {
@@ -43,4 +44,13 @@ func (r *userRepository) FindByName(name string) ([]models.User, error) {
 func (r *userRepository) DeleteUser(userID uint) error {
 	err := r.db.Model(&models.User{}).Where("id = ?", userID).Delete(&models.User{}).Error
 	return err
+}
+
+func (r *userRepository) FindByID(userID uint) (*models.User, error) {
+	var user models.User
+	err := r.db.First(&user, userID).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
