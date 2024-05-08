@@ -6,10 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
-	"github.com/pion/rtcp"
-	"github.com/pion/webrtc/v4"
 	"log"
 	"net/http"
 	"os"
@@ -17,6 +13,11 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
+	"github.com/pion/rtcp"
+	"github.com/pion/webrtc/v4"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/middlewares"
 	"github.com/go-redis/redis/v8"
@@ -577,7 +578,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	liveClassService := services.NewLiveClassService(classUserRepo, redisClient)
 	go manageChatRooms(db, chatManager)
 
-	createClassService := services.NewCreateClassService(classRepo, classUserRepo, classCodeRepo)
+	createClassService := services.NewCreateClassService(classRepo, classUserRepo, classCodeRepo, userRepo)
 
 	uploader := utils.NewAwsUploader()
 	userController := controllers.NewCreateUserController(userService)
