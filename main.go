@@ -837,5 +837,6 @@ func setupLiveClassRoutes(router *gin.Engine) {
 	{
 		live.GET("screen-share/start", gin.WrapF(startScreenSharingHandler))
 		live.GET("screen-share/stop", gin.WrapF(stopScreenSharingHandler))
+		live.GET("/ws", gin.WrapF(websocketHandler))
 	}
 }
