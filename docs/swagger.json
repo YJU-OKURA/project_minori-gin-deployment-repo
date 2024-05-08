@@ -2095,6 +2095,60 @@
                         "Bearer": []
                     }
                 ],
+                "description": "特定のユーザーが参加している全てのクラスの情報を取得します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class User"
+                ],
+                "summary": "ユーザーが参加しているクラスのリストを取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ユーザーID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Class"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cu/{uid}/classes/by-role": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "ユーザーIDとロール名に基づいて、ユーザーが所属しているクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
