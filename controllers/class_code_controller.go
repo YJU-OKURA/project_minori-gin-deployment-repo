@@ -103,3 +103,60 @@ func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
 func parseUintQueryParam(ctx *gin.Context, param string) (uint64, error) {
 	return strconv.ParseUint(ctx.Query(param), 10, 64)
 }
+
+// VerifyAndRequestAccess godoc
+// @Summary クラスコードを確認してアクセスを要求する
+// @Description クラスコードを確認し、必要な場合はシークレットもチェックしてから、申請者としてアクセス要求を提出します。
+// @Tags Class Code
+// @Accept json
+// @Produce json
+// @Param code query string true "確認するクラスコード"
+// @Param secret query string false "必要な場合のクラスコードのシークレット"
+// @Param uid query int true "役割を割り当ててアクセスを要求するユーザーID"
+// @Success 200 {object} map[string]interface{} "Access request submitted successfully with validation result."
+// @Failure 400 {string} string "Invalid request"
+// @Failure 401 {string} string "Invalid or missing secret"
+// @Failure 404 {string} string "Class code not found"
+// @Failure 500 {string} string "Internal server error or error assigning role"
+// @Router /cc/verifyAndRequestAccess [get]
+// @Security Bearer
+func (c *ClassCodeController) VerifyAndRequestAccess(ctx *gin.Context) {
+	code := ctx.Query("code")
+	secret := ctx.Query("secret")
+	uidStr := ctx.Query("uid")
+	uid, err := strconv.ParseUint(uidStr, 10, 32)
+	if err != nil {
+		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		return
+	}
+
+	classCode, err := c.classCodeService.FindClassCode(code)
+	if err != nil {
+		if err.Error() == services.ErrClassNotFound {
+			respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
+			return
+		}
+		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		return
+	}
+
+	if classCode.Secret != nil {
+		if secret == "" || *classCode.Secret != secret {
+			respondWithError(ctx, constants.StatusUnauthorized, "Invalid or missing secret")
+			return
+		}
+	}
+
+	roleName := "APPLICANT"
+	cid := classCode.CID
+	err = c.classUserService.AssignRole(uint(uid), cid, roleName)
+	if err != nil {
+		respondWithError(ctx, constants.StatusInternalServerError, "Error assigning role")
+		return
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{
+		"valid":   true,
+		"message": "Access request submitted successfully.",
+	})
+}

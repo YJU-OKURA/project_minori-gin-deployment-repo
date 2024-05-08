@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,7 @@ const ErrInvalidClassCodeOrSecret = "invalid class code or secret"
 type ClassCodeService interface {
 	CheckSecretExists(c *gin.Context, code string) (bool, error)
 	VerifyClassCode(code, secret string) (bool, error)
+	FindClassCode(code string) (*models.ClassCode, error)
 }
 
 // classCodeServiceImpl はClassCodeServiceの実装です。
@@ -27,7 +29,7 @@ func NewClassCodeService(repo repositories.ClassCodeRepository) ClassCodeService
 }
 
 // findClassCode は指定されたグループコードを取得します。
-func (s *classCodeServiceImpl) findClassCode(code string) (*models.ClassCode, error) {
+func (s *classCodeServiceImpl) FindClassCode(code string) (*models.ClassCode, error) {
 	classCode, err := s.repo.FindByCode(code)
 	if err != nil {
 		return nil, err
@@ -40,7 +42,7 @@ func (s *classCodeServiceImpl) findClassCode(code string) (*models.ClassCode, er
 
 // CheckSecretExists は指定されたグループコードにシークレットがあるかどうかをチェックします。
 func (s *classCodeServiceImpl) CheckSecretExists(c *gin.Context, code string) (bool, error) {
-	classCode, err := s.findClassCode(code)
+	classCode, err := s.FindClassCode(code)
 	if err != nil {
 		return false, err
 	}
@@ -56,7 +58,7 @@ func (s *classCodeServiceImpl) CheckSecretExists(c *gin.Context, code string) (b
 
 // VerifyClassCode はグループコードと、該当する場合はそのシークレットを確認します。
 func (s *classCodeServiceImpl) VerifyClassCode(code string, secret string) (bool, error) {
-	classCode, err := s.findClassCode(code)
+	classCode, err := s.FindClassCode(code)
 	if err != nil {
 		return false, err
 	}
