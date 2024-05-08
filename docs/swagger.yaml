@@ -1704,6 +1704,41 @@ paths:
     get:
       consumes:
       - application/json
+      description: 特定のユーザーが参加している全てのクラスの情報を取得します。
+      parameters:
+      - description: ユーザーID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/models.Class'
+            type: array
+      security:
+      - Bearer: []
+      summary: ユーザーが参加しているクラスのリストを取得
+      tags:
+      - Class User
+  /cu/{uid}/classes/by-role:
+    get:
+      consumes:
+      - application/json
       description: ユーザーIDとロール名に基づいて、ユーザーが所属しているクラスの情報を取得します。
       parameters:
       - description: ユーザーID

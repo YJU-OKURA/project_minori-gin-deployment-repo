@@ -214,7 +214,7 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 // @Failure 400 {string} string "無効なリクエスト"
 // @Failure 404 {string} string "クラスが見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /cu/{uid}/classes [get]
+// @Router /cu/{uid}/classes/by-role [get]
 // @Security Bearer
 func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
