@@ -666,6 +666,7 @@ func setupClassCodeRoutes(router *gin.Engine, controller *controllers.ClassCodeC
 	{
 		cc.GET("checkSecretExists", controller.CheckSecretExists)
 		cc.GET("verifyClassCode", controller.VerifyClassCode)
+		cc.GET("verifyAndRequestAccess", controller.VerifyAndRequestAccess)
 	}
 }
 
