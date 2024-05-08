@@ -25,6 +25,8 @@ type ClassUserRepository interface {
 	IsAdmin(uid uint, cid uint) (bool, error)
 	IsMember(uid uint, cid uint) (bool, error)
 	SearchUserClassesByName(uid uint, name string) ([]dto.UserClassInfoDTO, error)
+	RoleExists(uid uint, cid uint) (bool, error)
+	CreateUserRole(uid uint, cid uint, role string) error
 }
 
 type classUserRepository struct {
@@ -209,4 +211,19 @@ func (r *classUserRepository) SearchUserClassesByName(uid uint, name string) ([]
 		return nil, err
 	}
 	return classes, nil
+}
+
+func (r *classUserRepository) RoleExists(uid uint, cid uint) (bool, error) {
+	var count int64
+	err := r.db.Model(&models.ClassUser{}).Where("uid = ? AND cid = ?", uid, cid).Count(&count).Error
+	return count > 0, err
+}
+
+func (r *classUserRepository) CreateUserRole(uid uint, cid uint, role string) error {
+	newUserRole := models.ClassUser{
+		UID:  uid,
+		CID:  cid,
+		Role: role,
+	}
+	return r.db.Create(&newUserRole).Error
 }
