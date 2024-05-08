@@ -745,7 +745,7 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 			userRoutes.GET("classes", controller.GetUserClasses)
 			userRoutes.GET("favorite-classes", controller.GetFavoriteClasses)
 			userRoutes.GET("classes/by-role", controller.GetUserClassesByRole)
-			userRoutes.PATCH(":cid/:role", controller.ChangeUserRole)
+			userRoutes.PATCH(":cid/role/:roleName", controller.ChangeUserRole)
 			userRoutes.PATCH(":cid/toggle-favorite", controller.ToggleFavorite)
 			userRoutes.PUT(":cid/:rename", controller.UpdateUserName)
 			userRoutes.DELETE(":cid/remove", controller.RemoveUserFromClass)
