@@ -68,7 +68,15 @@ func (s *classUserServiceImpl) GetRole(uid uint, cid uint) (string, error) {
 }
 
 func (s *classUserServiceImpl) AssignRole(uid uint, cid uint, roleName string) error {
-	return s.classUserRepo.UpdateUserRole(uid, cid, roleName)
+	exists, err := s.classUserRepo.RoleExists(uid, cid)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return s.classUserRepo.UpdateUserRole(uid, cid, roleName)
+	} else {
+		return s.classUserRepo.CreateUserRole(uid, cid, roleName)
+	}
 }
 
 func (s *classUserServiceImpl) UpdateUserName(uid uint, cid uint, newName string) error {
