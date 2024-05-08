@@ -207,14 +207,14 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param uid path int true "ユーザーID"
-// @Param role path string true "ロール名"
+// @Param role query string true "ロール名"
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Page size" default(10)
 // @Success 200 {array} dto.UserClassInfoDTO "成功"
 // @Failure 400 {string} string "無効なリクエスト"
 // @Failure 404 {string} string "クラスが見つかりません"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /cu/{uid}/classes/{role} [get]
+// @Router /cu/{uid}/classes [get]
 // @Security Bearer
 func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
