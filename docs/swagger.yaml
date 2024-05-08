@@ -760,6 +760,55 @@ paths:
       summary: グループコードにシークレットが存在するかチェック
       tags:
       - Class Code
+  /cc/verifyAndRequestAccess:
+    get:
+      consumes:
+      - application/json
+      description: クラスコードを確認し、必要な場合はシークレットもチェックしてから、申請者としてアクセス要求を提出します。
+      parameters:
+      - description: 確認するクラスコード
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: 必要な場合のクラスコードのシークレット
+        in: query
+        name: secret
+        type: string
+      - description: 役割を割り当ててアクセスを要求するユーザーID
+        in: query
+        name: uid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access request submitted successfully with validation result.
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Invalid or missing secret
+          schema:
+            type: string
+        "404":
+          description: Class code not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error or error assigning role
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: クラスコードを確認してアクセスを要求する
+      tags:
+      - Class Code
   /cc/verifyClassCode:
     get:
       consumes:

@@ -897,6 +897,81 @@ const docTemplate = `{
                 }
             }
         },
+        "/cc/verifyAndRequestAccess": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "クラスコードを確認し、必要な場合はシークレットもチェックしてから、申請者としてアクセス要求を提出します。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Class Code"
+                ],
+                "summary": "クラスコードを確認してアクセスを要求する",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "確認するクラスコード",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "必要な場合のクラスコードのシークレット",
+                        "name": "secret",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "役割を割り当ててアクセスを要求するユーザーID",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Access request submitted successfully with validation result.",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or missing secret",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Class code not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error or error assigning role",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/cc/verifyClassCode": {
             "get": {
                 "security": [
