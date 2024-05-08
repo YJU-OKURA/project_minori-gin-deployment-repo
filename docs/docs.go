@@ -2106,7 +2106,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "特定のユーザーが参加している全てのクラスの情報を取得します。",
+                "description": "ユーザーIDとロール名に基づいて、ユーザーが所属しているクラスの情報を取得します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -2116,13 +2116,20 @@ const docTemplate = `{
                 "tags": [
                     "Class User"
                 ],
-                "summary": "ユーザーが参加しているクラスのリストを取得",
+                "summary": "ユーザーとロールに関連するクラス情報を取得",
                 "parameters": [
                     {
                         "type": "integer",
                         "description": "ユーザーID",
                         "name": "uid",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ロール名",
+                        "name": "role",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -2146,8 +2153,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Class"
+                                "$ref": "#/definitions/dto.UserClassInfoDTO"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なリクエスト",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "クラスが見つかりません",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -2211,85 +2236,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/cu/{uid}/classes/{role}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "ユーザーIDとロール名に基づいて、ユーザーが所属しているクラスの情報を取得します。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Class User"
-                ],
-                "summary": "ユーザーとロールに関連するクラス情報を取得",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ユーザーID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "ロール名",
-                        "name": "role",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Page size",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.UserClassInfoDTO"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "無効なリクエスト",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "クラスが見つかりません",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
                         "schema": {
                             "type": "string"
                         }
