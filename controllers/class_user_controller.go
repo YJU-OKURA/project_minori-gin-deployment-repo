@@ -218,13 +218,13 @@ func (c *ClassUserController) GetFavoriteClasses(ctx *gin.Context) {
 // @Security Bearer
 func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 	uidStr := ctx.Param("uid")
+	roleName := ctx.Query("role")
+
 	uid, err := strconv.ParseUint(uidStr, 10, 32)
 	if err != nil {
 		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
-
-	roleName := ctx.Param("role")
 
 	pageStr := ctx.DefaultQuery("page", "1")
 	limitStr := ctx.DefaultQuery("limit", "10")
