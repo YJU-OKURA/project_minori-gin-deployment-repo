@@ -737,7 +737,7 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 	cu.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		// TODO: フロントエンド側の実装が完了したら、削除
-		cu.GET("class/:cid/:role/members", controller.GetClassMembers)
+		cu.GET("class/:cid/members", controller.GetClassMembers)
 
 		userRoutes := cu.Group(":uid")
 		{
