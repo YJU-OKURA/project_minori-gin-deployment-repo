@@ -482,8 +482,14 @@ func migrateDatabaseIfNeeded(db *gorm.DB) {
 // setupRouter ルーターをセットアップする
 func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 	router := gin.Default()
+
+	allowedOrigins := []string{
+		"http://localhost:3000",
+		"http://minori-next-lb-1326724168.ap-northeast-2.elb.amazonaws.com",
+	}
+
 	router.Use(globalErrorHandler)
-	router.Use(CORS())
+	router.Use(CORS(allowedOrigins))
 	initializeSwagger(router)
 	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController := initializeControllers(db, redisClient)
 
@@ -504,15 +510,35 @@ func globalErrorHandler(c *gin.Context) {
 	}
 }
 
-func CORS() gin.HandlerFunc {
+func CORS(allowedOrigins []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000,http://minori-next-lb-1326724168.ap-northeast-2.elb.amazonaws.com")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, GET, PUT, DELETE, OPTIONS")
+		origin := c.Request.Header.Get("Origin")
+		var isOriginAllowed bool
+		for _, o := range allowedOrigins {
+			if origin == o {
+				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+				isOriginAllowed = true
+				break
+			}
+		}
+
+		if isOriginAllowed {
+			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+			c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, GET, PUT, DELETE, OPTIONS")
+		}
 
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
+			if isOriginAllowed {
+				c.AbortWithStatus(204)
+			} else {
+				c.AbortWithStatus(403)
+			}
+			return
+		}
+
+		if !isOriginAllowed {
+			c.AbortWithStatus(403)
 			return
 		}
 
