@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -519,8 +520,10 @@ func globalErrorHandler(c *gin.Context) {
 
 func CORS(allowedOrigins []string, ignoredPaths []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		requestPath := c.Request.URL.Path
+
 		for _, path := range ignoredPaths {
-			if c.Request.URL.Path == path {
+			if strings.HasPrefix(requestPath, path) {
 				c.Next()
 				return
 			}
