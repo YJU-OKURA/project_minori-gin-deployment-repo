@@ -542,19 +542,19 @@ func CORS(allowedOrigins []string, ignoredPaths []string) gin.HandlerFunc {
 			c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, GET, PUT, DELETE, OPTIONS")
 		}
 
-		//if c.Request.Method == "OPTIONS" {
-		//	if isOriginAllowed {
-		//		c.AbortWithStatus(204)
-		//	} else {
-		//		c.AbortWithStatus(403)
-		//	}
-		//	return
-		//}
-		//
-		//if !isOriginAllowed {
-		//	c.AbortWithStatus(403)
-		//	return
-		//}
+		if c.Request.Method == "OPTIONS" {
+			if isOriginAllowed {
+				c.AbortWithStatus(http.StatusNoContent)
+			} else {
+				c.AbortWithStatus(http.StatusForbidden)
+			}
+			return
+		}
+
+		if !isOriginAllowed {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
 
 		c.Next()
 	}
