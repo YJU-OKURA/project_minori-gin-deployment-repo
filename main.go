@@ -485,6 +485,8 @@ func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 
 	allowedOrigins := []string{
 		"http://localhost:3000",
+		"http://43.203.66.25",
+		"http://10.0.9.193",
 		"http://minori-next-lb-1326724168.ap-northeast-2.elb.amazonaws.com",
 		"https://minoriedu.com",
 	}
