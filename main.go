@@ -491,8 +491,12 @@ func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 		"https://minoriedu.com",
 	}
 
+	ignoredPaths := []string{
+		"/api/gin/swagger/*any",
+	}
+
 	router.Use(globalErrorHandler)
-	router.Use(CORS(allowedOrigins))
+	router.Use(CORS(allowedOrigins, ignoredPaths))
 	initializeSwagger(router)
 	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, classUserService, googleAuthController, createClassController, chatController, liveClassController := initializeControllers(db, redisClient)
 
@@ -513,8 +517,15 @@ func globalErrorHandler(c *gin.Context) {
 	}
 }
 
-func CORS(allowedOrigins []string) gin.HandlerFunc {
+func CORS(allowedOrigins []string, ignoredPaths []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		for _, path := range ignoredPaths {
+			if c.Request.URL.Path == path {
+				c.Next()
+				return
+			}
+		}
+
 		origin := c.Request.Header.Get("Origin")
 		var isOriginAllowed bool
 		for _, o := range allowedOrigins {
