@@ -119,7 +119,7 @@ func (c *ClassUserController) GetUserClasses(ctx *gin.Context) {
 }
 
 // GetClassMembers godoc
-// @Summary クラスメンバーの情報を取得します
+// @Summary クラスメンバーの情報を取得
 // @Description 指定されたcidのクラスに所属しているメンバーの情報を取得します。
 // @Tags Class User
 // @Accept  json
@@ -250,14 +250,14 @@ func (c *ClassUserController) GetUserClassesByRole(ctx *gin.Context) {
 }
 
 // ChangeUserRole godoc
-// @Summary Change a user's role.
-// @Description Change the role of a user based on user ID and class ID.
+// @Summary ユーザーのロールを変更
+// @Description 指定されたユーザーIDとクラスIDに基づいて、ユーザーのロールを変更します。
 // @Tags Class User
 // @Accept json
 // @Produce json
-// @Param uid path int true "User ID"
-// @Param cid path int true "Class ID"
-// @Param roleName path string true "Role Name"
+// @Param uid path int true "ユーザーID"
+// @Param cid path int true "クラスID"
+// @Param roleName path string true "ロール名"
 // @Success 200 {string} string "Role updated successfully"
 // @Failure 400 {string} string "Invalid request"
 // @Failure 404 {string} string "User or class not found"
@@ -309,7 +309,7 @@ func isValidRoleName(roleName string) bool {
 }
 
 // UpdateUserName godoc
-// @Summary ユーザーの名前を更新します。
+// @Summary ユーザーの名前を更新
 // @Description 特定のユーザーIDとグループIDに対してユーザーの名前を更新します。
 // @Tags Class User
 // @ID update-user-name
@@ -350,7 +350,7 @@ func (c *ClassUserController) UpdateUserName(ctx *gin.Context) {
 }
 
 // ToggleFavorite godoc
-// @Summary お気に入りのクラスを切り替えます
+// @Summary お気に入りのクラスを切り替え
 // @Description ユーザーIDとクラスIDに基づいて、お気に入りのクラスを切り替えます。
 // @Tags Class User
 // @Accept json
@@ -385,7 +385,7 @@ func (c *ClassUserController) ToggleFavorite(ctx *gin.Context) {
 }
 
 // RemoveUserFromClass godoc
-// @Summary ユーザーをクラスから削除します。
+// @Summary ユーザーをクラスから削除
 // @Description 指定したユーザーIDとクラスIDに基づいて、ユーザーをクラスから削除します。
 // @Tags Class User
 // @Accept json
@@ -427,7 +427,7 @@ func (c *ClassUserController) RemoveUserFromClass(ctx *gin.Context) {
 }
 
 // SearchUserClassesByName godoc
-// @Summary クラス名でクラスを検索します
+// @Summary クラス名でクラスを検索
 // @Description 指定されたユーザーIDとクラス名に基づいて、クラスを検索します。
 // @Tags Class User
 // @Accept json

@@ -24,7 +24,7 @@ func NewGoogleAuthController(service services.GoogleAuthService, jwtService serv
 }
 
 // GoogleLoginHandler godoc
-// @Summary Googleのログインページへリダイレクトします。
+// @Summary Googleのログインページへリダイレクト
 // @Description ユーザーをGoogleのログインページへリダイレクトして認証を行います。
 // @Tags GoogleAuth
 // @ID google-login-handler
@@ -39,7 +39,7 @@ func (controller *GoogleAuthController) GoogleLoginHandler(c *gin.Context) {
 }
 
 // ProcessAuthCode godoc
-// @Summary 認可コードを処理します。
+// @Summary 認可コードを処理
 // @Description ユーザーがGoogleログイン後に受け取った認可コードを使って、ユーザー情報を照会し、トークンを生成します。
 // @Tags GoogleAuth
 // @Accept json

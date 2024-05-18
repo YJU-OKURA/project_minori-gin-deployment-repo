@@ -331,7 +331,7 @@ paths:
       responses:
         "302":
           description: Googleのログインページへのリダイレクト
-      summary: Googleのログインページへリダイレクトします。
+      summary: Googleのログインページへリダイレクト
       tags:
       - GoogleAuth
   /auth/google/process:
@@ -354,7 +354,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: 認可コードを処理します。
+      summary: 認可コードを処理
       tags:
       - GoogleAuth
   /auth/google/refresh-token:
@@ -859,7 +859,7 @@ paths:
       - application/json
       description: チャットルームを作成する。
       parameters:
-      - description: Schedule ID
+      - description: スケジュールID
         in: path
         name: scheduleId
         required: true
@@ -888,12 +888,12 @@ paths:
       - application/json
       description: 特定のユーザー間のDM履歴を削除
       parameters:
-      - description: Sender ID
+      - description: 送信者ID
         in: path
         name: senderId
         required: true
         type: string
-      - description: Receiver ID
+      - description: 受信者ID
         in: path
         name: receiverId
         required: true
@@ -915,12 +915,12 @@ paths:
       - application/json
       description: 特定のユーザー間のDM履歴を取得
       parameters:
-      - description: Sender ID
+      - description: 送信者ID
         in: path
         name: senderId
         required: true
         type: string
-      - description: Receiver ID
+      - description: 受信者ID
         in: path
         name: receiverId
         required: true
@@ -942,12 +942,12 @@ paths:
       - application/json
       description: 特定のユーザーにDMを送信
       parameters:
-      - description: Sender ID
+      - description: 送信者ID
         in: path
         name: senderId
         required: true
         type: string
-      - description: Receiver ID
+      - description: 受信者ID
         in: path
         name: receiverId
         required: true
@@ -975,7 +975,7 @@ paths:
       - application/json
       description: チャットメッセージを取得する。
       parameters:
-      - description: Room ID
+      - description: ルームID
         in: path
         name: roomid
         required: true
@@ -1002,7 +1002,7 @@ paths:
       - application/json
       description: チャットルームを削除する。
       parameters:
-      - description: Schedule ID
+      - description: スケジュールID
         in: path
         name: scheduleId
         required: true
@@ -1024,17 +1024,17 @@ paths:
       - multipart/form-data
       description: チャットルームにメッセージを投稿する。
       parameters:
-      - description: Schedule ID
+      - description: スケジュールID
         in: path
         name: scheduleId
         required: true
         type: integer
-      - description: User ID
+      - description: ユーザーID
         in: formData
         name: user
         required: true
         type: string
-      - description: Message
+      - description: メッセージ
         in: formData
         name: message
         required: true
@@ -1058,7 +1058,7 @@ paths:
       - text/html
       description: チャットルームをハンドルする。
       parameters:
-      - description: Schedule ID
+      - description: スケジュールID
         in: path
         name: scheduleId
         required: true
@@ -1086,7 +1086,7 @@ paths:
       - application/json
       description: チャットをストリームする。
       parameters:
-      - description: Schedule ID
+      - description: スケジュールID
         in: path
         name: scheduleId
         required: true
@@ -1103,7 +1103,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: 指定されたIDを持つクラスの情報を取得します。
+      description: 指定されたIDを持つクラスの情報を取得
       parameters:
       - description: クラスID
         in: path
@@ -1173,7 +1173,7 @@ paths:
             type: object
       security:
       - Bearer: []
-      summary: クラスを削除します
+      summary: クラスを削除
       tags:
       - Class
     patch:
@@ -1232,7 +1232,7 @@ paths:
             type: object
       security:
       - Bearer: []
-      summary: クラス情報を更新します
+      summary: クラス情報を更新
       tags:
       - Class
   /cl/create:
@@ -1287,7 +1287,7 @@ paths:
             type: object
       security:
       - Bearer: []
-      summary: 新しいクラスを作成します
+      summary: 新しいクラスを作成
       tags:
       - Class
   /cs:
@@ -1626,7 +1626,7 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: ユーザーをクラスから削除します。
+      summary: ユーザーをクラスから削除
       tags:
       - Class User
   /cu/{uid}/{cid}/rename:
@@ -1665,26 +1665,26 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: ユーザーの名前を更新します。
+      summary: ユーザーの名前を更新
       tags:
       - Class User
   /cu/{uid}/{cid}/role/{roleName}:
     patch:
       consumes:
       - application/json
-      description: Change the role of a user based on user ID and class ID.
+      description: 指定されたユーザーIDとクラスIDに基づいて、ユーザーのロールを変更します。
       parameters:
-      - description: User ID
+      - description: ユーザーID
         in: path
         name: uid
         required: true
         type: integer
-      - description: Class ID
+      - description: クラスID
         in: path
         name: cid
         required: true
         type: integer
-      - description: Role Name
+      - description: ロール名
         in: path
         name: roleName
         required: true
@@ -1706,7 +1706,7 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: Change a user's role.
+      summary: ユーザーのロールを変更
       tags:
       - Class User
   /cu/{uid}/{cid}/toggle-favorite:
@@ -1746,7 +1746,7 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: お気に入りのクラスを切り替えます
+      summary: お気に入りのクラスを切り替え
       tags:
       - Class User
   /cu/{uid}/classes:
@@ -1875,7 +1875,7 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: クラス名でクラスを検索します
+      summary: クラス名でクラスを検索
       tags:
       - Class User
   /cu/{uid}/favorite-classes:
@@ -1961,7 +1961,7 @@ paths:
             type: object
       security:
       - Bearer: []
-      summary: クラスメンバーの情報を取得します
+      summary: クラスメンバーの情報を取得
       tags:
       - Class User
   /live/screen_share/{uid}/{cid}:

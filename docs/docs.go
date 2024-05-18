@@ -232,7 +232,7 @@ const docTemplate = `{
                 "tags": [
                     "GoogleAuth"
                 ],
-                "summary": "Googleのログインページへリダイレクトします。",
+                "summary": "Googleのログインページへリダイレクト",
                 "operationId": "google-login-handler",
                 "responses": {
                     "302": {
@@ -253,7 +253,7 @@ const docTemplate = `{
                 "tags": [
                     "GoogleAuth"
                 ],
-                "summary": "認可コードを処理します。",
+                "summary": "認可コードを処理",
                 "parameters": [
                     {
                         "description": "Googleから受け取った認可コード",
@@ -1061,7 +1061,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Schedule ID",
+                        "description": "スケジュールID",
                         "name": "scheduleId",
                         "in": "path",
                         "required": true
@@ -1106,14 +1106,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Sender ID",
+                        "description": "送信者ID",
                         "name": "senderId",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Receiver ID",
+                        "description": "受信者ID",
                         "name": "receiverId",
                         "in": "path",
                         "required": true
@@ -1148,14 +1148,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Sender ID",
+                        "description": "送信者ID",
                         "name": "senderId",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Receiver ID",
+                        "description": "受信者ID",
                         "name": "receiverId",
                         "in": "path",
                         "required": true
@@ -1197,14 +1197,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Sender ID",
+                        "description": "送信者ID",
                         "name": "senderId",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Receiver ID",
+                        "description": "受信者ID",
                         "name": "receiverId",
                         "in": "path",
                         "required": true
@@ -1241,7 +1241,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Room ID",
+                        "description": "ルームID",
                         "name": "roomid",
                         "in": "path",
                         "required": true
@@ -1284,21 +1284,21 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Schedule ID",
+                        "description": "スケジュールID",
                         "name": "scheduleId",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "ユーザーID",
                         "name": "user",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Message",
+                        "description": "メッセージ",
                         "name": "message",
                         "in": "formData",
                         "required": true
@@ -1334,7 +1334,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Schedule ID",
+                        "description": "スケジュールID",
                         "name": "scheduleId",
                         "in": "path",
                         "required": true
@@ -1371,7 +1371,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Schedule ID",
+                        "description": "スケジュールID",
                         "name": "scheduleId",
                         "in": "path",
                         "required": true
@@ -1415,7 +1415,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Schedule ID",
+                        "description": "スケジュールID",
                         "name": "scheduleId",
                         "in": "path",
                         "required": true
@@ -1441,7 +1441,7 @@ const docTemplate = `{
                 "tags": [
                     "Class"
                 ],
-                "summary": "新しいクラスを作成します",
+                "summary": "新しいクラスを作成",
                 "parameters": [
                     {
                         "type": "string",
@@ -1514,7 +1514,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "指定されたIDを持つクラスの情報を取得します。",
+                "description": "指定されたIDを持つクラスの情報を取得",
                 "consumes": [
                     "application/json"
                 ],
@@ -1582,7 +1582,7 @@ const docTemplate = `{
                 "tags": [
                     "Class"
                 ],
-                "summary": "クラスを削除します",
+                "summary": "クラスを削除",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1639,7 +1639,7 @@ const docTemplate = `{
                 "tags": [
                     "Class"
                 ],
-                "summary": "クラス情報を更新します",
+                "summary": "クラス情報を更新",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2131,7 +2131,7 @@ const docTemplate = `{
                 "tags": [
                     "Class User"
                 ],
-                "summary": "クラスメンバーの情報を取得します",
+                "summary": "クラスメンバーの情報を取得",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2324,7 +2324,7 @@ const docTemplate = `{
                 "tags": [
                     "Class User"
                 ],
-                "summary": "クラス名でクラスを検索します",
+                "summary": "クラス名でクラスを検索",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2523,7 +2523,7 @@ const docTemplate = `{
                 "tags": [
                     "Class User"
                 ],
-                "summary": "ユーザーをクラスから削除します。",
+                "summary": "ユーザーをクラスから削除",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2585,7 +2585,7 @@ const docTemplate = `{
                 "tags": [
                     "Class User"
                 ],
-                "summary": "ユーザーの名前を更新します。",
+                "summary": "ユーザーの名前を更新",
                 "operationId": "update-user-name",
                 "parameters": [
                     {
@@ -2635,7 +2635,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Change the role of a user based on user ID and class ID.",
+                "description": "指定されたユーザーIDとクラスIDに基づいて、ユーザーのロールを変更します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -2645,25 +2645,25 @@ const docTemplate = `{
                 "tags": [
                     "Class User"
                 ],
-                "summary": "Change a user's role.",
+                "summary": "ユーザーのロールを変更",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "User ID",
+                        "description": "ユーザーID",
                         "name": "uid",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Class ID",
+                        "description": "クラスID",
                         "name": "cid",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Role Name",
+                        "description": "ロール名",
                         "name": "roleName",
                         "in": "path",
                         "required": true
@@ -2708,7 +2708,7 @@ const docTemplate = `{
                 "tags": [
                     "Class User"
                 ],
-                "summary": "お気に入りのクラスを切り替えます",
+                "summary": "お気に入りのクラスを切り替え",
                 "parameters": [
                     {
                         "type": "integer",
