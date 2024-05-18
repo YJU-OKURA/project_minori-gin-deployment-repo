@@ -30,7 +30,7 @@ func NewCreateClassController(classService services.ClassService, uploader utils
 
 // GetClass godoc
 // @Summary クラスの情報を取得します
-// @Description 指定されたIDを持つクラスの情報を取得します。
+// @Description 指定されたIDを持つクラスの情報を取得
 // @Tags Class
 // @Accept  json
 // @Produce  json
@@ -62,7 +62,7 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 }
 
 // CreateClass godoc
-// @Summary 新しいクラスを作成します
+// @Summary 新しいクラスを作成
 // @Description 名前、定員、説明、画像URL、作成者のUIDを持つ新しいクラスを作成します。画像はオプショナルです。
 // @Tags Class
 // @Accept multipart/form-data
@@ -131,7 +131,7 @@ func (c *ClassController) handleImageUpload(ctx *gin.Context) (string, error) {
 }
 
 // UpdateClass godoc
-// @Summary クラス情報を更新します
+// @Summary クラス情報を更新
 // @Description 指定されたIDを持つクラスの情報を更新します。
 // @Tags Class
 // @Accept multipart/form-data
@@ -181,7 +181,7 @@ func (cc *ClassController) UpdateClass(ctx *gin.Context) {
 }
 
 // DeleteClass godoc
-// @Summary クラスを削除します
+// @Summary クラスを削除
 // @Description 指定されたIDを持つクラスを削除します。
 // @Tags Class
 // @Accept json

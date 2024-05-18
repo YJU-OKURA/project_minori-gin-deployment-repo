@@ -29,7 +29,7 @@ func NewChatController(chatMgr *services.Manager, redisClient *redis.Client) *Ch
 // @Tags Chat Room
 // @Accept html
 // @Produce html
-// @Param scheduleId path string true "Schedule ID"
+// @Param scheduleId path string true "スケジュールID"
 // @Param userId path string true "User ID"
 // @Success 200 {string} string "チャットルームが正常にハンドルされました"
 // @Router /chat/room/{scheduleId}/{userId} [get]
@@ -50,7 +50,7 @@ func (c *ChatController) HandleChatRoom(ctx *gin.Context) {
 // @Tags Chat Room
 // @Accept json
 // @Produce json
-// @Param scheduleId path string true "Schedule ID"
+// @Param scheduleId path string true "スケジュールID"
 // @Success 200 {object} map[string]interface{} "Chat room created successfully."
 // @Failure 400 {object} map[string]interface{} "Failed to create chat room."
 // @Router /chat/create-room/{scheduleId} [post]
@@ -67,9 +67,9 @@ func (c *ChatController) CreateChatRoom(ctx *gin.Context) {
 // @Tags Chat Room
 // @Accept multipart/form-data
 // @Produce json
-// @Param scheduleId path int true "Schedule ID"
-// @Param user formData string true "User ID"
-// @Param message formData string true "Message"
+// @Param scheduleId path int true "スケジュールID"
+// @Param user formData string true "ユーザーID"
+// @Param message formData string true "メッセージ"
 // @Success 200 {object} map[string]interface{} "Message posted successfully."
 // @Router /chat/room/{scheduleId} [post]
 // @Security Bearer
@@ -90,7 +90,7 @@ func (c *ChatController) PostToChatRoom(ctx *gin.Context) {
 // @Tags Chat Room
 // @Accept json
 // @Produce json
-// @Param scheduleId path string true "Schedule ID"
+// @Param scheduleId path string true "スケジュールID"
 // @Success 200 {object} string "Chat room deleted successfully."
 // @Router /chat/room/{scheduleId} [delete]
 // @Security Bearer
@@ -106,7 +106,7 @@ func (c *ChatController) DeleteChatRoom(ctx *gin.Context) {
 // @Tags Chat Room
 // @Accept json
 // @Produce json
-// @Param scheduleId path int true "Schedule ID"
+// @Param scheduleId path int true "スケジュールID"
 // @Router /chat/stream/{scheduleId} [get]
 // @Security Bearer
 func (c *ChatController) StreamChat(ctx *gin.Context) {
@@ -131,7 +131,7 @@ func (c *ChatController) StreamChat(ctx *gin.Context) {
 // @Tags Chat Room
 // @Accept json
 // @Produce json
-// @Param roomid path string true "Room ID"
+// @Param roomid path string true "ルームID"
 // @Success 200 {object} string "success"
 // @Failure 404 {object} string "Chat room not found"
 // @Router /chat/messages/{roomid} [get]
@@ -161,8 +161,8 @@ func (c *ChatController) GetChatMessages(ctx *gin.Context) {
 // @Tags Direct Message
 // @Accept json
 // @Produce json
-// @Param senderId path string true "Sender ID"
-// @Param receiverId path string true "Receiver ID"
+// @Param senderId path string true "送信者ID"
+// @Param receiverId path string true "受信者ID"
 // @Param message formData string true "Message"
 // @Success 200 {object} string "Message sent successfully"
 // @Router /chat/dm/{senderId}/{receiverId} [post]
@@ -186,8 +186,8 @@ func (c *ChatController) SendDirectMessage(ctx *gin.Context) {
 // @Tags Direct Message
 // @Accept json
 // @Produce json
-// @Param senderId path string true "Sender ID"
-// @Param receiverId path string true "Receiver ID"
+// @Param senderId path string true "送信者ID"
+// @Param receiverId path string true "受信者ID"
 // @Success 200 {object} string "Messages fetched successfully"
 // @Router /chat/dm/{senderId}/{receiverId} [get]
 // @Security Bearer
@@ -207,8 +207,8 @@ func (c *ChatController) GetDirectMessages(ctx *gin.Context) {
 // @Tags Direct Message
 // @Accept json
 // @Produce json
-// @Param senderId path string true "Sender ID"
-// @Param receiverId path string true "Receiver ID"
+// @Param senderId path string true "送信者ID"
+// @Param receiverId path string true "受信者ID"
 // @Success 200 {object} string "Messages deleted successfully"
 // @Router /chat/dm/{senderId}/{receiverId} [delete]
 // @Security Bearer
