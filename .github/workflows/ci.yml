@@ -22,15 +22,25 @@ jobs:
         with:
           go-version: 1.21
 
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Install ko
-        run: go install github.com/google/ko@latest
+        run: go get -u github.com/google/ko@latest
 
       - name: Run tests
         run: go test ./tests/...
 
       - name: Get the current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
+        run: echo "date=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3.0.0
@@ -43,7 +53,7 @@ jobs:
         env:
           KO_DOCKER_REPO: ghcr.io/yju-okura/minori_gin
         run: |
-          ko publish . -B --tags=${{ steps.date.outputs.date }},latest
+          ko publish . -B --tags=${{ env.date }},latest
 #      - name: Set up Docker Buildx
 #        uses: docker/setup-buildx-action@v3
 #
@@ -56,5 +66,5 @@ jobs:
 #          push: true
 #          no-cache: true
 #          tags: |
-#            ghcr.io/yju-okura/minori_gin:${{ steps.date.outputs.date }}
+#            ghcr.io/yju-okura/minori_gin:${{ env.date }}
 #            ghcr.io/yju-okura/minori_gin:latest
