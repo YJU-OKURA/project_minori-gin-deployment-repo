@@ -22,6 +22,9 @@ jobs:
         with:
           go-version: 1.19
 
+      - name: Install ko
+        run: go install github.com/google/ko@latest
+
       - name: Run tests
         run: go test ./tests/...
 
@@ -36,17 +39,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.PASSWORD }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          push: true
-          no-cache: true
-          tags: |
-            ghcr.io/yju-okura/minori_gin:${{ steps.date.outputs.date }}
-            ghcr.io/yju-okura/minori_gin:latest
+      - name: Build and push image using ko
+        env:
+          KO_DOCKER_REPO: ghcr.io/yju-okura/minori_gin
+        run: |
+          ko publish . -B --tags=${{ steps.date.outputs.date }},latest
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Build and push
+#        uses: docker/build-push-action@v3
+#        with:
+#          context: .
+#          file: ./Dockerfile
+#          platforms: linux/amd64
+#          push: true
+#          no-cache: true
+#          tags: |
+#            ghcr.io/yju-okura/minori_gin:${{ steps.date.outputs.date }}
+#            ghcr.io/yju-okura/minori_gin:latest
