@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Install ko
-        run: go get -u github.com/google/ko@latest
+        run: go install github.com/google/ko@latest
 
       - name: Run tests
         run: go test ./tests/...
@@ -52,6 +52,7 @@ jobs:
       - name: Build and push image using ko
         env:
           KO_DOCKER_REPO: ghcr.io/yju-okura/minori_gin
+          PATH: $PATH:~/go/bin
         run: |
           ko publish . -B --tags=${{ env.date }},latest
 #      - name: Set up Docker Buildx
