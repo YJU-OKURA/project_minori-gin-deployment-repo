@@ -10,6 +10,7 @@ import (
 
 type ClassCodeRepository interface {
 	FindByCode(code string) (*models.ClassCode, error)
+	FindByClassID(cid uint) (*models.ClassCode, error)
 	SaveClassCode(classCode *models.ClassCode) error
 }
 
@@ -33,6 +34,16 @@ func (r *classCodeRepository) FindByCode(code string) (*models.ClassCode, error)
 			return nil, nil
 		}
 		// それ以外のエラーの場合はエラーを返します。
+		return nil, result.Error
+	}
+	return &classCode, nil
+}
+
+// FindByClassID は指定されたクラスIDのクラスコードを取得します。
+func (r *classCodeRepository) FindByClassID(cid uint) (*models.ClassCode, error) {
+	var classCode models.ClassCode
+	result := r.db.Where("cid = ?", cid).First(&classCode)
+	if result.Error != nil {
 		return nil, result.Error
 	}
 	return &classCode, nil
