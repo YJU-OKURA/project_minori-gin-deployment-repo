@@ -13,6 +13,7 @@ import (
 
 type ClassService interface {
 	GetClass(classID uint) (*models.Class, error)
+	GetClassWithCode(classID uint) (*models.Class, *models.ClassCode, error)
 	CreateClass(request dto.CreateClassRequest) (uint, error)
 	UpdateClassImage(classID uint, imageUrl string) error
 	UpdateClass(classID uint, userID uint, request dto.UpdateClassRequest) error
@@ -49,6 +50,20 @@ func init() {
 
 func (s *classServiceImpl) GetClass(classID uint) (*models.Class, error) {
 	return s.classRepo.GetByID(classID)
+}
+
+func (s *classServiceImpl) GetClassWithCode(classID uint) (*models.Class, *models.ClassCode, error) {
+	class, err := s.classRepo.GetByID(classID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	classCode, err := s.classCodeRepo.FindByClassID(classID)
+	if err != nil {
+		return class, nil, err // 클래스는 찾았지만 클래스 코드는 없는 경우
+	}
+
+	return class, classCode, nil
 }
 
 func (s *classServiceImpl) CreateClass(request dto.CreateClassRequest) (uint, error) {

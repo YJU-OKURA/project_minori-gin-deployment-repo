@@ -48,7 +48,7 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 		return
 	}
 
-	class, err := cc.classService.GetClass(uint(classID))
+	class, classCode, err := cc.classService.GetClassWithCode(uint(classID))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		respondWithError(ctx, constants.StatusNotFound, constants.ClassNotFound)
 		return
@@ -56,6 +56,13 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 	if err != nil {
 		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
 		return
+	}
+
+	response := gin.H{
+		"class": class,
+	}
+	if classCode != nil {
+		response["code"] = classCode.Code
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, gin.H{"class": class})
