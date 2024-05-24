@@ -41,12 +41,13 @@ import (
 var (
 	redisClient *redis.Client
 	addr        = flag.String("addr", ":8080", "http service address")
-	upgrader    = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			origin := r.Header.Get("Origin")
-			return origin == "http://localhost:3000"
-		},
-	}
+	//upgrader    = websocket.Upgrader{
+	//	CheckOrigin: func(r *http.Request) bool {
+	//		origin := r.Header.Get("Origin")
+	//		return origin == "http://localhost:3000"
+	//	},
+	//}
+	upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
 
 	//	lock for peerConnections and trackLocals
 	listLock        sync.RWMutex
@@ -55,9 +56,14 @@ var (
 	stopChan        = make(chan bool)
 )
 
+// type websocketMessage struct {
+// 	Event string `json:"event"`
+// 	Data  string `json:"data"`
+// }
+
 type websocketMessage struct {
-	Event string `json:"event"`
-	Data  string `json:"data"`
+	Event string      `json:"event"`
+	Data  interface{} `json:"data"` // JSON 객체를 처리할 수 있도록 interface{} 사용
 }
 
 type peerConnectionState struct {
@@ -75,7 +81,6 @@ type threadSafeWriter struct {
 func (t *threadSafeWriter) WriteJSON(v interface{}) error {
 	t.Lock()
 	defer t.Unlock()
-
 	return t.Conn.WriteJSON(v)
 }
 
@@ -117,14 +122,12 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("WebSocket upgrade error: %v", err)
 		return
 	}
-	defer c.Close()
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		log.Printf("PeerConnection creation failed: %v", err)
 		return
 	}
-	defer pc.Close()
 
 	id := uuid.New().String()
 	peerState := &peerConnectionState{id: id, peerConnection: pc, websocket: &threadSafeWriter{Conn: c}}
@@ -151,9 +154,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		handleIncomingTrack(t, peerState)
 	})
 
-	handleWebSocketMessages(peerState)
-
-	go dispatchKeyFramesEvery(3*time.Second, stopChan)
+	go handleWebSocketMessages(peerState)
 }
 
 func stopDispatchKeyFrames() {
@@ -184,6 +185,30 @@ func handleIncomingTrack(track *webrtc.TrackRemote, state *peerConnectionState) 
 	}
 }
 
+// func handleWebSocketMessages(state *peerConnectionState) {
+// 	for {
+// 		_, message, err := state.websocket.ReadMessage()
+// 		if err != nil {
+// 			log.Println("read:", err)
+// 			break
+// 		}
+// 		var msg websocketMessage
+// 		if err := json.Unmarshal(message, &msg); err != nil {
+// 			log.Println("unmarshal:", err)
+// 			continue
+// 		}
+
+// 		switch msg.Event {
+// 		case "candidate":
+// 			handleCandidateMessage(msg.Data, state.peerConnection)
+// 		case "answer":
+// 			handleAnswerMessage(msg.Data, state.peerConnection)
+// 		default:
+// 			log.Println("Unknown message event:", msg.Event)
+// 		}
+// 	}
+// }
+
 func handleWebSocketMessages(state *peerConnectionState) {
 	for {
 		_, message, err := state.websocket.ReadMessage()
@@ -193,31 +218,92 @@ func handleWebSocketMessages(state *peerConnectionState) {
 		}
 		var msg websocketMessage
 		if err := json.Unmarshal(message, &msg); err != nil {
-			log.Println("unmarshal:", err)
+			log.Printf("Error unmarshalling message: %v", err)
 			continue
 		}
 
 		switch msg.Event {
-		case "candidate":
-			handleCandidateMessage(msg.Data, state.peerConnection)
+		case "offer":
+			handleOfferMessage(msg.Data.(map[string]interface{}), state.peerConnection, state.websocket)
 		case "answer":
-			handleAnswerMessage(msg.Data, state.peerConnection)
+			handleAnswerMessage(msg.Data.(map[string]interface{}), state.peerConnection)
+		case "candidate":
+			handleCandidateMessage(msg.Data.(map[string]interface{}), state.peerConnection)
 		default:
-			log.Println("Unknown message event:", msg.Event)
+			log.Printf("Unknown message event: %s", msg.Event)
 		}
 	}
 }
 
-func handleCandidateMessage(data string, pc *webrtc.PeerConnection) {
-	var candidate webrtc.ICECandidateInit
-	json.Unmarshal([]byte(data), &candidate)
-	pc.AddICECandidate(candidate)
+// func handleCandidateMessage(data string, pc *webrtc.PeerConnection) {
+// 	var candidate webrtc.ICECandidateInit
+// 	json.Unmarshal([]byte(data), &candidate)
+// 	pc.AddICECandidate(candidate)
+// }
+
+// func handleAnswerMessage(data string, pc *webrtc.PeerConnection) {
+// 	var answer webrtc.SessionDescription
+// 	json.Unmarshal([]byte(data), &answer)
+// 	pc.SetRemoteDescription(answer)
+// }
+
+func handleOfferMessage(data map[string]interface{}, pc *webrtc.PeerConnection, ws *threadSafeWriter) {
+	if pc.RemoteDescription() != nil {
+		log.Println("Received duplicate offer, ignoring.")
+		return
+	}
+
+	offer := webrtc.SessionDescription{
+		Type: webrtc.SDPTypeOffer,
+		SDP:  data["sdp"].(string),
+	}
+	err := pc.SetRemoteDescription(offer)
+	if err != nil {
+		log.Printf("SetRemoteDescription error: %v", err)
+		return
+	}
+
+	answer, err := pc.CreateAnswer(nil)
+	if err != nil {
+		log.Printf("CreateAnswer error: %v", err)
+		return
+	}
+
+	err = pc.SetLocalDescription(answer)
+	if err != nil {
+		log.Printf("SetLocalDescription error: %v", err)
+		return
+	}
+
+	ws.WriteJSON(&websocketMessage{Event: "answer", Data: answer})
 }
 
-func handleAnswerMessage(data string, pc *webrtc.PeerConnection) {
-	var answer webrtc.SessionDescription
-	json.Unmarshal([]byte(data), &answer)
-	pc.SetRemoteDescription(answer)
+func handleAnswerMessage(data map[string]interface{}, pc *webrtc.PeerConnection) {
+	answer := webrtc.SessionDescription{
+		Type: webrtc.SDPTypeAnswer,
+		SDP:  data["sdp"].(string),
+	}
+	err := pc.SetRemoteDescription(answer)
+	if err != nil {
+		log.Printf("SetRemoteDescription error: %v", err)
+	}
+}
+
+func handleCandidateMessage(data map[string]interface{}, pc *webrtc.PeerConnection) {
+	candidateString := data["candidate"].(string)
+	sdpMid := data["sdpMid"].(string)
+	sdpMLineIndex := uint16(data["sdpMLineIndex"].(float64))
+
+	candidate := webrtc.ICECandidateInit{
+		Candidate:     candidateString,
+		SDPMid:        &sdpMid,
+		SDPMLineIndex: &sdpMLineIndex, // Convert uint16 to *uint16
+	}
+
+	err := pc.AddICECandidate(candidate)
+	if err != nil {
+		log.Printf("AddICECandidate error: %v", err)
+	}
 }
 
 func main() {
@@ -518,6 +604,12 @@ func globalErrorHandler(c *gin.Context) {
 	}
 }
 
+// initializeSwagger Swaggerを初期化する
+func initializeSwagger(router *gin.Engine) {
+	docs.SwaggerInfo.BasePath = "/api/gin"
+	router.GET("/api/gin/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+}
+
 func CORS(allowedOrigins []string, ignoredPaths []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestPath := c.Request.URL.Path
@@ -561,12 +653,6 @@ func CORS(allowedOrigins []string, ignoredPaths []string) gin.HandlerFunc {
 
 		c.Next()
 	}
-}
-
-// initializeSwagger Swaggerを初期化する
-func initializeSwagger(router *gin.Engine) {
-	docs.SwaggerInfo.BasePath = "/api/gin"
-	router.GET("/api/gin/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }
 
 // startServer サーバーを起動する
