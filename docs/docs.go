@@ -1536,13 +1536,14 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "成功時、クラスの情報を返します",
+                        "description": "クラスの情報を返します。クラスコードとシークレットが存在する場合、それらも含まれます。",
                         "schema": {
-                            "$ref": "#/definitions/models.Class"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "error: リクエストが不正です",
+                        "description": "error: リクエストが不正です (詳細なエラーメッセージを含む)",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1556,7 +1557,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "error: サーバーエラーが発生しました",
+                        "description": "error: サーバーエラーが発生しました (詳細なエラーメッセージを含む)",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
