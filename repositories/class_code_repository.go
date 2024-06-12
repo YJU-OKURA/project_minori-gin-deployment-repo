@@ -43,6 +43,10 @@ func (r *classCodeRepository) FindByCode(code string) (*models.ClassCode, error)
 func (r *classCodeRepository) FindByClassID(cid uint) (*models.ClassCode, error) {
 	var classCode models.ClassCode
 	result := r.db.Where("cid = ?", cid).First(&classCode)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
 	if result.Error != nil {
 		return nil, result.Error
 	}
