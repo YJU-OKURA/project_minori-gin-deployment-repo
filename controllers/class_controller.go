@@ -35,16 +35,16 @@ func NewCreateClassController(classService services.ClassService, uploader utils
 // @Accept  json
 // @Produce  json
 // @Param cid path int true "クラスID"
-// @Success 200 {object} models.Class "成功時、クラスの情報を返します"
-// @Failure 400 {object} map[string]interface{} "error: リクエストが不正です"
+// @Success 200 {object} map[string]interface{} "クラスの情報を返します。クラスコードとシークレットが存在する場合、それらも含まれます。"
+// @Failure 400 {object} map[string]interface{} "error: リクエストが不正です (詳細なエラーメッセージを含む)"
 // @Failure 404 {object} map[string]interface{} "error: クラスが見つかりません"
-// @Failure 500 {object} map[string]interface{} "error: サーバーエラーが発生しました"
+// @Failure 500 {object} map[string]interface{} "error: サーバーエラーが発生しました (詳細なエラーメッセージを含む)"
 // @Router /cl/{cid} [get]
 // @Security Bearer
 func (cc *ClassController) GetClass(ctx *gin.Context) {
 	classID, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.BadRequestMessage)
+		respondWithError(ctx, constants.StatusBadRequest, fmt.Sprintf("Invalid class ID format: %v", err))
 		return
 	}
 
@@ -54,7 +54,7 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 		return
 	}
 	if err != nil {
-		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+		respondWithError(ctx, constants.StatusInternalServerError, fmt.Sprintf("Failed to retrieve class information: %v", err))
 		return
 	}
 
@@ -63,9 +63,12 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 	}
 	if classCode != nil {
 		response["code"] = classCode.Code
+		if classCode.Secret != nil {
+			response["secret"] = *classCode.Secret
+		}
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{"class": class})
+	respondWithSuccess(ctx, constants.StatusOK, response)
 }
 
 // CreateClass godoc
