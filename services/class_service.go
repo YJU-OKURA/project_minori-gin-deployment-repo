@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -55,13 +56,19 @@ func (s *classServiceImpl) GetClass(classID uint) (*models.Class, error) {
 func (s *classServiceImpl) GetClassWithCode(classID uint) (*models.Class, *models.ClassCode, error) {
 	class, err := s.classRepo.GetByID(classID)
 	if err != nil {
+		log.Printf("Error retrieving Class for ClassID %d: %v", classID, err)
 		return nil, nil, err
 	}
 
+	log.Printf("Class retrieved for ClassID %d: %+v", classID, class)
+
 	classCode, err := s.classCodeRepo.FindByClassID(classID)
 	if err != nil {
-		return class, nil, err // 클래스는 찾았지만 클래스 코드는 없는 경우
+		log.Printf("Error retrieving ClassCode for ClassID %d: %v", classID, err)
+		return class, nil, err
 	}
+
+	log.Printf("ClassCode retrieved for ClassID %d: %+v", classID, classCode)
 
 	return class, classCode, nil
 }
