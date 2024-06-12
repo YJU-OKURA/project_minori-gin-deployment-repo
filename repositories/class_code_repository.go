@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"log"
 	"strconv"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
@@ -44,12 +45,16 @@ func (r *classCodeRepository) FindByClassID(cid uint) (*models.ClassCode, error)
 	var classCode models.ClassCode
 	result := r.db.Where("cid = ?", cid).First(&classCode)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		log.Printf("ClassCode not found for ClassID: %d", cid)
 		return nil, nil
 	}
 
 	if result.Error != nil {
+		log.Printf("Error retrieving ClassCode for ClassID %d: %v", cid, result.Error)
 		return nil, result.Error
 	}
+
+	log.Printf("ClassCode retrieved for ClassID %d: %+v", cid, classCode)
 	return &classCode, nil
 }
 

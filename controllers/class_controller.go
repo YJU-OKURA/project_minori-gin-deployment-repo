@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -57,6 +58,8 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 		respondWithError(ctx, constants.StatusInternalServerError, fmt.Sprintf("Failed to retrieve class information: %v", err))
 		return
 	}
+
+	log.Printf("Retrieved class: %+v with class code: %+v", class, classCode)
 
 	response := gin.H{
 		"class": class,
@@ -122,7 +125,7 @@ func (cc *ClassController) CreateClass(ctx *gin.Context) {
 	respondWithSuccess(ctx, constants.StatusCreated, gin.H{"message": "Class created successfully", "classID": classID, "imageUrl": imageUrl})
 }
 
-func (c *ClassController) handleImageUpload(ctx *gin.Context) (string, error) {
+func (cc *ClassController) handleImageUpload(ctx *gin.Context) (string, error) {
 	fileHeader, err := ctx.FormFile("image")
 	if err != nil {
 		if errors.Is(err, http.ErrMissingFile) {
@@ -132,7 +135,7 @@ func (c *ClassController) handleImageUpload(ctx *gin.Context) (string, error) {
 	}
 
 	tempClassID := uint(0)
-	imageUrl, err := c.uploader.UploadImage(fileHeader, tempClassID, false)
+	imageUrl, err := cc.uploader.UploadImage(fileHeader, tempClassID, false)
 	if err != nil {
 		return "", err
 	}
