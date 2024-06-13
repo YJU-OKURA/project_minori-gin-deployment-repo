@@ -62,24 +62,17 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 	log.Printf("Retrieved class: %+v with class code: %+v", class, classCode)
 
 	response := gin.H{
-		"class": gin.H{
-			"ID":          class.ID,
-			"Name":        class.Name,
-			"Limitation":  class.Limitation,
-			"Description": class.Description,
-			"Image":       class.Image,
-			"UID":         class.UID,
-		},
+		"class": class,
 	}
 
 	if classCode != nil {
-		response["classCode"] = gin.H{
-			"ID":     classCode.ID,
-			"Code":   classCode.Code,
-			"Secret": classCode.Secret,
-			"CID":    classCode.CID,
-			"UID":    classCode.UID,
+		classCodeResponse := gin.H{
+			"code": classCode.Code,
 		}
+		if classCode.Secret != nil {
+			classCodeResponse["secret"] = classCode.Secret
+		}
+		response["classCode"] = classCodeResponse
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, response)
