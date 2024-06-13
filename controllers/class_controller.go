@@ -67,10 +67,8 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 
 	if classCode != nil {
 		classCodeResponse := gin.H{
-			"code": classCode.Code,
-		}
-		if classCode.Secret != nil {
-			classCodeResponse["secret"] = classCode.Secret
+			"Code":   classCode.Code,
+			"Secret": classCode.Secret,
 		}
 		response["classCode"] = classCodeResponse
 	}
