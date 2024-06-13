@@ -68,7 +68,11 @@ func (s *classServiceImpl) GetClassWithCode(classID uint) (*models.Class, *model
 		return class, nil, err
 	}
 
-	log.Printf("ClassCode retrieved for ClassID %d: %+v", classID, classCode)
+	if classCode != nil {
+		log.Printf("ClassCode retrieved for ClassID %d: %+v", classID, classCode)
+	} else {
+		log.Printf("No ClassCode found for ClassID %d", classID)
+	}
 
 	return class, classCode, nil
 }

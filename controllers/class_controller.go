@@ -60,25 +60,19 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 	}
 
 	log.Printf("Retrieved class: %+v with class code: %+v", class, classCode)
-	var response gin.H
-	if classCode != nil {
-		if classCode.Secret != nil {
-			response = gin.H{
-				"class":  class,
-				"code":   classCode.Code,
-				"secret": *classCode.Secret,
-			}
-		}
-		response = gin.H{
-			"class": class,
-			"code":  classCode.Code,
-		}
-	}
-	response = gin.H{
+
+	response := gin.H{
 		"class": class,
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, response)
+	if classCode != nil {
+		response["code"] = classCode.Code
+		if classCode.Secret != nil {
+			response["secret"] = *classCode.Secret
+		}
+	}
+
+	respondWithSuccess(ctx, constants.StatusOK, gin.H{"info": response})
 }
 
 // CreateClass godoc

@@ -5,15 +5,13 @@ import (
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
-	"github.com/gin-gonic/gin"
 )
 
 const ErrClassNotFound = "class not found"
-const ErrInvalidClassCodeOrSecret = "invalid class code or secret"
 
 // ClassCodeService はグループコードのサービスです。
 type ClassCodeService interface {
-	CheckSecretExists(c *gin.Context, code string) (bool, error)
+	CheckSecretExists(code string) (bool, error)
 	VerifyClassCode(code, secret string) (bool, error)
 	FindClassCode(code string) (*models.ClassCode, error)
 }
@@ -28,7 +26,7 @@ func NewClassCodeService(repo repositories.ClassCodeRepository) ClassCodeService
 	return &classCodeServiceImpl{repo: repo}
 }
 
-// findClassCode は指定されたグループコードを取得します。
+// FindClassCode findClassCode は指定されたグループコードを取得します。
 func (s *classCodeServiceImpl) FindClassCode(code string) (*models.ClassCode, error) {
 	classCode, err := s.repo.FindByCode(code)
 	if err != nil {
@@ -41,7 +39,7 @@ func (s *classCodeServiceImpl) FindClassCode(code string) (*models.ClassCode, er
 }
 
 // CheckSecretExists は指定されたグループコードにシークレットがあるかどうかをチェックします。
-func (s *classCodeServiceImpl) CheckSecretExists(c *gin.Context, code string) (bool, error) {
+func (s *classCodeServiceImpl) CheckSecretExists(code string) (bool, error) {
 	classCode, err := s.FindClassCode(code)
 	if err != nil {
 		return false, err
