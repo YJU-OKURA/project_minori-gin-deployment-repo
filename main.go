@@ -131,8 +131,7 @@ func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 	}
 
 	ignoredPaths := []string{
-		"http://localhost:8080/api/gin/swagger/*any",
-		"http://43.203.66.25/api/gin/swagger/*any",
+		"/api/gin/swagger/*any",
 	}
 
 	router.Use(globalErrorHandler)
