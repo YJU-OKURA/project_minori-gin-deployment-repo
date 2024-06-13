@@ -128,6 +128,7 @@ func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 		"http://10.0.9.193",
 		"http://minori-next-lb-1326724168.ap-northeast-2.elb.amazonaws.com",
 		"https://minoriedu.com",
+		"http://43.203.66.25/api/gin/swagger/index.html",
 	}
 
 	ignoredPaths := []string{
@@ -156,11 +157,26 @@ func globalErrorHandler(c *gin.Context) {
 	}
 }
 
-// initializeSwagger Swaggerを初期化する
+// Swaggerのセキュリティ定義
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func initializeSwagger(router *gin.Engine) {
 	docs.SwaggerInfo.BasePath = "/api/gin"
+	docs.SwaggerInfo.Title = "API Documentation"
+	docs.SwaggerInfo.Description = "This is minori gin server."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
 	router.GET("/api/gin/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }
+
+//// initializeSwagger Swaggerを初期化する
+//func initializeSwagger(router *gin.Engine) {
+//	docs.SwaggerInfo.BasePath = "/api/gin"
+//	router.GET("/api/gin/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+//}
 
 func CORS(allowedOrigins []string, ignoredPaths []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
