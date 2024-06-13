@@ -129,7 +129,6 @@ func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 		"http://minori-next-lb-1326724168.ap-northeast-2.elb.amazonaws.com",
 		"https://minoriedu.com",
 		"http://43.203.66.25/api/gin/swagger/index.html",
-		"http://43.203.66.25/api/gin/swagger/*any",
 	}
 
 	ignoredPaths := []string{
@@ -200,9 +199,18 @@ func CORS(allowedOrigins []string, ignoredPaths []string) gin.HandlerFunc {
 			}
 		}
 
-		if strings.HasPrefix(requestPath, "/api/gin/cl/") {
+		// 모든 API 경로 허용
+		if strings.HasPrefix(requestPath, "/api/gin/") {
 			isOriginAllowed = true
 			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+
+		// 특정 경로 무시
+		for _, path := range ignoredPaths {
+			if strings.HasPrefix(requestPath, path) {
+				c.Next()
+				return
+			}
 		}
 
 		if isOriginAllowed {
