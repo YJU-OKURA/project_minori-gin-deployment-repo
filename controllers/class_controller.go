@@ -55,22 +55,31 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 		return
 	}
 	if err != nil {
-		respondWithError(ctx, constants.StatusInternalServerError, fmt.Sprintf("Failed to retrieve class information: %v", err))
+		respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
 		return
 	}
 
 	log.Printf("Retrieved class: %+v with class code: %+v", class, classCode)
 
 	response := gin.H{
-		"class": class,
+		"class": gin.H{
+			"ID":          class.ID,
+			"Name":        class.Name,
+			"Limitation":  class.Limitation,
+			"Description": class.Description,
+			"Image":       class.Image,
+			"UID":         class.UID,
+		},
 	}
 
 	if classCode != nil {
-		classCodeResponse := gin.H{
+		response["classCode"] = gin.H{
+			"ID":     classCode.ID,
 			"Code":   classCode.Code,
 			"Secret": classCode.Secret,
+			"CID":    classCode.CID,
+			"UID":    classCode.UID,
 		}
-		response["classCode"] = classCodeResponse
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, response)
