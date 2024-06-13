@@ -35,7 +35,7 @@ func NewClassCodeController(classCodeService services.ClassCodeService, classUse
 func (c *ClassCodeController) CheckSecretExists(ctx *gin.Context) {
 	code := ctx.Query("code")
 
-	secretExists, err := c.classCodeService.CheckSecretExists(ctx, code)
+	secretExists, err := c.classCodeService.CheckSecretExists(code)
 	if err != nil {
 		// エラーメッセージに基づいて適切なHTTPステータスを返す
 		if err.Error() == services.ErrClassNotFound {
@@ -98,10 +98,6 @@ func (c *ClassCodeController) VerifyClassCode(ctx *gin.Context) {
 	}
 
 	respondWithSuccess(ctx, constants.StatusOK, gin.H{"valid": true, "message": constants.ClassMemberRegistration})
-}
-
-func parseUintQueryParam(ctx *gin.Context, param string) (uint64, error) {
-	return strconv.ParseUint(ctx.Query(param), 10, 64)
 }
 
 // VerifyAndRequestAccess godoc
