@@ -66,13 +66,16 @@ func (cc *ClassController) GetClass(ctx *gin.Context) {
 	}
 
 	if classCode != nil {
-		response["code"] = classCode.Code
-		if classCode.Secret != nil {
-			response["secret"] = *classCode.Secret
+		classCodeResponse := gin.H{
+			"code": classCode.Code,
 		}
+		if classCode.Secret != nil {
+			classCodeResponse["secret"] = classCode.Secret
+		}
+		response["classCode"] = classCodeResponse
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, gin.H{"info": response})
+	respondWithSuccess(ctx, constants.StatusOK, response)
 }
 
 // CreateClass godoc
