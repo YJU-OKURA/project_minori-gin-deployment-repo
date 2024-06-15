@@ -15,6 +15,60 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/at": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "複数の出席情報を作成または更新します。'Attendance', 'Tardy', 'Absence'のいずれかのステータスを持つことができます。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "複数の出席情報を作成または更新",
+                "parameters": [
+                    {
+                        "description": "出席情報",
+                        "name": "attendances",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.AttendanceInput"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "作成または更新に成功しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "無効なリクエスト",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/at/attendance/{id}": {
             "get": {
                 "security": [
@@ -49,6 +103,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Attendance"
                         }
                     },
+                    "400": {
+                        "description": "無効なリクエスト",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "サーバーエラーが発生しました",
                         "schema": {
@@ -81,20 +141,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "cid",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "uid",
-                        "in": "query",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -104,66 +150,8 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/at/{cid}/{uid}/{csid}": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "出席情報を作成または更新",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attendance"
-                ],
-                "summary": "出席情報を作成または更新",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class ID",
-                        "name": "cid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "uid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Class Schedule ID",
-                        "name": "csid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Status",
-                        "name": "status",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "作成または更新に成功しました",
+                    "400": {
+                        "description": "無効なリクエスト",
                         "schema": {
                             "type": "string"
                         }
@@ -212,6 +200,12 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.Attendance"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なリクエスト",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2964,6 +2958,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.AttendanceInput": {
+            "type": "object",
+            "properties": {
+                "cid": {
+                    "type": "integer"
+                },
+                "csid": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "integer"
+                }
+            }
+        },
         "controllers.UpdateUserNameRequest": {
             "type": "object",
             "properties": {
