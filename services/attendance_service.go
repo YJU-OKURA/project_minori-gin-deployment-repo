@@ -56,7 +56,14 @@ func (s *attendanceService) GetAllAttendancesByCID(cid uint) ([]models.Attendanc
 
 // GetAttendanceByID IDによって出席情報を取得
 func (s *attendanceService) GetAttendanceByID(id string) (*models.Attendance, error) {
-	return s.repo.GetAttendanceByID(id)
+	attendance, err := s.repo.GetAttendanceByID(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return attendance, nil
 }
 
 // DeleteAttendance 出席情報を削除
