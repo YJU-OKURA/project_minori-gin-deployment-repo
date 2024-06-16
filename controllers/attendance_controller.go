@@ -73,16 +73,16 @@ func (ac *AttendanceController) CreateOrUpdateAttendance(ctx *gin.Context) {
 // @Tags Attendance
 // @Accept json
 // @Produce json
-// @Param classID path int true "Class ID"
+// @Param cid path int true "Class ID"
 // @Success 200 {array} models.Attendance "Attendance"
 // @Failure 400 {string} string "無効なリクエスト"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
-// @Router /at/{classID} [get]
+// @Router /at/{cid} [get]
 // @Security Bearer
 func (ac *AttendanceController) GetAllAttendances(ctx *gin.Context) {
 	log.Println("GetAllAttendances: Request received")
 
-	classID, err := strconv.ParseUint(ctx.Param("classID"), 10, 32)
+	classID, err := strconv.ParseUint(ctx.Param("cid"), 10, 32)
 	if err != nil {
 		log.Printf("GetAllAttendances: Invalid classID: %v", err)
 		handleServiceError(ctx, fmt.Errorf(constants.InvalidRequest))
