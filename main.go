@@ -452,8 +452,7 @@ func setupAttendanceRoutes(router *gin.Engine, controller *controllers.Attendanc
 	at := router.Group("/api/gin/at")
 	at.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
-		// TODO: フロントエンド側の実装が完了したら、削除
-		at.POST(":cid/:uid/:csid", controller.CreateOrUpdateAttendance)
+		at.POST("", controller.CreateOrUpdateAttendance)
 		at.GET(":cid", controller.GetAllAttendances)
 		at.GET("attendance/:id", controller.GetAttendance)
 		at.DELETE("attendance/:id", controller.DeleteAttendance)
