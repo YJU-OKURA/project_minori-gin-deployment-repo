@@ -37,7 +37,7 @@ func (s *attendanceService) CreateOrUpdateAttendance(cid uint, uid uint, csid ui
 				CID:          cid,
 				UID:          uid,
 				CSID:         csid,
-				IsAttendance: status,
+				IsAttendance: models.AttendanceType(status),
 			}
 			return s.repo.CreateAttendance(&newAttendance)
 		}
@@ -45,7 +45,7 @@ func (s *attendanceService) CreateOrUpdateAttendance(cid uint, uid uint, csid ui
 	}
 
 	// レコードが見つかった場合は更新
-	attendance.IsAttendance = status
+	attendance.IsAttendance = models.AttendanceType(status)
 	return s.repo.UpdateAttendance(attendance)
 }
 
