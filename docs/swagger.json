@@ -154,7 +154,7 @@
                 }
             }
         },
-        "/at/{classID}": {
+        "/at/{cid}": {
             "get": {
                 "security": [
                     {
@@ -176,7 +176,7 @@
                     {
                         "type": "integer",
                         "description": "Class ID",
-                        "name": "classID",
+                        "name": "cid",
                         "in": "path",
                         "required": true
                     }

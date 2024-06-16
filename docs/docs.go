@@ -165,7 +165,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/at/{classID}": {
+        "/at/{cid}": {
             "get": {
                 "security": [
                     {
@@ -187,7 +187,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Class ID",
-                        "name": "classID",
+                        "name": "cid",
                         "in": "path",
                         "required": true
                     }
