@@ -80,22 +80,29 @@ func (ac *AttendanceController) CreateOrUpdateAttendance(ctx *gin.Context) {
 // @Router /at/{classID} [get]
 // @Security Bearer
 func (ac *AttendanceController) GetAllAttendances(ctx *gin.Context) {
+	log.Println("GetAllAttendances: Request received")
+
 	classID, err := strconv.ParseUint(ctx.Param("classID"), 10, 32)
 	if err != nil {
+		log.Printf("GetAllAttendances: Invalid classID: %v", err)
 		handleServiceError(ctx, fmt.Errorf(constants.InvalidRequest))
 		return
 	}
+	log.Printf("GetAllAttendances: Parsed classID: %d", classID)
 
 	attendances, serviceErr := ac.attendanceService.GetAllAttendancesByCID(uint(classID))
 	if serviceErr != nil {
+		log.Printf("GetAllAttendances: Error retrieving attendances: %v", serviceErr)
 		handleServiceError(ctx, serviceErr)
 		return
 	}
 
 	if len(attendances) == 0 {
+		log.Println("GetAllAttendances: No attendances found")
 		respondWithError(ctx, constants.StatusNotFound, "No attendance found")
 		return
 	}
+	log.Printf("GetAllAttendances: Found %d attendances", len(attendances))
 	respondWithSuccess(ctx, constants.StatusOK, attendances)
 }
 

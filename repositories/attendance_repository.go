@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"gorm.io/gorm"
+	"log"
 )
 
 // AttendanceRepository インタフェース
@@ -40,14 +41,20 @@ func (repo *attendanceRepository) GetAttendanceByUIDAndCID(uid uint, cid uint) (
 // GetAllAttendancesByCID CIDによって全ての出席情報を取得
 func (repo *attendanceRepository) GetAllAttendancesByCID(cid uint) ([]models.Attendance, error) {
 	var attendances []models.Attendance
+	log.Printf("GetAllAttendancesByCID: Executing query for cid %d", cid)
 	err := repo.db.Where("cid = ?", cid).Find(&attendances).Error
+	if err != nil {
+		log.Printf("GetAllAttendancesByCID: Query error: %v", err)
+		return nil, err
+	}
+	log.Printf("GetAllAttendancesByCID: Query successful, found %d attendances", len(attendances))
 	return attendances, err
 }
 
 // GetAttendanceByID IDによって出席情報を取得
 func (repo *attendanceRepository) GetAttendanceByID(id string) (*models.Attendance, error) {
 	var attendance models.Attendance
-	err := repo.db.Where("id = ?", id).First(&attendance).Error
+	err := repo.db.Where("csid = ?", id).First(&attendance).Error
 	return &attendance, err
 }
 

@@ -102,12 +102,23 @@ definitions:
       id:
         type: integer
       isAttendance:
+        allOf:
+        - $ref: '#/definitions/models.AttendanceType'
         description: 出席, 遅刻, 欠席
-        type: string
       uid:
         description: User ID
         type: integer
     type: object
+  models.AttendanceType:
+    enum:
+    - ATTENDANCE
+    - TARDY
+    - ABSENCE
+    type: string
+    x-enum-varnames:
+    - AttendanceStatus
+    - TardyStatus
+    - AbsenceStatus
   models.Class:
     properties:
       description:
@@ -203,7 +214,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: 複数の出席情報を作成または更新します。'Attendance', 'Tardy', 'Absence'のいずれかのステータスを持つことができます。
+      description: 複数の出席情報を作成または更新します。'ATTENDANCE', 'TARDY', 'ABSENCE'のいずれかのステータスを持つことができます。
       parameters:
       - description: 出席情報
         in: body
