@@ -244,7 +244,7 @@ paths:
       summary: 複数の出席情報を作成または更新
       tags:
       - Attendance
-  /at/{classID}:
+  /at/{cid}:
     get:
       consumes:
       - application/json
@@ -252,7 +252,7 @@ paths:
       parameters:
       - description: Class ID
         in: path
-        name: classID
+        name: cid
         required: true
         type: integer
       produces:
