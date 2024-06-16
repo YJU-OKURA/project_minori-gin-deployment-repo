@@ -3,8 +3,10 @@ package controllers
 import (
 	"fmt"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
+	"log"
 	"strconv"
 )
 
@@ -29,7 +31,7 @@ func NewAttendanceController(service services.AttendanceService) *AttendanceCont
 
 // CreateOrUpdateAttendance godoc
 // @Summary 複数の出席情報を作成または更新
-// @Description 複数の出席情報を作成または更新します。'Attendance', 'Tardy', 'Absence'のいずれかのステータスを持つことができます。
+// @Description 複数の出席情報を作成または更新します。'ATTENDANCE', 'TARDY', 'ABSENCE'のいずれかのステータスを持つことができます。
 // @Tags Attendance
 // @Accept json
 // @Produce json
@@ -42,18 +44,21 @@ func NewAttendanceController(service services.AttendanceService) *AttendanceCont
 func (ac *AttendanceController) CreateOrUpdateAttendance(ctx *gin.Context) {
 	var attendances []AttendanceInput
 	if err := ctx.ShouldBindJSON(&attendances); err != nil {
+		log.Printf("Error binding JSON: %v", err)
 		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 		return
 	}
 
 	for _, attendance := range attendances {
-		if attendance.Status != "Attendance" && attendance.Status != "Tardy" && attendance.Status != "Absence" {
+		if attendance.Status != string(models.AttendanceStatus) && attendance.Status != string(models.TardyStatus) && attendance.Status != string(models.AbsenceStatus) {
+			log.Printf("Invalid attendance status: %s", attendance.Status)
 			respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
 			return
 		}
 
 		err := ac.attendanceService.CreateOrUpdateAttendance(attendance.CID, attendance.UID, attendance.CSID, attendance.Status)
 		if err != nil {
+			log.Printf("Error creating or updating attendance: %v", err)
 			handleServiceError(ctx, err)
 			return
 		}
