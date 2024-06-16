@@ -22,7 +22,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "複数の出席情報を作成または更新します。'Attendance', 'Tardy', 'Absence'のいずれかのステータスを持つことができます。",
+                "description": "複数の出席情報を作成または更新します。'ATTENDANCE', 'TARDY', 'ABSENCE'のいずれかのステータスを持つことができます。",
                 "consumes": [
                     "application/json"
                 ],
@@ -3114,13 +3114,30 @@ const docTemplate = `{
                 },
                 "isAttendance": {
                     "description": "出席, 遅刻, 欠席",
-                    "type": "string"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AttendanceType"
+                        }
+                    ]
                 },
                 "uid": {
                     "description": "User ID",
                     "type": "integer"
                 }
             }
+        },
+        "models.AttendanceType": {
+            "type": "string",
+            "enum": [
+                "ATTENDANCE",
+                "TARDY",
+                "ABSENCE"
+            ],
+            "x-enum-varnames": [
+                "AttendanceStatus",
+                "TardyStatus",
+                "AbsenceStatus"
+            ]
         },
         "models.Class": {
             "type": "object",
