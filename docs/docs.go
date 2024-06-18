@@ -100,7 +100,10 @@ const docTemplate = `{
                     "200": {
                         "description": "Attendance",
                         "schema": {
-                            "$ref": "#/definitions/models.Attendance"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Attendance"
+                            }
                         }
                     },
                     "400": {
