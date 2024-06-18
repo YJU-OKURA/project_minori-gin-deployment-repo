@@ -49,9 +49,9 @@ func (repo *attendanceRepository) GetAllAttendancesByCID(cid uint) ([]models.Att
 
 // GetAttendanceByID IDによって出席情報を取得
 func (repo *attendanceRepository) GetAttendanceByID(id string) ([]models.Attendance, error) {
-	var attendance []models.Attendance
-	err := repo.db.Where("csid = ?", id).Find(&attendance).Error
-	return attendance, err
+	var attendances []models.Attendance
+	err := repo.db.Preload("ClassUser").Preload("ClassUser.User").Preload("ClassUser.Class").Where("csid = ?", id).Find(&attendances).Error
+	return attendances, err
 }
 
 // UpdateAttendance 出席情報を更新

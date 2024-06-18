@@ -131,7 +131,7 @@ func (ac *AttendanceController) GetAttendance(ctx *gin.Context) {
 		return
 	}
 	if attendances == nil {
-		respondWithError(ctx, constants.StatusNotFound, "Attendances not found")
+		respondWithError(ctx, constants.StatusNotFound, "Attendance not found")
 		return
 	}
 	respondWithSuccess(ctx, constants.StatusOK, attendances)
