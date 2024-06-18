@@ -11,7 +11,7 @@ import (
 type AttendanceService interface {
 	CreateOrUpdateAttendance(cid uint, uid uint, csid uint, status string) error
 	GetAllAttendancesByCID(cid uint) ([]models.Attendance, error)
-	GetAttendanceByID(id string) (*models.Attendance, error)
+	GetAttendanceByID(id string) ([]models.Attendance, error)
 	DeleteAttendance(id string) error
 }
 
@@ -55,7 +55,7 @@ func (s *attendanceService) GetAllAttendancesByCID(cid uint) ([]models.Attendanc
 }
 
 // GetAttendanceByID IDによって出席情報を取得
-func (s *attendanceService) GetAttendanceByID(id string) (*models.Attendance, error) {
+func (s *attendanceService) GetAttendanceByID(id string) ([]models.Attendance, error) {
 	attendance, err := s.repo.GetAttendanceByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
