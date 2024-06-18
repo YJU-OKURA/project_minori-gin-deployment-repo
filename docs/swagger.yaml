@@ -324,7 +324,9 @@ paths:
         "200":
           description: Attendance
           schema:
-            $ref: '#/definitions/models.Attendance'
+            items:
+              $ref: '#/definitions/models.Attendance'
+            type: array
         "400":
           description: 無効なリクエスト
           schema:

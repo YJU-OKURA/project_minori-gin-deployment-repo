@@ -10,7 +10,7 @@ type AttendanceRepository interface {
 	CreateAttendance(attendance *models.Attendance) error
 	GetAttendanceByUIDAndCID(uid uint, cid uint) (*models.Attendance, error)
 	GetAllAttendancesByCID(cid uint) ([]models.Attendance, error)
-	GetAttendanceByID(id string) (*models.Attendance, error)
+	GetAttendanceByID(id string) ([]models.Attendance, error)
 	UpdateAttendance(attendance *models.Attendance) error
 	DeleteAttendance(id string) error
 }
@@ -48,10 +48,10 @@ func (repo *attendanceRepository) GetAllAttendancesByCID(cid uint) ([]models.Att
 }
 
 // GetAttendanceByID IDによって出席情報を取得
-func (repo *attendanceRepository) GetAttendanceByID(id string) (*models.Attendance, error) {
-	var attendance models.Attendance
+func (repo *attendanceRepository) GetAttendanceByID(id string) ([]models.Attendance, error) {
+	var attendance []models.Attendance
 	err := repo.db.Where("csid = ?", id).Find(&attendance).Error
-	return &attendance, err
+	return attendance, err
 }
 
 // UpdateAttendance 出席情報を更新

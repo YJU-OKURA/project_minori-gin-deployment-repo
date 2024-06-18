@@ -113,7 +113,7 @@ func (ac *AttendanceController) GetAllAttendances(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Attendance ID"
-// @Success 200 {object} models.Attendance "Attendance"
+// @Success 200 {array} models.Attendance "Attendance"
 // @Failure 400 {string} string "無効なリクエスト"
 // @Failure 500 {string} string "サーバーエラーが発生しました"
 // @Router /at/attendance/{id} [get]
@@ -125,16 +125,16 @@ func (ac *AttendanceController) GetAttendance(ctx *gin.Context) {
 		return
 	}
 
-	attendance, err := ac.attendanceService.GetAttendanceByID(strconv.Itoa(int(attendanceID)))
+	attendances, err := ac.attendanceService.GetAttendanceByID(strconv.Itoa(int(attendanceID)))
 	if err != nil {
 		handleServiceError(ctx, err)
 		return
 	}
-	if attendance == nil {
-		respondWithError(ctx, constants.StatusNotFound, "Attendance not found")
+	if attendances == nil {
+		respondWithError(ctx, constants.StatusNotFound, "Attendances not found")
 		return
 	}
-	respondWithSuccess(ctx, constants.StatusOK, attendance)
+	respondWithSuccess(ctx, constants.StatusOK, attendances)
 }
 
 // DeleteAttendance godoc
