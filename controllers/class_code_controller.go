@@ -154,5 +154,6 @@ func (c *ClassCodeController) VerifyAndRequestAccess(ctx *gin.Context) {
 	respondWithSuccess(ctx, constants.StatusOK, gin.H{
 		"valid":   true,
 		"message": "Access request submitted successfully.",
+		"cid":     cid,
 	})
 }
