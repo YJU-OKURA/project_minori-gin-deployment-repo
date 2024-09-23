@@ -128,6 +128,7 @@ func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 		"http://10.0.9.193",
 		"http://minori-next-lb-1326724168.ap-northeast-2.elb.amazonaws.com",
 		"https://minoriedu.com",
+		"https://minoriedu.com:80",
 		"http://43.203.66.25/api/gin/swagger/index.html",
 	}
 
