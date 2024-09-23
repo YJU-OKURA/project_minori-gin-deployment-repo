@@ -220,10 +220,16 @@ func (r *classUserRepository) RoleExists(uid uint, cid uint) (bool, error) {
 }
 
 func (r *classUserRepository) CreateUserRole(uid uint, cid uint, role string) error {
+	var user models.User
+	if err := r.db.First(&user, uid).Error; err != nil {
+		return err
+	}
+
 	newUserRole := models.ClassUser{
-		UID:  uid,
-		CID:  cid,
-		Role: role,
+		UID:      uid,
+		CID:      cid,
+		Role:     role,
+		Nickname: user.Name,
 	}
 	return r.db.Create(&newUserRole).Error
 }
