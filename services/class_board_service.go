@@ -1,12 +1,13 @@
 package services
 
 import (
+	"net/http"
+	"sync"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/utils"
-	"net/http"
-	"sync"
 )
 
 // ClassBoardService インタフェース

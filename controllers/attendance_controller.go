@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"fmt"
+	"log"
+	"strconv"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/models"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
-	"log"
-	"strconv"
 )
 
 // AttendanceController インタフェースを実装

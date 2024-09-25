@@ -4,12 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"io"
 	"log"
 	"mime/multipart"
@@ -17,6 +11,13 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type Uploader interface {

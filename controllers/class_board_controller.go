@@ -3,15 +3,16 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"log"
-	"net/http"
-	"strconv"
 )
 
 // ClassBoardController インタフェースを実装

@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/dustin/go-broadcast"
-	"github.com/go-redis/redis/v8"
 	"log"
 	"time"
+
+	"github.com/dustin/go-broadcast"
+	"github.com/go-redis/redis/v8"
 )
 
 // Message ユーザーとルームの識別子を持つチャットメッセージを表す

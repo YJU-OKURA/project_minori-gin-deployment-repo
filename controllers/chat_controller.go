@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"context"
+	"io"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
-	"io"
 )
 
 // ChatController チャットコントローラ

@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
+	"github.com/gin-gonic/gin"
 )
 
 type LiveClassController struct {
