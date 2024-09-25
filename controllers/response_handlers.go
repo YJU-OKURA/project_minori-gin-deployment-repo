@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/constants"
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/services"
 	"github.com/gin-gonic/gin"

@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
-	"github.com/go-redis/redis/v8"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/repositories"
+	"github.com/go-redis/redis/v8"
 )
 
 type LiveClassService interface {
