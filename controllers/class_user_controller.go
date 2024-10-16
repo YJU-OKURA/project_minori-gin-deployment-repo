@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"net/http"
 	"strconv"
 
 	"github.com/YJU-OKURA/project_minori-gin-deployment-repo/dto"
@@ -44,31 +45,29 @@ type UpdateUserNameRequest struct {
 // @Router /cu/{uid}/{cid}/info [get]
 // @Security Bearer
 func (c *ClassUserController) GetUserClassUserInfo(ctx *gin.Context) {
-	uidStr := ctx.Param("uid")
-	uid, err := strconv.ParseUint(uidStr, 10, 32)
+	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 64)
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UID"})
 		return
 	}
 
-	cidStr := ctx.Param("cid")
-	cid, err := strconv.ParseUint(cidStr, 10, 32)
+	cid, err := strconv.ParseUint(ctx.Param("cid"), 10, 64)
 	if err != nil {
-		respondWithError(ctx, constants.StatusBadRequest, constants.InvalidRequest)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CID"})
 		return
 	}
 
-	classUserInfo, err := c.classUserService.GetClassUserInfo(uint(uid), uint(cid))
+	userInfo, err := c.classUserService.GetClassUserInfo(uint(uid), uint(cid))
 	if err != nil {
-		if errors.Is(err, services.ErrNotFound) {
-			respondWithError(ctx, constants.StatusNotFound, constants.UserNotFound)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		} else {
-			respondWithError(ctx, constants.StatusInternalServerError, constants.InternalServerError)
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		return
 	}
 
-	respondWithSuccess(ctx, constants.StatusOK, classUserInfo)
+	ctx.JSON(http.StatusOK, userInfo)
 }
 
 // GetUserClasses godoc
