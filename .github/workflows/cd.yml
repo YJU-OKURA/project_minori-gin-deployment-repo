@@ -25,10 +25,10 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@${{ env.EC2_IP }} "
           docker pull ghcr.io/yju-okura/minori_gin:latest;
-          docker stop minori_gin;
-          docker rm minori_gin;
+          docker stop minori_gin_1;
+          docker rm minori_gin_1;
           IMAGE_ID=$(sudo docker images -q ghcr.io/yju-okura/minori_gin:latest | head -n 1);
           if [ ! -z \"$IMAGE_ID\" ]; then
             docker images -q | grep -v $IMAGE_ID | xargs -r sudo docker rmi;
           fi;
-          docker run -d -p 80:8080 --env-file /volume/.env --restart always --name minori_gin ghcr.io/yju-okura/minori_gin:latest"
+          docker run -d -p 8080:8080 --env-file /volume/.env --name minori_gin_1 ghcr.io/yju-okura/minori_gin:latest"
