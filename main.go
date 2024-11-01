@@ -139,9 +139,9 @@ func setupRouter(db *gorm.DB, jwtService services.JWTService) *gin.Engine {
 	router.Use(globalErrorHandler)
 	router.Use(CORS(allowedOrigins, ignoredPaths))
 	initializeSwagger(router)
-	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController, createClassController, chatController := initializeControllers(db, redisClient)
+	userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController, lineAuthController, createClassController, chatController := initializeControllers(db, redisClient)
 
-	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController, createClassController, chatController, jwtService)
+	setupRoutes(router, userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController, lineAuthController, createClassController, chatController, jwtService)
 	return router
 }
 
@@ -267,7 +267,7 @@ func startServer(router *gin.Engine) {
 }
 
 // initializeControllers コントローラーを初期化する
-func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, *controllers.GoogleAuthController, *controllers.ClassController, *controllers.ChatController) {
+func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers.UserController, *controllers.ClassBoardController, *controllers.ClassCodeController, *controllers.ClassScheduleController, *controllers.ClassUserController, *controllers.AttendanceController, *controllers.GoogleAuthController, *controllers.LINEAuthController, *controllers.ClassController, *controllers.ChatController) {
 	userRepo := repositories.NewUserRepository(db)
 	classRepo := repositories.NewClassRepository(db)
 	classBoardRepo := repositories.NewClassBoardRepository(db)
@@ -285,6 +285,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
 	attendanceService := services.NewAttendanceService(attendanceRepo)
 	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
+	lineAuthService := services.NewLINEAuthService(googleAuthRepo)
 	jwtService := services.NewJWTService()
 	chatManager := services.NewRoomManager(redisClient)
 	go manageChatRooms(db, chatManager)
@@ -299,14 +300,15 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	classUserController := controllers.NewClassUserController(classUserService)
 	attendanceController := controllers.NewAttendanceController(attendanceService)
 	googleAuthController := controllers.NewGoogleAuthController(googleAuthService, jwtService)
+	lineAuthController := controllers.NewLINEAuthController(lineAuthService, jwtService)
 	createClassController := controllers.NewCreateClassController(createClassService, uploader)
 	chatController := controllers.NewChatController(chatManager, redisClient)
 
-	return userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController, createClassController, chatController
+	return userController, classBoardController, classCodeController, classScheduleController, classUserController, attendanceController, googleAuthController, lineAuthController, createClassController, chatController
 }
 
 // setupRoutes ルートをセットアップする
-func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, googleAuthController *controllers.GoogleAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController, jwtService services.JWTService) {
+func setupRoutes(router *gin.Engine, userController *controllers.UserController, classBoardController *controllers.ClassBoardController, classCodeController *controllers.ClassCodeController, classScheduleController *controllers.ClassScheduleController, classUserController *controllers.ClassUserController, attendanceController *controllers.AttendanceController, googleAuthController *controllers.GoogleAuthController, lineAuthController *controllers.LINEAuthController, createClassController *controllers.ClassController, chatController *controllers.ChatController, jwtService services.JWTService) {
 	setupUserRoutes(router, userController, jwtService)
 	setupClassBoardRoutes(router, classBoardController, jwtService)
 	setupClassCodeRoutes(router, classCodeController, jwtService)
@@ -314,6 +316,7 @@ func setupRoutes(router *gin.Engine, userController *controllers.UserController,
 	setupClassUserRoutes(router, classUserController, jwtService)
 	setupAttendanceRoutes(router, attendanceController, jwtService)
 	setupGoogleAuthRoutes(router, googleAuthController)
+	setupLINEAuthRoutes(router, lineAuthController)
 	setupCreateClassRoutes(router, createClassController, jwtService)
 	setupChatRoutes(router, chatController, jwtService)
 }
@@ -396,6 +399,15 @@ func setupGoogleAuthRoutes(router *gin.Engine, controller *controllers.GoogleAut
 	g := router.Group("/api/gin/auth/google")
 	{
 		g.GET("login", controller.GoogleLoginHandler)
+		g.POST("process", controller.ProcessAuthCode)
+		g.POST("refresh-token", controller.RefreshAccessTokenHandler)
+	}
+}
+
+func setupLINEAuthRoutes(router *gin.Engine, controller *controllers.LINEAuthController) {
+	g := router.Group("/api/gin/auth/line")
+	{
+		g.GET("login", controller.LINELoginHandler)
 		g.POST("process", controller.ProcessAuthCode)
 		g.POST("refresh-token", controller.RefreshAccessTokenHandler)
 	}
