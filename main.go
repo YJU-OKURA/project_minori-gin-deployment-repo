@@ -277,6 +277,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	roleRepo := repositories.NewRoleRepository(db)
 	attendanceRepo := repositories.NewAttendanceRepository(db)
 	googleAuthRepo := repositories.NewGoogleAuthRepository(db)
+	lineAuthRepo := repositories.NewLINEAuthRepository(db)
 
 	userService := services.NewCreateUserService(userRepo)
 	classBoardService := services.NewClassBoardService(classBoardRepo)
@@ -285,7 +286,7 @@ func initializeControllers(db *gorm.DB, redisClient *redis.Client) (*controllers
 	classScheduleService := services.NewClassScheduleService(classScheduleRepo)
 	attendanceService := services.NewAttendanceService(attendanceRepo)
 	googleAuthService := services.NewGoogleAuthService(googleAuthRepo)
-	lineAuthService := services.NewLINEAuthService(googleAuthRepo)
+	lineAuthService := services.NewLINEAuthService(lineAuthRepo)
 	jwtService := services.NewJWTService()
 	chatManager := services.NewRoomManager(redisClient)
 	go manageChatRooms(db, chatManager)
