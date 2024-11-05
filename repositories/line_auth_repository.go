@@ -9,7 +9,7 @@ import (
 )
 
 type LINEAuthRepository interface {
-	UpdateOrCreateUser(userInput dto.UserInput) (models.User, error)
+	UpdateOrCreateUser(userInput dto.LineUserInput) (models.User, error)
 	GetUserByID(id uint) (models.User, error)
 }
 
@@ -21,18 +21,18 @@ func NewLINEAuthRepository(db *gorm.DB) LINEAuthRepository {
 	return &lineAuthRepository{db: db}
 }
 
-func (repo *lineAuthRepository) UpdateOrCreateUser(userInput dto.UserInput) (models.User, error) {
+func (repo *lineAuthRepository) UpdateOrCreateUser(userInput dto.LineUserInput) (models.User, error) {
 	var user models.User
-	result := repo.db.Where("p_id = ?", fmt.Sprint(userInput.ID)).First(&user)
+	result := repo.db.Where("p_id = ?", fmt.Sprint(userInput.UserID)).First(&user)
 	if result.Error != nil && result.Error == gorm.ErrRecordNotFound {
 
-		pidPrefix := userInput.ID[:4]
-		uniqueName := fmt.Sprintf("%s#%s", userInput.Name, pidPrefix)
+		pidPrefix := userInput.UserID[:4]
+		uniqueName := fmt.Sprintf("%s#%s", userInput.DisplayName, pidPrefix)
 
 		user = models.User{
-			PID:   fmt.Sprint(userInput.ID),
+			PID:   fmt.Sprint(userInput.UserID),
 			Name:  uniqueName,
-			Image: userInput.Picture,
+			Image: userInput.PictureURL,
 		}
 		result = repo.db.Create(&user)
 	}

@@ -21,7 +21,7 @@ type LINEAuthService interface {
 	GenerateStateOauthCookie(w http.ResponseWriter) string
 	GetLINEUserInfo(code string) ([]byte, error)
 	OauthConfig() *oauth2.Config
-	UpdateOrCreateUser(userInput dto.UserInput) (models.User, error)
+	UpdateOrCreateUser(userInput dto.LineUserInput) (models.User, error)
 	GetUserByID(userID uint) (models.User, error)
 }
 
@@ -86,7 +86,7 @@ func (s *LINEAuthServiceImpl) GetLINEUserInfo(code string) ([]byte, error) {
 	return body, nil
 }
 
-func (s *LINEAuthServiceImpl) UpdateOrCreateUser(userInput dto.UserInput) (models.User, error) {
+func (s *LINEAuthServiceImpl) UpdateOrCreateUser(userInput dto.LineUserInput) (models.User, error) {
 	return s.repo.UpdateOrCreateUser(userInput)
 }
 

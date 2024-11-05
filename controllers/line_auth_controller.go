@@ -48,7 +48,7 @@ func (controller *LINEAuthController) ProcessAuthCode(c *gin.Context) {
 		return
 	}
 
-	var userInput dto.UserInput
+	var userInput dto.LineUserInput
 	if err := json.Unmarshal(userInfo, &userInput); err != nil {
 		handleServiceError(c, err)
 		return
