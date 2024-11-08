@@ -8,31 +8,26 @@ import (
 	"gorm.io/gorm"
 )
 
-// AttendanceService インタフェース
 type AttendanceService interface {
 	CreateOrUpdateAttendance(cid uint, uid uint, csid uint, status string) error
 	GetAllAttendancesByCID(cid uint) ([]models.Attendance, error)
-	GetAttendanceByID(id string) ([]models.Attendance, error)
-	DeleteAttendance(id string) error
+	GetAllAttendancesByCSID(csid uint) ([]models.Attendance, error)
+	DeleteAttendance(id uint) error
+	GetAttendanceStatisticsByCID(cid uint) (map[models.AttendanceType]int, error)
+	GetAttendanceStatisticsByCSID(csid uint) (map[models.AttendanceType]int, error)
 }
 
-// attendanceService インタフェースを実装
 type attendanceService struct {
 	repo repositories.AttendanceRepository
 }
 
-// NewAttendanceService AttendanceServiceを生成
 func NewAttendanceService(repo repositories.AttendanceRepository) AttendanceService {
-	return &attendanceService{
-		repo: repo,
-	}
+	return &attendanceService{repo: repo}
 }
 
-// CreateOrUpdateAttendance 出席情報を作成または更新
 func (s *attendanceService) CreateOrUpdateAttendance(cid uint, uid uint, csid uint, status string) error {
-	attendance, err := s.repo.GetAttendanceByUIDAndCID(uid, cid)
+	attendance, err := s.repo.GetAttendanceByUIDAndCSID(uid, csid)
 	if err != nil {
-		// レコードが見つからない場合は新規作成
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			newAttendance := models.Attendance{
 				CID:          cid,
@@ -45,29 +40,26 @@ func (s *attendanceService) CreateOrUpdateAttendance(cid uint, uid uint, csid ui
 		return err
 	}
 
-	// レコードが見つかった場合は更新
 	attendance.IsAttendance = models.AttendanceType(status)
 	return s.repo.UpdateAttendance(attendance)
 }
 
-// GetAllAttendancesByCID CIDによって全ての出席情報を取得
 func (s *attendanceService) GetAllAttendancesByCID(cid uint) ([]models.Attendance, error) {
 	return s.repo.GetAllAttendancesByCID(cid)
 }
 
-// GetAttendanceByID IDによって出席情報を取得
-func (s *attendanceService) GetAttendanceByID(id string) ([]models.Attendance, error) {
-	attendances, err := s.repo.GetAttendanceByID(id)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return attendances, nil
+func (s *attendanceService) GetAllAttendancesByCSID(csid uint) ([]models.Attendance, error) {
+	return s.repo.GetAllAttendancesByCSID(csid)
 }
 
-// DeleteAttendance 出席情報を削除
-func (s *attendanceService) DeleteAttendance(id string) error {
+func (s *attendanceService) DeleteAttendance(id uint) error {
 	return s.repo.DeleteAttendance(id)
+}
+
+func (s *attendanceService) GetAttendanceStatisticsByCID(cid uint) (map[models.AttendanceType]int, error) {
+	return s.repo.GetAttendanceStatisticsByCID(cid)
+}
+
+func (s *attendanceService) GetAttendanceStatisticsByCSID(csid uint) (map[models.AttendanceType]int, error) {
+	return s.repo.GetAttendanceStatisticsByCSID(csid)
 }

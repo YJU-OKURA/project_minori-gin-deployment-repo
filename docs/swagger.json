@@ -1,17 +1,14 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "contact": {},
+        "version": "",
+        "title": ""
     },
     "paths": {
         "/at": {
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "複数の出席情報を作成または更新します。'ATTENDANCE', 'TARDY', 'ABSENCE'のいずれかのステータスを持つことができます。",
+                "description": "出席情報を作成または更新する。",
                 "consumes": [
                     "application/json"
                 ],
@@ -21,36 +18,89 @@
                 "tags": [
                     "Attendance"
                 ],
-                "summary": "複数の出席情報を作成または更新",
+                "summary": "出席情報を作成または更新",
                 "parameters": [
                     {
-                        "description": "出席情報",
-                        "name": "attendances",
+                        "description": "Attendance to create or update",
+                        "name": "attendance",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/controllers.AttendanceInput"
-                            }
+                            "$ref": "#/definitions/controllers.AttendanceInput"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "作成または更新に成功しました",
+                        "description": "出席情報が正常に作成または更新されました",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "400": {
-                        "description": "無効なリクエスト",
+                        "description": "リクエストが不正です",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
                         "description": "サーバーエラーが発生しました",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/attendance/statistics/schedule/{csid}": {
+            "get": {
+                "description": "指定されたクラススケジュールIDの出席統計情報を取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "クラススケジュールIDで出席統計情報を取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class Schedule ID",
+                        "name": "csid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "出席統計情報が見つかりました",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なクラススケジュールIDです",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "出席統計情報が見つかりません",
                         "schema": {
                             "type": "string"
                         }
@@ -58,14 +108,9 @@
                 }
             }
         },
-        "/at/attendance/{id}": {
+        "/attendance/{cid}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "指定されたIDの出席情報を取得",
+                "description": "全ての出席情報を取得する。",
                 "consumes": [
                     "application/json"
                 ],
@@ -75,106 +120,7 @@
                 "tags": [
                     "Attendance"
                 ],
-                "summary": "出席情報を取得",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Attendance ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Attendance",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Attendance"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "無効なリクエスト",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "指定されたIDの出席情報を削除",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attendance"
-                ],
-                "summary": "出席情報を削除",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Attendance ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "削除に成功しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "無効なリクエスト",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/at/{cid}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "クラスの全ての出席情報を取得",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attendance"
-                ],
-                "summary": "クラスの全ての出席情報を取得",
+                "summary": "全ての出席情報を取得",
                 "parameters": [
                     {
                         "type": "integer",
@@ -182,11 +128,18 @@
                         "name": "cid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Class Schedule ID",
+                        "name": "csid",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Attendance",
+                        "description": "出席情報が見つかりました",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -195,13 +148,60 @@
                         }
                     },
                     "400": {
-                        "description": "無効なリクエスト",
+                        "description": "無効なクラスIDです",
                         "schema": {
                             "type": "string"
                         }
                     },
-                    "500": {
-                        "description": "サーバーエラーが発生しました",
+                    "404": {
+                        "description": "出席情報が見つかりません",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/attendance/{id}": {
+            "delete": {
+                "description": "指定されたIDの出席情報を削除する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "IDで出席情報を削除",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Attendance ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "出席情報が正常に削除されました",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "無効なID形式です",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "出席情報が見つかりません",
                         "schema": {
                             "type": "string"
                         }

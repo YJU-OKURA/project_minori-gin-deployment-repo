@@ -214,74 +214,79 @@ paths:
     post:
       consumes:
       - application/json
-      description: 複数の出席情報を作成または更新します。'ATTENDANCE', 'TARDY', 'ABSENCE'のいずれかのステータスを持つことができます。
+      description: 出席情報を作成または更新する。
       parameters:
-      - description: 出席情報
+      - description: Attendance to create or update
         in: body
-        name: attendances
+        name: attendance
         required: true
         schema:
-          items:
-            $ref: '#/definitions/controllers.AttendanceInput'
-          type: array
+          $ref: '#/definitions/controllers.AttendanceInput'
       produces:
       - application/json
       responses:
         "200":
-          description: 作成または更新に成功しました
+          description: 出席情報が正常に作成または更新されました
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "400":
-          description: 無効なリクエスト
+          description: リクエストが不正です
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: サーバーエラーが発生しました
           schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 複数の出席情報を作成または更新
+            additionalProperties:
+              type: string
+            type: object
+      summary: 出席情報を作成または更新
       tags:
       - Attendance
-  /at/{cid}:
+  /attendance/{cid}:
     get:
       consumes:
       - application/json
-      description: クラスの全ての出席情報を取得
+      description: 全ての出席情報を取得する。
       parameters:
       - description: Class ID
         in: path
         name: cid
         required: true
         type: integer
+      - description: Class Schedule ID
+        in: path
+        name: csid
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Attendance
+          description: 出席情報が見つかりました
           schema:
             items:
               $ref: '#/definitions/models.Attendance'
             type: array
         "400":
-          description: 無効なリクエスト
+          description: 無効なクラスIDです
           schema:
             type: string
-        "500":
-          description: サーバーエラーが発生しました
+        "404":
+          description: 出席情報が見つかりません
           schema:
             type: string
-      security:
-      - Bearer: []
-      summary: クラスの全ての出席情報を取得
+      summary: 全ての出席情報を取得
       tags:
       - Attendance
-  /at/attendance/{id}:
+  /attendance/{id}:
     delete:
       consumes:
       - application/json
-      description: 指定されたIDの出席情報を削除
+      description: 指定されたIDの出席情報を削除する。
       parameters:
       - description: Attendance ID
         in: path
@@ -292,52 +297,51 @@ paths:
       - application/json
       responses:
         "200":
-          description: 削除に成功しました
+          description: 出席情報が正常に削除されました
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "400":
-          description: 無効なリクエスト
+          description: 無効なID形式です
           schema:
             type: string
-        "500":
-          description: サーバーエラーが発生しました
+        "404":
+          description: 出席情報が見つかりません
           schema:
             type: string
-      security:
-      - Bearer: []
-      summary: 出席情報を削除
+      summary: IDで出席情報を削除
       tags:
       - Attendance
+  /attendance/statistics/schedule/{csid}:
     get:
       consumes:
       - application/json
-      description: 指定されたIDの出席情報を取得
+      description: 指定されたクラススケジュールIDの出席統計情報を取得する。
       parameters:
-      - description: Attendance ID
+      - description: Class Schedule ID
         in: path
-        name: id
+        name: csid
         required: true
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Attendance
+          description: 出席統計情報が見つかりました
           schema:
-            items:
-              $ref: '#/definitions/models.Attendance'
-            type: array
+            additionalProperties:
+              type: integer
+            type: object
         "400":
-          description: 無効なリクエスト
+          description: 無効なクラススケジュールIDです
           schema:
             type: string
-        "500":
-          description: サーバーエラーが発生しました
+        "404":
+          description: 出席統計情報が見つかりません
           schema:
             type: string
-      security:
-      - Bearer: []
-      summary: 出席情報を取得
+      summary: クラススケジュールIDで出席統計情報を取得
       tags:
       - Attendance
   /auth/google/login:

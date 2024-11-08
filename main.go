@@ -454,9 +454,9 @@ func setupAttendanceRoutes(router *gin.Engine, controller *controllers.Attendanc
 	at.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
 		at.POST("", controller.CreateOrUpdateAttendance)
-		at.GET(":cid", controller.GetAllAttendances)
-		at.GET("attendance/:id", controller.GetAttendance)
+		at.GET("", controller.GetAllAttendances)
 		at.DELETE("attendance/:id", controller.DeleteAttendance)
+		at.GET("statistics/schedule/:csid", controller.GetAttendanceStatisticsByCSID)
 	}
 }
 

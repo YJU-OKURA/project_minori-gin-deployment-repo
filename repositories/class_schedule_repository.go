@@ -58,13 +58,13 @@ func (repo *classScheduleRepository) DeleteClassSchedule(id uint) error {
 // FindLiveClassSchedules ライブ中のクラススケジュールを取得
 func (repo *classScheduleRepository) FindLiveClassSchedules(cid uint) ([]models.ClassSchedule, error) {
 	var classSchedules []models.ClassSchedule
-	err := repo.db.Where("cid = ? AND is_live = true AND end_time > NOW()", cid).Find(&classSchedules).Error
+	err := repo.db.Where("cid = ? AND is_live = true AND ended_at > NOW()", cid).Find(&classSchedules).Error
 	return classSchedules, err
 }
 
 // FindClassSchedulesByDate 日付でクラススケジュールを取得
 func (repo *classScheduleRepository) FindClassSchedulesByDate(cid uint, date string) ([]models.ClassSchedule, error) {
 	var classSchedules []models.ClassSchedule
-	err := repo.db.Where("cid = ? AND DATE(start_time) = ?", cid, date).Find(&classSchedules).Error
+	err := repo.db.Where("cid = ? AND DATE(started_at) = ?", cid, date).Find(&classSchedules).Error
 	return classSchedules, err
 }
