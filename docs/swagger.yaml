@@ -10,6 +10,26 @@ definitions:
       uid:
         type: integer
     type: object
+  controllers.AttendanceResponse:
+    properties:
+      attendances:
+        items:
+          $ref: '#/definitions/models.Attendance'
+        type: array
+      statistics:
+        additionalProperties:
+          type: integer
+        type: object
+    type: object
+  controllers.ErrorResponse:
+    properties:
+      message:
+        example: Invalid request format
+        type: string
+      status:
+        example: 400
+        type: integer
+    type: object
   controllers.UpdateUserNameRequest:
     properties:
       new_name:
@@ -210,7 +230,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /at:
+  /api/gin/attendances:
     post:
       consumes:
       - application/json
@@ -228,29 +248,70 @@ paths:
       - application/json
       responses:
         "200":
-          description: 出席情報が正常に作成または更新されました
+          description: OK
           schema:
             additionalProperties:
               type: string
             type: object
         "400":
-          description: リクエストが不正です
+          description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
         "500":
-          description: サーバーエラーが発生しました
+          description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controllers.ErrorResponse'
       security:
-      - ApiKeyAuth: []
+      - Bearer: []
       summary: 出席情報を作成または更新
       tags:
       - Attendance
-  /attendance/{cid}:
+  /api/gin/attendances/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 指定されたIDの出席情報を削除する。
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: IDで出席情報を削除
+      tags:
+      - Attendance
+  /api/gin/attendances/class/{classId}:
     get:
       consumes:
       - application/json
@@ -270,54 +331,29 @@ paths:
       - application/json
       responses:
         "200":
-          description: 出席情報が見つかりました
+          description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Attendance'
-            type: array
+            $ref: '#/definitions/controllers.AttendanceResponse'
         "400":
-          description: 無効なクラスIDです
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
         "404":
-          description: 出席情報が見つかりません
+          description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
       summary: 全ての出席情報を取得
       tags:
       - Attendance
-  /attendance/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: 指定されたIDの出席情報を削除する。
-      parameters:
-      - description: Attendance ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 出席情報が正常に削除されました
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: 無効なID形式です
-          schema:
-            type: string
-        "404":
-          description: 出席情報が見つかりません
-          schema:
-            type: string
-      summary: IDで出席情報を削除
-      tags:
-      - Attendance
-  /attendance/statistics/schedule/{csid}:
+  /api/gin/attendances/schedule/{scheduleId}:
     get:
       consumes:
       - application/json
@@ -325,26 +361,34 @@ paths:
       parameters:
       - description: Class Schedule ID
         in: path
-        name: csid
+        name: scheduleId
         required: true
         type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: 出席統計情報が見つかりました
+          description: OK
           schema:
-            additionalProperties:
-              type: integer
-            type: object
+            $ref: '#/definitions/controllers.AttendanceResponse'
         "400":
-          description: 無効なクラススケジュールIDです
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
         "404":
-          description: 出席統計情報が見つかりません
+          description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      security:
+      - Bearer: []
       summary: クラススケジュールIDで出席統計情報を取得
       tags:
       - Attendance
