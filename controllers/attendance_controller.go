@@ -53,7 +53,7 @@ func NewAttendanceController(service services.AttendanceService) *AttendanceCont
 // @Failure 400 {object} ErrorResponse
 // @Failure 401 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/gin/attendances [post]
+// @Router /attendances [post]
 func (ac *AttendanceController) CreateOrUpdateAttendances(ctx *gin.Context) {
 	var attendances []AttendanceInput
 	if err := ctx.ShouldBindJSON(&attendances); err != nil {
@@ -93,7 +93,7 @@ func (ac *AttendanceController) CreateOrUpdateAttendances(ctx *gin.Context) {
 // @Failure 401 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/gin/attendances/class/{classId} [get]
+// @Router /attendances/class/{classId} [get]
 func (ac *AttendanceController) GetAttendancesByClass(ctx *gin.Context) {
 	classId, err := strconv.ParseUint(ctx.Param("classId"), 10, 32)
 	if err != nil {
@@ -129,7 +129,7 @@ func (ac *AttendanceController) GetAttendancesByClass(ctx *gin.Context) {
 // @Failure 401 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/gin/attendances/schedule/{scheduleId} [get]
+// @Router /attendances/schedule/{scheduleId} [get]
 func (ac *AttendanceController) GetAttendancesBySchedule(ctx *gin.Context) {
 	scheduleId, err := strconv.ParseUint(ctx.Param("scheduleId"), 10, 32)
 	if err != nil {
@@ -165,7 +165,7 @@ func (ac *AttendanceController) GetAttendancesBySchedule(ctx *gin.Context) {
 // @Failure 401 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/gin/attendances/{id} [delete]
+// @Router /attendances/{id} [delete]
 func (ac *AttendanceController) DeleteAttendance(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {

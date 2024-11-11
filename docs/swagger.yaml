@@ -230,7 +230,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/gin/attendances:
+  /attendances:
     post:
       consumes:
       - application/json
@@ -270,7 +270,7 @@ paths:
       summary: 出席情報を作成または更新
       tags:
       - Attendance
-  /api/gin/attendances/{id}:
+  /attendances/{id}:
     delete:
       consumes:
       - application/json
@@ -311,7 +311,7 @@ paths:
       summary: IDで出席情報を削除
       tags:
       - Attendance
-  /api/gin/attendances/class/{classId}:
+  /attendances/class/{classId}:
     get:
       consumes:
       - application/json
@@ -353,7 +353,7 @@ paths:
       summary: 全ての出席情報を取得
       tags:
       - Attendance
-  /api/gin/attendances/schedule/{scheduleId}:
+  /attendances/schedule/{scheduleId}:
     get:
       consumes:
       - application/json
