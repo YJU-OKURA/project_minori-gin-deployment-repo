@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/at": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "出席情報を作成または更新する。",
                 "consumes": [
                     "application/json"
@@ -30,12 +35,15 @@ const docTemplate = `{
                 "summary": "出席情報を作成または更新",
                 "parameters": [
                     {
-                        "description": "Attendance to create or update",
+                        "description": "Attendance records to create or update",
                         "name": "attendance",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.AttendanceInput"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/controllers.AttendanceInput"
+                            }
                         }
                     }
                 ],
