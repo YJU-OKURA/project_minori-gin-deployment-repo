@@ -216,12 +216,14 @@ paths:
       - application/json
       description: 出席情報を作成または更新する。
       parameters:
-      - description: Attendance to create or update
+      - description: Attendance records to create or update
         in: body
         name: attendance
         required: true
         schema:
-          $ref: '#/definitions/controllers.AttendanceInput'
+          items:
+            $ref: '#/definitions/controllers.AttendanceInput'
+          type: array
       produces:
       - application/json
       responses:
@@ -243,6 +245,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: 出席情報を作成または更新
       tags:
       - Attendance

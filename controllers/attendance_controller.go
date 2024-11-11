@@ -29,9 +29,11 @@ func NewAttendanceController(service services.AttendanceService) *AttendanceCont
 // @Summary 出席情報を作成または更新
 // @Description 出席情報を作成または更新する。
 // @Tags Attendance
+// @Security ApiKeyAuth
+// @CrossOrigin
 // @Accept json
 // @Produce json
-// @Param attendance body AttendanceInput true "Attendance to create or update"
+// @Param attendance body []AttendanceInput true "Attendance records to create or update"
 // @Success 200 {object} map[string]string "出席情報が正常に作成または更新されました"
 // @Failure 400 {object} map[string]string "リクエストが不正です"
 // @Failure 500 {object} map[string]string "サーバーエラーが発生しました"
