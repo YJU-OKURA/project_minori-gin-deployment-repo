@@ -4,7 +4,7 @@
         "contact": {}
     },
     "paths": {
-        "/api/gin/attendances": {
+        "/attendances": {
             "post": {
                 "security": [
                     {
@@ -67,7 +67,7 @@
                 }
             }
         },
-        "/api/gin/attendances/class/{classId}": {
+        "/attendances/class/{classId}": {
             "get": {
                 "description": "全ての出席情報を取得する。",
                 "consumes": [
@@ -130,7 +130,7 @@
                 }
             }
         },
-        "/api/gin/attendances/schedule/{scheduleId}": {
+        "/attendances/schedule/{scheduleId}": {
             "get": {
                 "security": [
                     {
@@ -191,7 +191,7 @@
                 }
             }
         },
-        "/api/gin/attendances/{id}": {
+        "/attendances/{id}": {
             "delete": {
                 "security": [
                     {

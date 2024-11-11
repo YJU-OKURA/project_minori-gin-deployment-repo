@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/gin/attendances": {
+        "/attendances": {
             "post": {
                 "security": [
                     {
@@ -78,7 +78,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/gin/attendances/class/{classId}": {
+        "/attendances/class/{classId}": {
             "get": {
                 "description": "全ての出席情報を取得する。",
                 "consumes": [
@@ -141,7 +141,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/gin/attendances/schedule/{scheduleId}": {
+        "/attendances/schedule/{scheduleId}": {
             "get": {
                 "security": [
                     {
@@ -202,7 +202,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/gin/attendances/{id}": {
+        "/attendances/{id}": {
             "delete": {
                 "security": [
                     {
