@@ -15,11 +15,11 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/at": {
+        "/api/gin/attendances": {
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "Bearer": []
                     }
                 ],
                 "description": "出席情報を作成または更新する。",
@@ -49,7 +49,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "出席情報が正常に作成または更新されました",
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -58,74 +58,27 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "リクエストが不正です",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "サーバーエラーが発生しました",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/attendance/statistics/schedule/{csid}": {
-            "get": {
-                "description": "指定されたクラススケジュールIDの出席統計情報を取得する。",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attendance"
-                ],
-                "summary": "クラススケジュールIDで出席統計情報を取得",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Class Schedule ID",
-                        "name": "csid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "出席統計情報が見つかりました",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "無効なクラススケジュールIDです",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "出席統計情報が見つかりません",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/attendance/{cid}": {
+        "/api/gin/attendances/class/{classId}": {
             "get": {
                 "description": "全ての出席情報を取得する。",
                 "consumes": [
@@ -156,31 +109,106 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "出席情報が見つかりました",
+                        "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Attendance"
-                            }
+                            "$ref": "#/definitions/controllers.AttendanceResponse"
                         }
                     },
                     "400": {
-                        "description": "無効なクラスIDです",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "出席情報が見つかりません",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/attendance/{id}": {
+        "/api/gin/attendances/schedule/{scheduleId}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "指定されたクラススケジュールIDの出席統計情報を取得する。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attendance"
+                ],
+                "summary": "クラススケジュールIDで出席統計情報を取得",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Class Schedule ID",
+                        "name": "scheduleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AttendanceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gin/attendances/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "指定されたIDの出席情報を削除する。",
                 "consumes": [
                     "application/json"
@@ -203,7 +231,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "出席情報が正常に削除されました",
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -212,15 +240,27 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "無効なID形式です",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "出席情報が見つかりません",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorResponse"
                         }
                     }
                 }
@@ -2981,6 +3021,36 @@ const docTemplate = `{
                 },
                 "uid": {
                     "type": "integer"
+                }
+            }
+        },
+        "controllers.AttendanceResponse": {
+            "type": "object",
+            "properties": {
+                "attendances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Attendance"
+                    }
+                },
+                "statistics": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "controllers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Invalid request format"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
                 }
             }
         },

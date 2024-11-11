@@ -450,13 +450,13 @@ func setupClassUserRoutes(router *gin.Engine, controller *controllers.ClassUserC
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token.
 func setupAttendanceRoutes(router *gin.Engine, controller *controllers.AttendanceController, jwtService services.JWTService) {
-	at := router.Group("/api/gin/at")
+	at := router.Group("/api/gin/attendances")
 	at.Use(middlewares.TokenAuthMiddleware(jwtService))
 	{
-		at.POST("", controller.CreateOrUpdateAttendance)
-		at.GET("", controller.GetAllAttendances)
-		at.DELETE("attendance/:id", controller.DeleteAttendance)
-		at.GET("statistics/schedule/:csid", controller.GetAttendanceStatisticsByCSID)
+		at.POST("", controller.CreateOrUpdateAttendances)
+		at.GET("/class/:classId", controller.GetAttendancesByClass)
+		at.GET("/schedule/:scheduleId", controller.GetAttendancesBySchedule)
+		at.DELETE("/:id", controller.DeleteAttendance)
 	}
 }
 
