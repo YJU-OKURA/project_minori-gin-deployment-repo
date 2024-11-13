@@ -13,8 +13,6 @@ type AttendanceService interface {
 	GetAllAttendancesByCID(cid uint) ([]models.Attendance, error)
 	GetAllAttendancesByCSID(csid uint) ([]models.Attendance, error)
 	DeleteAttendance(id uint) error
-	GetAttendanceStatisticsByCID(cid uint) (map[models.AttendanceType]int, error)
-	GetAttendanceStatisticsByCSID(csid uint) (map[models.AttendanceType]int, error)
 }
 
 type attendanceService struct {
@@ -54,12 +52,4 @@ func (s *attendanceService) GetAllAttendancesByCSID(csid uint) ([]models.Attenda
 
 func (s *attendanceService) DeleteAttendance(id uint) error {
 	return s.repo.DeleteAttendance(id)
-}
-
-func (s *attendanceService) GetAttendanceStatisticsByCID(cid uint) (map[models.AttendanceType]int, error) {
-	return s.repo.GetAttendanceStatisticsByCID(cid)
-}
-
-func (s *attendanceService) GetAttendanceStatisticsByCSID(csid uint) (map[models.AttendanceType]int, error) {
-	return s.repo.GetAttendanceStatisticsByCSID(csid)
 }

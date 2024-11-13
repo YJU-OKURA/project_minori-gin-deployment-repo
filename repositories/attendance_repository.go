@@ -12,8 +12,6 @@ type AttendanceRepository interface {
 	GetAllAttendancesByCSID(csid uint) ([]models.Attendance, error)
 	UpdateAttendance(attendance *models.Attendance) error
 	DeleteAttendance(id uint) error
-	GetAttendanceStatisticsByCID(cid uint) (map[models.AttendanceType]int, error)
-	GetAttendanceStatisticsByCSID(csid uint) (map[models.AttendanceType]int, error)
 }
 
 type attendanceRepository struct {
@@ -30,19 +28,31 @@ func (repo *attendanceRepository) CreateAttendance(attendance *models.Attendance
 
 func (repo *attendanceRepository) GetAttendanceByUIDAndCSID(uid uint, cid uint) (*models.Attendance, error) {
 	var attendance models.Attendance
-	err := repo.db.Where("uid = ? AND cid = ?", uid, cid).First(&attendance).Error
+	err := repo.db.
+		Where("uid = ? AND cid = ?", uid, cid).
+		First(&attendance).Error
 	return &attendance, err
 }
 
 func (repo *attendanceRepository) GetAllAttendancesByCID(cid uint) ([]models.Attendance, error) {
 	var attendances []models.Attendance
-	err := repo.db.Preload("ClassUser").Where("cid = ?", cid).Find(&attendances).Error
+	err := repo.db.
+		Preload("ClassUser.User").
+		Preload("ClassUser.Class").
+		Preload("ClassSchedule.Class").
+		Where("cid = ?", cid).
+		Find(&attendances).Error
 	return attendances, err
 }
 
 func (repo *attendanceRepository) GetAllAttendancesByCSID(csid uint) ([]models.Attendance, error) {
 	var attendances []models.Attendance
-	err := repo.db.Preload("ClassUser").Where("csid = ?", csid).Find(&attendances).Error
+	err := repo.db.
+		Preload("ClassUser.User").
+		Preload("ClassUser.Class").
+		Preload("ClassSchedule.Class").
+		Where("csid = ?", csid).
+		Find(&attendances).Error
 	return attendances, err
 }
 
@@ -52,34 +62,4 @@ func (repo *attendanceRepository) UpdateAttendance(attendance *models.Attendance
 
 func (repo *attendanceRepository) DeleteAttendance(id uint) error {
 	return repo.db.Delete(&models.Attendance{}, id).Error
-}
-
-func (repo *attendanceRepository) GetAttendanceStatisticsByCID(cid uint) (map[models.AttendanceType]int, error) {
-	var attendances []models.Attendance
-	err := repo.db.Preload("ClassUser.User").Where("cid = ?", cid).Find(&attendances).Error
-	if err != nil {
-		return nil, err
-	}
-
-	statistics := make(map[models.AttendanceType]int)
-	for _, attendance := range attendances {
-		statistics[attendance.IsAttendance]++
-	}
-
-	return statistics, nil
-}
-
-func (repo *attendanceRepository) GetAttendanceStatisticsByCSID(csid uint) (map[models.AttendanceType]int, error) {
-	var attendances []models.Attendance
-	err := repo.db.Preload("ClassUser.User").Where("csid = ?", csid).Find(&attendances).Error
-	if err != nil {
-		return nil, err
-	}
-
-	statistics := make(map[models.AttendanceType]int)
-	for _, attendance := range attendances {
-		statistics[attendance.IsAttendance]++
-	}
-
-	return statistics, nil
 }
