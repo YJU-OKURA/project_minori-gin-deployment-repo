@@ -182,7 +182,12 @@ func (ac *AttendanceController) DeleteAttendance(ctx *gin.Context) {
 }
 
 func generateAttendanceResponse(attendances []models.Attendance) AttendanceResponse {
-	statistics := make(map[models.AttendanceType]int)
+	statistics := map[models.AttendanceType]int{
+		models.AttendanceStatus: 0,
+		models.TardyStatus:      0,
+		models.AbsenceStatus:    0,
+	}
+
 	for _, attendance := range attendances {
 		statistics[attendance.IsAttendance]++
 	}
