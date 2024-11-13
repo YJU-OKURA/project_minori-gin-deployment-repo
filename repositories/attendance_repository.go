@@ -56,7 +56,7 @@ func (repo *attendanceRepository) DeleteAttendance(id uint) error {
 
 func (repo *attendanceRepository) GetAttendanceStatisticsByCID(cid uint) (map[models.AttendanceType]int, error) {
 	var attendances []models.Attendance
-	err := repo.db.Where("cid = ?", cid).Find(&attendances).Error
+	err := repo.db.Preload("ClassUser.User").Where("cid = ?", cid).Find(&attendances).Error
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (repo *attendanceRepository) GetAttendanceStatisticsByCID(cid uint) (map[mo
 
 func (repo *attendanceRepository) GetAttendanceStatisticsByCSID(csid uint) (map[models.AttendanceType]int, error) {
 	var attendances []models.Attendance
-	err := repo.db.Where("csid = ?", csid).Find(&attendances).Error
+	err := repo.db.Preload("ClassUser.User").Where("csid = ?", csid).Find(&attendances).Error
 	if err != nil {
 		return nil, err
 	}
