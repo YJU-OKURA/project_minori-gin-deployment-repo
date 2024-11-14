@@ -24,10 +24,17 @@ func NewLINEAuthRepository(db *gorm.DB) LINEAuthRepository {
 func (repo *lineAuthRepository) UpdateOrCreateUser(userInput dto.LineUserInput) (models.User, error) {
 	var user models.User
 	result := repo.db.Where("p_id = ?", fmt.Sprint(userInput.UserID)).First(&user)
-	if result.Error != nil && result.Error == gorm.ErrRecordNotFound {
 
+	defaultImageURL := "https://storage.sekai.best/sekai-jp-assets/stamp/stamp0810_rip/stamp0810.png"
+
+	if result.Error != nil && result.Error == gorm.ErrRecordNotFound {
 		pidPrefix := userInput.UserID[:4]
 		uniqueName := fmt.Sprintf("%s#%s", userInput.DisplayName, pidPrefix)
+
+		pictureURL := userInput.PictureURL
+		if pictureURL == "" {
+			pictureURL = defaultImageURL
+		}
 
 		user = models.User{
 			PID:   fmt.Sprint(userInput.UserID),
